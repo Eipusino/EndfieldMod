@@ -1,0 +1,280 @@
+package endfield.desktop;
+
+import arc.func.Prov;
+import dynamilize.FunctionType;
+import endfield.util.CollectionObjectMap;
+import endfield.util.MethodInvokeHelper;
+import endfield.util.Reflects;
+
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+
+import static endfield.Vars2.classHelper;
+import static endfield.desktop.DesktopClassHelper.ctypes;
+import static endfield.desktop.DesktopClassHelper.mtypes;
+import static endfield.desktop.DesktopClassHelper.ptypes;
+import static endfield.desktop.DesktopImpl.lookup;
+
+public class DesktopMethodInvokeHelper implements MethodInvokeHelper {
+	protected static final CollectionObjectMap<Class<?>, CollectionObjectMap<String, CollectionObjectMap<FunctionType, MethodHandle>>> methodPool = new CollectionObjectMap<>(Class.class, CollectionObjectMap.class);
+
+	protected static final Prov<CollectionObjectMap<String, CollectionObjectMap<FunctionType, MethodHandle>>> prov1 = () -> new CollectionObjectMap<>(String.class, CollectionObjectMap.class);
+	protected static final Prov<CollectionObjectMap<FunctionType, MethodHandle>> prov2 = () -> new CollectionObjectMap<>(FunctionType.class, MethodHandle.class);
+
+	protected MethodHandle getMethod(Class<?> clazz, String name, FunctionType argTypes) throws NoSuchMethodException, IllegalAccessException {
+		CollectionObjectMap<FunctionType, MethodHandle> map = methodPool.get(clazz, prov1).get(name, prov2);
+
+		FunctionType type = FunctionType.inst(argTypes);
+		MethodHandle res = map.get(type);
+
+		if (res != null) return res;
+
+		for (var entry : map) {
+			if (entry.key.match(argTypes.getTypes())) return entry.value;
+		}
+
+		Class<?> curr = clazz;
+
+		while (curr != null) {
+			Method method = classHelper.findMethod(curr, name, argTypes.getTypes());
+
+			if (method != null) {
+				res = lookup.unreflect(method);
+				map.put(inst(res.type()), res);
+				break;
+			}
+
+			curr = curr.getSuperclass();
+		}
+
+		if (res != null) return res;
+
+		curr = clazz;
+		a:
+		while (curr != null) {
+			for (Method method : classHelper.getMethods(curr)) {
+				if (!method.getName().equals(name)) continue;
+				Class<?>[] methodArgs = (Class<?>[]) mtypes.get(method);
+
+				FunctionType t;
+				if ((t = from(method)).match(methodArgs)) {
+					res = lookup.unreflect(method);
+					map.put(t, res);
+					break a;
+				}
+				t.recycle();
+			}
+
+			curr = curr.getSuperclass();
+		}
+
+		if (res == null)
+			throw new NoSuchMethodException("no such method " + name + " in class: " + clazz + " with assignable parameter: " + argTypes);
+
+		return res;
+	}
+
+	protected MethodHandle getConstructor(Class<?> clazz, FunctionType argsType) throws IllegalAccessException, NoSuchMethodException {
+		CollectionObjectMap<FunctionType, MethodHandle> map = methodPool.get(clazz, prov1).get("<init>", prov2);
+
+		MethodHandle res = map.get(argsType);
+		if (res != null) return res;
+
+		for (var entry : map) {
+			if (entry.key.match(argsType.getTypes())) return entry.value;
+		}
+
+		Constructor<?> cons = classHelper.findConstructor(clazz, argsType.getTypes());
+		if (cons != null) {
+			cons.setAccessible(true);
+			res = lookup.unreflectConstructor(cons);
+			map.put(from(cons), res);
+		}
+
+		if (res != null) return res;
+
+		for (Constructor<?> constructor : classHelper.getConstructors(clazz)) {
+			FunctionType functionType;
+			if ((functionType = from(constructor)).match(argsType.getTypes())) {
+				constructor.setAccessible(true);
+
+				res = lookup.unreflectConstructor(constructor);
+				map.put(functionType, res);
+
+				break;
+			}
+			functionType.recycle();
+		}
+
+		if (res != null) return res;
+
+		throw new NoSuchMethodException("no such constructor in class: " + clazz + " with assignable parameter: " + argsType);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T invoke(Object object, String name, Object... args) {
+		FunctionType type = FunctionType.inst(args);
+		try {
+			return (T) Reflects.invokeVirtual(object, getMethod(object.getClass(), name, type), args);
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		} finally {
+			type.recycle();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T invokeStatic(Class<?> clazz, String name, Object... args) {
+		FunctionType type = FunctionType.inst(args);
+		try {
+			return (T) Reflects.invokeStatic(getMethod(clazz, name, type), args);
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		} finally {
+			type.recycle();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T newInstance(Class<T> clazz, Object... args) {
+		FunctionType type = FunctionType.inst(args);
+		try {
+			return (T) Reflects.invokeStatic(getConstructor(clazz, type), args);
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		} finally {
+			type.recycle();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T invokeWithAsType(Object object, String name, Class<?>[] parameterTypes, Object... args) {
+		FunctionType type = FunctionType.inst(parameterTypes);
+		try {
+			return (T) Reflects.invokeVirtual(object, getMethod(object.getClass(), name, type), args);
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		} finally {
+			type.recycle();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T invokeStaticWithAsType(Class<?> clazz, String name, Class<?>[] parameterTypes, Object... args) {
+		FunctionType type = FunctionType.inst(parameterTypes);
+		try {
+			return (T) Reflects.invokeStatic(getMethod(clazz, name, type), args);
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		} finally {
+			type.recycle();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T newInstanceWithAsType(Class<T> clazz, Class<?>[] parameterTypes, Object... args) {
+		FunctionType type = FunctionType.inst(parameterTypes);
+		try {
+			return (T) Reflects.invokeStatic(getConstructor(clazz, type), args);
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		} finally {
+			type.recycle();
+		}
+	}
+
+	protected MethodHandle getMethod(Method method, FunctionType argTypes) throws IllegalAccessException {
+		CollectionObjectMap<FunctionType, MethodHandle> map = methodPool.get(method.getDeclaringClass(), prov1).get(method.getName(), prov2);
+
+		FunctionType type = FunctionType.inst(argTypes);
+		MethodHandle res = map.get(type);
+
+		if (res != null) return res;
+
+		for (var entry : map) {
+			if (entry.key.match(argTypes.getTypes())) return entry.value;
+		}
+
+		res = lookup.unreflect(method);
+
+		map.put(inst(res.type()), res);
+
+		return res;
+	}
+
+	protected MethodHandle getConstructor(Constructor<?> constructor, FunctionType argsType) throws IllegalAccessException {
+		CollectionObjectMap<FunctionType, MethodHandle> map = methodPool.get(constructor.getDeclaringClass(), prov1).get("<init>", prov2);
+
+		MethodHandle res = map.get(argsType);
+		if (res != null) return res;
+
+		for (var entry : map) {
+			if (entry.key.match(argsType.getTypes())) return entry.value;
+		}
+
+		res = lookup.unreflectConstructor(constructor);
+
+		map.put(argsType, res);
+
+		return res;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T invoke(Method method, Object object, Object... args) {
+		FunctionType type = from(method);
+		try {
+			return (T) Reflects.invokeVirtual(object, getMethod(method, type), args);
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		} finally {
+			type.recycle();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T invokeStatic(Method method, Object... args) {
+		FunctionType type = from(method);
+		try {
+			return (T) Reflects.invokeStatic(getMethod(method, type), args);
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		} finally {
+			type.recycle();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T newInstance(Constructor<T> constructor, Object... args) {
+		FunctionType type = from(constructor);
+		try {
+			return (T) Reflects.invokeStatic(getConstructor(constructor, type), args);
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		} finally {
+			type.recycle();
+		}
+	}
+
+	public static FunctionType inst(MethodType methodType) {
+		return FunctionType.inst((Class<?>[]) ptypes.get(methodType));
+	}
+
+	public static FunctionType from(Method method) {
+		return FunctionType.inst((Class<?>[]) mtypes.get(method));
+	}
+
+	public static FunctionType from(Constructor<?> constructor) {
+		return FunctionType.inst((Class<?>[]) ctypes.get(constructor));
+	}
+}

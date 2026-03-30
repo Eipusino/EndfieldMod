@@ -1,0 +1,84 @@
+plugins {
+	id "java"
+	id "com.gradleup.shadow" version "9.4.0"
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	//windows sucks
+	isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
+	sdkRoot = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
+}
+
+dependencies {
+	implementation project(":core")
+
+	compileOnly project(":android")
+	compileOnly project(":desktop")
+}
+
+shadowJar {
+	dependsOn project(":android").getTasksByName("shadowJar", true)
+	dependsOn project(":desktop").getTasksByName("shadowJar", true)
+	archiveFileName = "${rootProject.name}-base.jar"
+}
+
+tasks.register("jarAndroid", Jar) {
+	dependsOn shadowJar
+
+	archiveFileName = "${rootProject.name}-android.jar"
+
+	from {
+		[zipTree("${rootProject.layout.buildDirectory.get().asFile}/libs/${rootProject.name}-base.jar"), zipTree("${project(":android").layout.buildDirectory.get().asFile}/libs/android.jar")]
+	}
+
+	doLast {
+		if (!sdkRoot || !new File(sdkRoot).exists()) throw new GradleException("No valid Android SDK found. Ensure that ANDROID_HOME is set to your Android SDK directory.")
+
+		def platformRoot = new File("$sdkRoot/platforms").listFiles().sort().reverse().find { f -> new File(f, "android.jar").exists() }
+
+		if (!platformRoot) throw new GradleException("No android.jar found. Ensure that you have an Android platform installed.")
+
+		//collect dependencies needed for desugaring
+		def dependencies = (configurations.compileClasspath.asList() + configurations.runtimeClasspath.asList() + [new File(platformRoot, "android.jar")]).collect { "--classpath $it.path" }.join(" ")
+
+		def d8 = isWindows ? "d8.bat" : "d8"
+
+		//dex and desugar files - this requires d8 in your PATH
+		"$d8 $dependencies --min-api 28 --output ${rootProject.name}-android-dex.jar ${rootProject.name}-android.jar"
+				.execute(null, new File("${rootProject.layout.buildDirectory.get().asFile}/libs")).waitForProcessOutput(System.out, System.err)
+	}
+}
+
+tasks.register("jarDesktop", Jar) {
+	dependsOn shadowJar
+
+	archiveFileName = "${rootProject.name}-desktop.jar"
+
+	from {
+		[zipTree("${rootProject.layout.buildDirectory.get().asFile}/libs/${rootProject.name}-base.jar"), zipTree("${project(":desktop").layout.buildDirectory.get().asFile}/libs/desktop.jar"),]
+	}
+}
+
+tasks.register("deploy", Jar) {
+	dependsOn "jarAndroid"
+	dependsOn "jarDesktop"
+
+	archiveFileName = "${rootProject.name}-build.jar"
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+	from {
+		[zipTree("${rootProject.layout.buildDirectory.get().asFile}/libs/${rootProject.name}-android-dex.jar"), zipTree("${rootProject.layout.buildDirectory.get().asFile}/libs/${rootProject.name}-desktop.jar")]
+	}
+
+	from(rootDir) {
+		include "mod.json"
+	}
+
+	from("assets/") {
+		include "**"
+	}
+}

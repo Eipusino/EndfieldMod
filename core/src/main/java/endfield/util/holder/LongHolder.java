@@ -1,0 +1,54 @@
+package endfield.util.holder;
+
+import java.util.Objects;
+
+/**
+ * @since 1.0.7
+ */
+public class LongHolder<V> implements Cloneable, Comparable<LongHolder<?>> {
+	public long key;
+	public V value;
+
+	public LongHolder() {}
+
+	public LongHolder(long k, V v) {
+		key = k;
+		value = v;
+	}
+
+	public LongHolder<V> set(long k, V v) {
+		key = k;
+		value = v;
+
+		return this;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof LongHolder<?> that && key == that.key && Objects.equals(value, that.value);
+	}
+
+	@Override
+	public int hashCode() {
+		return Long.hashCode(key) ^ Objects.hashCode(value);
+	}
+
+	@Override
+	public String toString() {
+		return key + "=" + value;
+	}
+
+	@SuppressWarnings("unchecked")
+	public LongHolder<V> copy() {
+		try {
+			return (LongHolder<V>) super.clone();
+		} catch (CloneNotSupportedException e) {
+			return new LongHolder<>(key, value);
+		}
+	}
+
+	@Override
+	public int compareTo(LongHolder<?> o) {
+		return Long.compare(key, o.key);
+	}
+}

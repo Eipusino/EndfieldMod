@@ -1,0 +1,3 @@
+rootProject.name = "endfield"
+
+include ':core', ':desktop', ':android'

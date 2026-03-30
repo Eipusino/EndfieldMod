@@ -1,0 +1,61 @@
+plugins {
+	id "java"
+	id "com.github.johnrengelman.shadow"
+}
+
+repositories {
+	mavenCentral()
+	maven { url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
+
+	//Downloads the server-release JAR file from Mindustry releases; does not use any real repository. Surprisingly, this is the most reliable option.
+	ivy {
+		url 'https://github.com/'
+		patternLayout { artifact '/[organisation]/[module]/releases/download/[revision]/server-release.jar' }
+		metadataSources { artifact() }
+	}
+
+	//"Latest" option to depend on BE builds.
+	ivy {
+		url 'https://github.com/'
+		patternLayout { artifact '/[organisation]/[module]/releases/download/master/[revision].jar' }
+		metadataSources { artifact() }
+	}
+
+	//Do the same with jabel
+	ivy {
+		url 'https://github.com/'
+		patternLayout { artifact '/[organisation]/[module]/releases/download/[revision]/jabel.jar' }
+		metadataSources { artifact() }
+	}
+}
+
+java {
+	targetCompatibility = JavaVersion.VERSION_17
+	sourceCompatibility = JavaVersion.VERSION_17
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = "UTF-8"
+
+	options.compilerArgs.addAll([
+			"--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED"
+	])
+}
+
+dependencies {
+	compileOnly "Anuken:Mindustry:$mindustryVersion"
+
+	compileOnly project(":core")
+
+	compileOnly files("libs/android-34.jar", "libs/mindustry-android.jar")
+
+	implementation files("libs/android-field.jar")
+}
+
+jar {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+	from {
+		configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+	}
+}
