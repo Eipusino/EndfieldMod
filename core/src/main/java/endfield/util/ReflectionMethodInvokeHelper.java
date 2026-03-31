@@ -1,7 +1,6 @@
 package endfield.util;
 
 import arc.func.Prov;
-import arc.util.Structs;
 import dynamilize.FunctionType;
 import endfield.util.holder.ObjectHolder;
 
@@ -9,9 +8,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class DefaultMethodInvokeHelper implements MethodInvokeHelper {
+public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 	protected static final CollectionObjectMap<Class<?>, CollectionObjectMap<String, CollectionObjectMap<FunctionType, Method>>> methodPool = new CollectionObjectMap<>(Class.class, CollectionObjectMap.class);
-	protected static final CollectionObjectMap<Class<?>, CollectionObjectMap<FunctionType, Constructor<?>>> cstrMap = new CollectionObjectMap<>(Class.class, CollectionObjectMap.class);
+	protected static final CollectionObjectMap<Class<?>, CollectionObjectMap<FunctionType, Constructor<?>>> constructorMap = new CollectionObjectMap<>(Class.class, CollectionObjectMap.class);
 
 	protected static final Prov<CollectionObjectMap<String, CollectionObjectMap<FunctionType, Method>>> prov1 = () -> new CollectionObjectMap<>(String.class, CollectionObjectMap.class);
 	protected static final Prov<CollectionObjectMap<FunctionType, Method>> prov2 = () -> new CollectionObjectMap<>(FunctionType.class, Method.class);
@@ -31,23 +30,19 @@ public class DefaultMethodInvokeHelper implements MethodInvokeHelper {
 
 		Class<?> curr = clazz;
 
-		if (!Structs.contains(argTypes.getTypes(), void.class)) {
-			while (curr != null) {
-				try {
-					res = curr.getDeclaredMethod(name, argTypes.getTypes());
-				} catch (Throwable ignored) {}
+		while (curr != null) {
+			try {
+				res = curr.getDeclaredMethod(name, argTypes.getTypes());
+				res.setAccessible(true);
+				map.put(FunctionType.from(res), res);
+			} catch (Throwable ignored) {}
 
-				if (res != null) {
-					res.setAccessible(true);
-					map.put(FunctionType.from(res), res);
-					break;
-				}
+			if (res != null) break;
 
-				curr = curr.getSuperclass();
-			}
-
-			if (res != null) return res;
+			curr = curr.getSuperclass();
 		}
+
+		if (res != null) return res;
 
 		curr = clazz;
 		a:
@@ -76,7 +71,7 @@ public class DefaultMethodInvokeHelper implements MethodInvokeHelper {
 
 	@SuppressWarnings("unchecked")
 	protected <T> Constructor<T> getConstructor(Class<T> clazz, FunctionType argsType) throws NoSuchMethodException {
-		CollectionObjectMap<FunctionType, Constructor<?>> map = cstrMap.get(clazz, prov3);
+		CollectionObjectMap<FunctionType, Constructor<?>> map = constructorMap.get(clazz, prov3);
 
 		Constructor<T> res = (Constructor<T>) map.get(argsType);
 		if (res != null) return res;
@@ -88,6 +83,7 @@ public class DefaultMethodInvokeHelper implements MethodInvokeHelper {
 		try {
 			res = clazz.getConstructor(argsType.getTypes());
 			res.setAccessible(true);
+			map.put(FunctionType.from(res), res);
 		} catch (NoSuchMethodException ignored) {}
 
 		if (res != null) return res;

@@ -6,10 +6,10 @@ import arc.graphics.Pixmap;
 import arc.graphics.Texture;
 import arc.graphics.Texture.TextureFilter;
 import arc.graphics.Texture.TextureWrap;
-import endfield.Vars2;
+import endfield.files.Files2;
 
 public final class Textures2 {
-	public static Fi texturesDir = Vars2.internalTree.child("other").child("textures");
+	public static Fi texturesDir = Files2.otherDir.child("textures");
 
 	/** Blank image placeholder, used in Kotlin to prevent {@code lateinit var}. */
 	public static Texture white;

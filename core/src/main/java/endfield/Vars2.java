@@ -31,7 +31,7 @@ public final class Vars2 {
 	/** The author of this mod. */
 	public static final String AUTHOR = "Eipusino";
 	/** The GitHub address of this mod. */
-	public static final String LINK_GIT_HUB = "https://github.com/Eipusino/HeavyIndustryMod";
+	public static final String LINK_GIT_HUB = "https://github.com/Eipusino/EndfieldMod";
 
 	public static PlatformImpl platformImpl;
 

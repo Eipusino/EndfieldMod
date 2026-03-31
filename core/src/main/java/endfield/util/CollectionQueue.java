@@ -250,7 +250,7 @@ public class CollectionQueue<E> extends AbstractQueue<E> implements Eachable<E> 
 		return -1;
 	}
 
-	public int indexOf(Boolf<E> value) {
+	public int indexOf(Boolf<? super E> value) {
 		if (size == 0) return -1;
 		if (head < tail) {
 			for (int i = head; i < tail; i++)
@@ -264,7 +264,7 @@ public class CollectionQueue<E> extends AbstractQueue<E> implements Eachable<E> 
 		return -1;
 	}
 
-	public boolean remove(Boolf<E> value) {
+	public boolean remove(Boolf<? super E> value) {
 		int i = indexOf(value);
 		if (i != -1) {
 			removeIndex(i);

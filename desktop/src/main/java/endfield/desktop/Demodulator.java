@@ -3,6 +3,7 @@ package endfield.desktop;
 import arc.util.Log;
 import endfield.core.EndFieldMod;
 import jdk.internal.module.Modules;
+import jdk.internal.reflect.Reflection;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
@@ -73,6 +74,8 @@ public final class Demodulator {
 
 		openModule(base, "java.lang", main);
 		openModule(base, "java.lang.reflect", main);
+		//openModule(base, "jdk.internal.access", main);
+		openModule(base, "jdk.internal.loader", main);
 		openModule(base, "jdk.internal.misc", main);
 		openModule(base, "jdk.internal.module", main);
 		openModule(base, "jdk.internal.reflect", main);
@@ -81,14 +84,12 @@ public final class Demodulator {
 
 	public static void ensureFieldOpen() {
 		try {
-			Class<?> decl = Class.forName("jdk.internal.reflect.Reflection");
+			fieldFilterMap = lookup.findStaticVarHandle(Reflection.class, "fieldFilterMap", Map.class);
+			methodFilterMap = lookup.findStaticVarHandle(Reflection.class, "methodFilterMap", Map.class);
 
-			fieldFilterMap = lookup.findStaticVarHandle(decl, "fieldFilterMap", Map.class);
-			methodFilterMap = lookup.findStaticVarHandle(decl, "methodFilterMap", Map.class);
-
-			fieldFilterMap.set(Map.of());
-			methodFilterMap.set(Map.of());
-		} catch (Exception e) {
+			fieldFilterMap.setVolatile(Map.of());
+			methodFilterMap.setVolatile(Map.of());
+		} catch (Throwable e) {
 			Log.err(e);
 		}
 	}

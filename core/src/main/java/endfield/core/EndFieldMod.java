@@ -93,7 +93,7 @@ public final class EndFieldMod extends Mod {
 		try {
 			Class<?> impl = OS.isAndroid ?
 					Core.app != null && Core.app.getVersion() >= 33 ?
-							Class.forName("endfield.android.AndroidTiramisuImpl") :
+							Class.forName("endfield.android.AndroidImpl2") :
 							Class.forName("endfield.android.AndroidImpl") :
 					Class.forName("endfield.desktop.DesktopImpl");
 			platformImpl = (PlatformImpl) impl.getConstructor().newInstance();

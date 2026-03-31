@@ -8,12 +8,7 @@ import java.util.function.Function;
 
 import static endfield.Vars2.platformImpl;
 
-/**
- * @deprecated In fact, the efficiency of using method handles on Android does not seem to be as
- * good as reflection, Let's not consider handle implementation for now.
- */
-@Deprecated
-public class AndroidFieldAccessHelper2 extends AndroidFieldAccessHelper {
+public class AndroidMethodHandleFieldAccessHelper extends AndroidReflectionFieldAccessHelper {
 	static final CollectionObjectMap<Field, MethodHandle> getters = new CollectionObjectMap<>(Field.class, MethodHandle.class);
 	static final CollectionObjectMap<Field, MethodHandle> setters = new CollectionObjectMap<>(Field.class, MethodHandle.class);
 

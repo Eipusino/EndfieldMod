@@ -1,56 +1,22 @@
-package endfield.android;
-
-import arc.func.Prov;
-import arc.util.Log;
-import endfield.util.CollectionObjectMap;
-import endfield.util.FieldAccessHelper;
+package endfield.util;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 
-public class AndroidFieldAccessHelper implements FieldAccessHelper {
+public class ReflectionFieldAccessHelper implements FieldAccessHelper {
+	protected static final CollectionObjectMap<String, Field> empty = new CollectionObjectMap<>(String.class, Field.class);
 	protected static final CollectionObjectMap<Class<?>, CollectionObjectMap<String, Field>> fieldMap = new CollectionObjectMap<>(Class.class, CollectionObjectMap.class);
 
-	protected static final Prov<CollectionObjectMap<String, Field>> prov = () -> new CollectionObjectMap<>(String.class, Field.class);
-
-	static Field accessFlags;
-
-	static {
-		try {
-			accessFlags = Field.class.getDeclaredField("accessFlags");
-			accessFlags.setAccessible(true);
-		} catch (Throwable e) {
-			Log.err(e);
-		}
-	}
-
-	static void setAccessFlags(Field field) {
-		if (accessFlags != null && (field.getModifiers() & Modifier.FINAL) != 0) {
-			try {
-				int flags = accessFlags.getInt(field);
-				accessFlags.setInt(field, flags & ~Modifier.FINAL);
-			} catch (IllegalAccessException e) {
-				Log.err(e);
-			}
-		}
-	}
-
 	public Field getField(Class<?> clazz, String name, boolean isStatic) throws NoSuchFieldException {
-		CollectionObjectMap<String, Field> map = fieldMap.get(clazz, prov);
-		Field field = map.get(name);
+		Field field = fieldMap.get(clazz, empty).get(name);
 		if (field != null) return field;
 
 		if (isStatic) {
-			Field f = getField(clazz, name);
-			map.put(name, f);
-			return f;
+			return getField(clazz, name);
 		} else {
 			Class<?> curr = clazz;
 			while (curr != Object.class) {
 				try {
-					Field f = getField(clazz, name);
-					map.put(name, f);
-					return f;
+					return getField(curr, name);
 				} catch (NoSuchFieldException ignored) {}
 
 				curr = curr.getSuperclass();
@@ -63,9 +29,6 @@ public class AndroidFieldAccessHelper implements FieldAccessHelper {
 	protected Field getField(Class<?> clazz, String name) throws NoSuchFieldException {
 		Field field = clazz.getDeclaredField(name);
 		field.setAccessible(true);
-
-		setAccessFlags(field);
-
 		return field;
 	}
 

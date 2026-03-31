@@ -13,6 +13,8 @@ import java.util.Objects;
  * <p>A combination key consists of a primary key and control keys, where the control key is`Ctrl`.
  */
 public class CombinedKeys implements Serializable {
+	private static final long serialVersionUID = -3887748232403728770l;
+
 	public final boolean isCtrl, isAlt, isShift;
 	public final KeyCode key;
 
@@ -21,7 +23,7 @@ public class CombinedKeys implements Serializable {
 		isAlt = Structs.contains(keys, CombinedKeys::isAlt);
 		isShift = Structs.contains(keys, CombinedKeys::isShift);
 
-		key = Objects.requireNonNull(Structs.find(keys, k -> !isCtrl(k) && isAlt(k) && isShift(k)));
+		key = Objects.requireNonNull(Structs.find(keys, k -> !isCtrl(k) && !isAlt(k) && !isShift(k)));
 	}
 
 	boolean filter(Input input) {

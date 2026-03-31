@@ -1,4 +1,4 @@
-package endfield.android;
+package endfield.desktop;
 
 import arc.func.Prov;
 import dynamilize.FunctionType;
@@ -7,23 +7,23 @@ import endfield.util.MethodInvokeHelper;
 import endfield.util.Reflects;
 
 import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import static endfield.Vars2.platformImpl;
+import static endfield.Vars2.classHelper;
+import static endfield.desktop.DesktopClassHelper.ctypes;
+import static endfield.desktop.DesktopClassHelper.mtypes;
+import static endfield.desktop.DesktopClassHelper.ptypes;
+import static endfield.desktop.DesktopImpl.lookup;
 
-/**
- * @deprecated In fact, the efficiency of using method handles on Android does not seem to be as
- * good as reflection, Let's not consider handle implementation for now.
- */
-@Deprecated
-public class AndroidMethodInvokeHelper2 implements MethodInvokeHelper {
-	static final CollectionObjectMap<Class<?>, CollectionObjectMap<String, CollectionObjectMap<FunctionType, MethodHandle>>> methodPool = new CollectionObjectMap<>(Class.class, CollectionObjectMap.class);
+public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper {
+	protected static final CollectionObjectMap<Class<?>, CollectionObjectMap<String, CollectionObjectMap<FunctionType, MethodHandle>>> methodPool = new CollectionObjectMap<>(Class.class, CollectionObjectMap.class);
 
-	static final Prov<CollectionObjectMap<String, CollectionObjectMap<FunctionType, MethodHandle>>> prov1 = () -> new CollectionObjectMap<>(String.class, CollectionObjectMap.class);
-	static final Prov<CollectionObjectMap<FunctionType, MethodHandle>> prov2 = () -> new CollectionObjectMap<>(FunctionType.class, MethodHandle.class);
+	protected static final Prov<CollectionObjectMap<String, CollectionObjectMap<FunctionType, MethodHandle>>> prov1 = () -> new CollectionObjectMap<>(String.class, CollectionObjectMap.class);
+	protected static final Prov<CollectionObjectMap<FunctionType, MethodHandle>> prov2 = () -> new CollectionObjectMap<>(FunctionType.class, MethodHandle.class);
 
-	protected MethodHandle getMethod(Class<?> clazz, String name, FunctionType argTypes) {
+	protected MethodHandle getMethod(Class<?> clazz, String name, FunctionType argTypes) throws NoSuchMethodException, IllegalAccessException {
 		CollectionObjectMap<FunctionType, MethodHandle> map = methodPool.get(clazz, prov1).get(name, prov2);
 
 		FunctionType type = FunctionType.inst(argTypes);
@@ -38,15 +38,11 @@ public class AndroidMethodInvokeHelper2 implements MethodInvokeHelper {
 		Class<?> curr = clazz;
 
 		while (curr != null) {
-			try {
-				Method method = curr.getDeclaredMethod(name, argTypes.getTypes());
-				method.setAccessible(true);
-				res = platformImpl.lookup(curr).unreflect(method);
-				map.put(FunctionType.from(method), res);
-			} catch (Throwable ignored) {}
+			Method method = classHelper.findMethod(curr, name, argTypes.getTypes());
 
-			if (res != null) {
-				map.put(FunctionType.inst(res.type().parameterArray()), res);
+			if (method != null) {
+				res = lookup.unreflect(method);
+				map.put(inst(res.type()), res);
 				break;
 			}
 
@@ -58,18 +54,14 @@ public class AndroidMethodInvokeHelper2 implements MethodInvokeHelper {
 		curr = clazz;
 		a:
 		while (curr != null) {
-			for (Method method : curr.getDeclaredMethods()) {
+			for (Method method : classHelper.getMethods(curr)) {
 				if (!method.getName().equals(name)) continue;
+				Class<?>[] methodArgs = (Class<?>[]) mtypes.get(method);
+
 				FunctionType t;
-				if ((t = FunctionType.from(method)).match(argTypes.getTypes())) {
-					method.setAccessible(true);
-					try {
-						res = platformImpl.lookup(curr).unreflect(method);
-					} catch (IllegalAccessException e) {
-						throw new RuntimeException(e);
-					}
+				if ((t = from(method)).match(methodArgs)) {
+					res = lookup.unreflect(method);
 					map.put(t, res);
-					//methodMap.put(method, res);
 					break a;
 				}
 				t.recycle();
@@ -79,13 +71,13 @@ public class AndroidMethodInvokeHelper2 implements MethodInvokeHelper {
 		}
 
 		if (res == null)
-			throw new RuntimeException("no such method " + name + " in class: " + clazz + " with assignable parameter: " + argTypes);
+			throw new NoSuchMethodException("no such method " + name + " in class: " + clazz + " with assignable parameter: " + argTypes);
 
 		return res;
 	}
 
-	protected MethodHandle getConstructor(Class<?> type, FunctionType argsType) {
-		CollectionObjectMap<FunctionType, MethodHandle> map = methodPool.get(type, prov1).get("<init>", prov2);
+	protected MethodHandle getConstructor(Class<?> clazz, FunctionType argsType) throws IllegalAccessException, NoSuchMethodException {
+		CollectionObjectMap<FunctionType, MethodHandle> map = methodPool.get(clazz, prov1).get("<init>", prov2);
 
 		MethodHandle res = map.get(argsType);
 		if (res != null) return res;
@@ -94,25 +86,22 @@ public class AndroidMethodInvokeHelper2 implements MethodInvokeHelper {
 			if (entry.key.match(argsType.getTypes())) return entry.value;
 		}
 
-		try {
-			Constructor<?> constructor = type.getConstructor(argsType.getTypes());
-			constructor.setAccessible(true);
-			res = platformImpl.lookup(type).unreflectConstructor(constructor);
-			map.put(FunctionType.inst(res.type().parameterArray()), res);
-		} catch (NoSuchMethodException | IllegalAccessException ignored) {}
+		Constructor<?> cons = classHelper.findConstructor(clazz, argsType.getTypes());
+		if (cons != null) {
+			cons.setAccessible(true);
+			res = lookup.unreflectConstructor(cons);
+			map.put(from(cons), res);
+		}
 
 		if (res != null) return res;
 
-		for (Constructor<?> constructor : type.getDeclaredConstructors()) {
+		for (Constructor<?> constructor : classHelper.getConstructors(clazz)) {
 			FunctionType functionType;
-			if ((functionType = FunctionType.from(constructor)).match(argsType.getTypes())) {
-				try {
-					constructor.setAccessible(true);
-					res = platformImpl.lookup(type).unreflectConstructor(constructor);
-					map.put(functionType, res);
-				} catch (IllegalAccessException e) {
-					throw new RuntimeException(e);
-				}
+			if ((functionType = from(constructor)).match(argsType.getTypes())) {
+				constructor.setAccessible(true);
+
+				res = lookup.unreflectConstructor(constructor);
+				map.put(functionType, res);
 
 				break;
 			}
@@ -121,7 +110,7 @@ public class AndroidMethodInvokeHelper2 implements MethodInvokeHelper {
 
 		if (res != null) return res;
 
-		throw new RuntimeException("no such constructor in class: " + type + " with assignable parameter: " + argsType);
+		throw new NoSuchMethodException("no such constructor in class: " + clazz + " with assignable parameter: " + argsType);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -214,9 +203,9 @@ public class AndroidMethodInvokeHelper2 implements MethodInvokeHelper {
 			if (entry.key.match(argTypes.getTypes())) return entry.value;
 		}
 
-		res = platformImpl.lookup(method.getDeclaringClass()).unreflect(method);
+		res = lookup.unreflect(method);
 
-		map.put(FunctionType.inst(res.type()), res);
+		map.put(inst(res.type()), res);
 
 		return res;
 	}
@@ -231,7 +220,7 @@ public class AndroidMethodInvokeHelper2 implements MethodInvokeHelper {
 			if (entry.key.match(argsType.getTypes())) return entry.value;
 		}
 
-		res = platformImpl.lookup(constructor.getDeclaringClass()).unreflectConstructor(constructor);
+		res = lookup.unreflectConstructor(constructor);
 
 		map.put(argsType, res);
 
@@ -241,7 +230,7 @@ public class AndroidMethodInvokeHelper2 implements MethodInvokeHelper {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T invoke(Method method, Object object, Object... args) {
-		FunctionType type = FunctionType.from(method);
+		FunctionType type = from(method);
 		try {
 			return (T) Reflects.invokeVirtual(object, getMethod(method, type), args);
 		} catch (Throwable e) {
@@ -254,7 +243,7 @@ public class AndroidMethodInvokeHelper2 implements MethodInvokeHelper {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T invokeStatic(Method method, Object... args) {
-		FunctionType type = FunctionType.from(method);
+		FunctionType type = from(method);
 		try {
 			return (T) Reflects.invokeStatic(getMethod(method, type), args);
 		} catch (Throwable e) {
@@ -267,7 +256,7 @@ public class AndroidMethodInvokeHelper2 implements MethodInvokeHelper {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T newInstance(Constructor<T> constructor, Object... args) {
-		FunctionType type = FunctionType.from(constructor);
+		FunctionType type = from(constructor);
 		try {
 			return (T) Reflects.invokeStatic(getConstructor(constructor, type), args);
 		} catch (Throwable e) {
@@ -275,5 +264,17 @@ public class AndroidMethodInvokeHelper2 implements MethodInvokeHelper {
 		} finally {
 			type.recycle();
 		}
+	}
+
+	public static FunctionType inst(MethodType methodType) {
+		return FunctionType.inst((Class<?>[]) ptypes.get(methodType));
+	}
+
+	public static FunctionType from(Method method) {
+		return FunctionType.inst((Class<?>[]) mtypes.get(method));
+	}
+
+	public static FunctionType from(Constructor<?> constructor) {
+		return FunctionType.inst((Class<?>[]) ctypes.get(constructor));
 	}
 }

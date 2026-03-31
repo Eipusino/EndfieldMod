@@ -1,10 +1,14 @@
 package endfield.core;
 
+import arc.util.Log;
 import endfield.util.CollectionObjectMap;
 import endfield.util.ExtraVariable;
 import org.jetbrains.annotations.TestOnly;
 
+import java.lang.invoke.MethodHandle;
 import java.util.Map;
+
+import static endfield.Vars2.platformImpl;
 
 /** Classes for testing purposes only, do not use. */
 @TestOnly

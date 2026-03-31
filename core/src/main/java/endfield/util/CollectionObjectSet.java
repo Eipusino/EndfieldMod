@@ -111,7 +111,7 @@ public class CollectionObjectSet<E> extends AbstractSet<E> implements Eachable<E
 	}
 
 	/** Allocates a new set with all elements that match the predicate. */
-	public CollectionObjectSet<E> select(Boolf<E> predicate) {
+	public CollectionObjectSet<E> select(Boolf<? super E> predicate) {
 		CollectionObjectSet<E> arr = new CollectionObjectSet<>(componentType);
 		for (E e : this) {
 			if (predicate.get(e)) arr.add(e);

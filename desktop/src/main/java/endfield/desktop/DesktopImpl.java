@@ -5,8 +5,8 @@ import endfield.core.EndFieldMod;
 import endfield.util.AccessibleHelper;
 import endfield.util.ClassHelper;
 import endfield.util.ConstructorAccessor;
-import endfield.util.DefaultFieldAccessHelper;
-import endfield.util.DefaultMethodInvokeHelper;
+import endfield.util.ReflectionFieldAccessHelper;
+import endfield.util.ReflectionMethodInvokeHelper;
 import endfield.util.FieldAccessor;
 import endfield.util.MethodAccessor;
 import endfield.util.PlatformImpl;
@@ -34,7 +34,7 @@ import static endfield.desktop.Unsafer.unsafe;
 public class DesktopImpl implements PlatformImpl {
 	static Lookup lookup;
 
-	static StackWalker walker;
+	static final StackWalker classWalker;
 
 	static {
 		try {
@@ -47,7 +47,7 @@ public class DesktopImpl implements PlatformImpl {
 
 			classHelper = new DesktopClassHelper();
 			fieldAccessHelper = new DesktopUnsafeFieldAccessHelper();
-			methodInvokeHelper = new DesktopMethodInvokeHelper();
+			methodInvokeHelper = new DesktopMethodHandleMethodInvokeHelper();
 			accessibleHelper = new DesktopAccessibleHelper();
 		} catch (Throwable e) {
 			Log.err("It seems you platform is special. (But don't worry)", e);
@@ -65,8 +65,8 @@ public class DesktopImpl implements PlatformImpl {
 					throw new UnsupportedOperationException();
 				}
 			};
-			fieldAccessHelper = new DefaultFieldAccessHelper();
-			methodInvokeHelper = new DefaultMethodInvokeHelper();
+			fieldAccessHelper = new ReflectionFieldAccessHelper();
+			methodInvokeHelper = new ReflectionMethodInvokeHelper();
 			accessibleHelper = new AccessibleHelper() {
 				@Override
 				public void makeAccessible(AccessibleObject object) {
@@ -75,11 +75,7 @@ public class DesktopImpl implements PlatformImpl {
 			};
 		}
 
-		try {
-			walker = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
-		} catch (Exception e) {
-			Log.err(e);
-		}
+		classWalker = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
 	}
 
 	@Override
@@ -107,14 +103,16 @@ public class DesktopImpl implements PlatformImpl {
 
 	@Override
 	public FieldAccessor fieldAccessor(Field field) {
-		return MethodHandleFieldAccessor.getMethodHandleFieldAccessor(field);
+		return (field.getModifiers() & Modifier.FINAL) != 0 ?
+				MethodHandleFieldAccessor.getMethodHandleFieldAccessor(field) :
+				VarHandleFieldAccessor.getVarHandleFieldAccessor(field);
 	}
 
 	@Override
 	public MethodAccessor methodAccessor(Method method) {
-		return (method.getModifiers() & Modifier.STATIC) == 0 ?
-				new DesktopVirtualMethodAccessor(method) :
-				new DesktopStaticMethodAccessor(method);
+		return (method.getModifiers() & Modifier.STATIC) != 0 ?
+				new DesktopStaticMethodAccessor(method) :
+				new DesktopVirtualMethodAccessor(method);
 	}
 
 	@Override
@@ -124,7 +122,7 @@ public class DesktopImpl implements PlatformImpl {
 
 	@Override
 	public Class<?> getCallerClass() {
-		return walker.walk(frames -> frames.skip(1).findFirst().map(StackFrame::getDeclaringClass)).orElse(null);
+		return classWalker.walk(frames -> frames.skip(1).findFirst().map(StackFrame::getDeclaringClass)).orElse(null);
 	}
 
 	@Override

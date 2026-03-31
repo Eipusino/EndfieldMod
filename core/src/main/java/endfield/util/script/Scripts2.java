@@ -16,8 +16,7 @@ package endfield.util.script;
 import arc.func.Func;
 import arc.util.Log;
 import dynamilize.FunctionType;
-import endfield.Vars2;
-import endfield.util.Reflects;
+import endfield.files.Files2;
 import mindustry.Vars;
 import rhino.Context;
 import rhino.Function;
@@ -26,7 +25,6 @@ import rhino.NativeArray;
 import rhino.Scriptable;
 import rhino.Wrapper;
 
-import java.lang.invoke.MethodHandle;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -45,7 +43,7 @@ public final class Scripts2 {
 		try {
 			Vars.mods.getScripts().context.evaluateReader(
 					Vars.mods.getScripts().scope,
-					Vars2.internalTree.child("other").child("endfield-global.js").reader(),
+					Files2.otherDir.child("endfield-global.js").reader(),
 					"endfield-global.js",
 					0
 			);

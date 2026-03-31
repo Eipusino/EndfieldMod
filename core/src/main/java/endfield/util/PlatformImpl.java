@@ -1,6 +1,7 @@
 package endfield.util;
 
 import mindustry.Vars;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Constructor;
@@ -63,9 +64,12 @@ public interface PlatformImpl {
 	}
 
 	/** Gets the {@code Class} object of the caller who invoked the method that invoked {@code getCallerClass}. */
-	default Class<?> getCallerClass() {
+	default @UnknownNullability Class<?> getCallerClass() {
 		Thread thread = Thread.currentThread();
 		StackTraceElement[] trace = thread.getStackTrace();
+
+		if (trace.length < 4) return null;
+
 		try {
 			return Class.forName(trace[3].getClassName(), false, Vars.mods.mainLoader());
 		} catch (ClassNotFoundException e) {

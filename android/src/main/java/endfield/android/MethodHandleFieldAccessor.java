@@ -1,36 +1,40 @@
-package endfield.desktop;
+package endfield.android;
 
 import endfield.util.AbstractFieldAccessor;
 import endfield.util.FieldAccessor;
 
 import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import static endfield.desktop.DesktopImpl.lookup;
-import static endfield.desktop.Unsafer.getGetMessage;
-import static endfield.desktop.Unsafer.getSetMessage;
+import static endfield.Vars2.platformImpl;
+import static endfield.android.Unsafer.getGetMessage;
+import static endfield.android.Unsafer.getSetMessage;
 
-public sealed abstract class MethodHandleFieldAccessor extends AbstractFieldAccessor {
+public abstract class MethodHandleFieldAccessor extends AbstractFieldAccessor {
 	protected final MethodHandle getter, setter;
 
 	protected MethodHandleFieldAccessor(Field f) {
 		super(f);
 
-		try {
-			Class<?> decl = f.getDeclaringClass();
-			String name = f.getName();
-			Class<?> type = f.getType(), rtype = type.isPrimitive() ? type : Object.class;
+		f.setAccessible(true);
 
+		Class<?> decl = f.getDeclaringClass();
+		Class<?> type = f.getType(), rtype = type.isPrimitive() ? type : Object.class;
+
+		Lookup lookup = platformImpl.lookup(decl);
+
+		try {
 			if ((f.getModifiers() & Modifier.STATIC) != 0) {
-				getter = lookup.findStaticGetter(decl, name, type).asType(MethodType.methodType(rtype));
-				setter = lookup.findStaticSetter(decl, name, type).asType(MethodType.methodType(void.class, rtype));
+				getter = lookup.unreflectGetter(f).asType(MethodType.methodType(rtype));
+				setter = lookup.unreflectSetter(f).asType(MethodType.methodType(void.class, rtype));
 			} else {
-				getter = lookup.findGetter(decl, name, type).asType(MethodType.methodType(rtype, Object.class));
-				setter = lookup.findSetter(decl, name, type).asType(MethodType.methodType(void.class, Object.class, rtype));
+				getter = lookup.unreflectGetter(f).asType(MethodType.methodType(rtype, Object.class));
+				setter = lookup.unreflectSetter(f).asType(MethodType.methodType(void.class, Object.class, rtype));
 			}
-		} catch (NoSuchFieldException | IllegalAccessException e) {
+		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -171,7 +175,7 @@ public sealed abstract class MethodHandleFieldAccessor extends AbstractFieldAcce
 	}
 }
 
-final class MethodHandleObjectFieldAccessor extends MethodHandleFieldAccessor {
+class MethodHandleObjectFieldAccessor extends MethodHandleFieldAccessor {
 	public MethodHandleObjectFieldAccessor(Field f) {
 		super(f);
 	}
@@ -206,7 +210,7 @@ final class MethodHandleObjectFieldAccessor extends MethodHandleFieldAccessor {
 	}
 }
 
-final class MethodHandleBooleanFieldAccessor extends MethodHandleFieldAccessor {
+class MethodHandleBooleanFieldAccessor extends MethodHandleFieldAccessor {
 	public MethodHandleBooleanFieldAccessor(Field f) {
 		super(f);
 	}
@@ -241,7 +245,7 @@ final class MethodHandleBooleanFieldAccessor extends MethodHandleFieldAccessor {
 	}
 }
 
-final class MethodHandleByteFieldAccessor extends MethodHandleFieldAccessor {
+class MethodHandleByteFieldAccessor extends MethodHandleFieldAccessor {
 	public MethodHandleByteFieldAccessor(Field f) {
 		super(f);
 	}
@@ -301,7 +305,7 @@ final class MethodHandleByteFieldAccessor extends MethodHandleFieldAccessor {
 	}
 }
 
-final class MethodHandleCharFieldAccessor extends MethodHandleFieldAccessor {
+class MethodHandleCharFieldAccessor extends MethodHandleFieldAccessor {
 	public MethodHandleCharFieldAccessor(Field f) {
 		super(f);
 	}
@@ -356,7 +360,7 @@ final class MethodHandleCharFieldAccessor extends MethodHandleFieldAccessor {
 	}
 }
 
-final class MethodHandleShortFieldAccessor extends MethodHandleFieldAccessor {
+class MethodHandleShortFieldAccessor extends MethodHandleFieldAccessor {
 	public MethodHandleShortFieldAccessor(Field f) {
 		super(f);
 	}
@@ -416,7 +420,7 @@ final class MethodHandleShortFieldAccessor extends MethodHandleFieldAccessor {
 	}
 }
 
-final class MethodHandleIntFieldAccessor extends MethodHandleFieldAccessor {
+class MethodHandleIntFieldAccessor extends MethodHandleFieldAccessor {
 	public MethodHandleIntFieldAccessor(Field f) {
 		super(f);
 	}
@@ -481,7 +485,7 @@ final class MethodHandleIntFieldAccessor extends MethodHandleFieldAccessor {
 	}
 }
 
-final class MethodHandleLongFieldAccessor extends MethodHandleFieldAccessor {
+class MethodHandleLongFieldAccessor extends MethodHandleFieldAccessor {
 	public MethodHandleLongFieldAccessor(Field f) {
 		super(f);
 	}
@@ -546,7 +550,7 @@ final class MethodHandleLongFieldAccessor extends MethodHandleFieldAccessor {
 	}
 }
 
-final class MethodHandleFloatFieldAccessor extends MethodHandleFieldAccessor {
+class MethodHandleFloatFieldAccessor extends MethodHandleFieldAccessor {
 	public MethodHandleFloatFieldAccessor(Field f) {
 		super(f);
 	}
@@ -611,7 +615,7 @@ final class MethodHandleFloatFieldAccessor extends MethodHandleFieldAccessor {
 	}
 }
 
-final class MethodHandleDoubleFieldAccessor extends MethodHandleFieldAccessor {
+class MethodHandleDoubleFieldAccessor extends MethodHandleFieldAccessor {
 	public MethodHandleDoubleFieldAccessor(Field f) {
 		super(f);
 	}
@@ -676,7 +680,7 @@ final class MethodHandleDoubleFieldAccessor extends MethodHandleFieldAccessor {
 	}
 }
 
-final class MethodHandleStaticObjectFieldAccessor extends MethodHandleFieldAccessor {
+class MethodHandleStaticObjectFieldAccessor extends MethodHandleFieldAccessor {
 	public MethodHandleStaticObjectFieldAccessor(Field f) {
 		super(f);
 	}
@@ -711,7 +715,7 @@ final class MethodHandleStaticObjectFieldAccessor extends MethodHandleFieldAcces
 	}
 }
 
-final class MethodHandleStaticBooleanFieldAccessor extends MethodHandleFieldAccessor {
+class MethodHandleStaticBooleanFieldAccessor extends MethodHandleFieldAccessor {
 	public MethodHandleStaticBooleanFieldAccessor(Field f) {
 		super(f);
 	}
@@ -746,7 +750,7 @@ final class MethodHandleStaticBooleanFieldAccessor extends MethodHandleFieldAcce
 	}
 }
 
-final class MethodHandleStaticByteFieldAccessor extends MethodHandleFieldAccessor {
+class MethodHandleStaticByteFieldAccessor extends MethodHandleFieldAccessor {
 	public MethodHandleStaticByteFieldAccessor(Field f) {
 		super(f);
 	}
@@ -806,7 +810,7 @@ final class MethodHandleStaticByteFieldAccessor extends MethodHandleFieldAccesso
 	}
 }
 
-final class MethodHandleStaticCharFieldAccessor extends MethodHandleFieldAccessor {
+class MethodHandleStaticCharFieldAccessor extends MethodHandleFieldAccessor {
 	public MethodHandleStaticCharFieldAccessor(Field f) {
 		super(f);
 	}
@@ -861,7 +865,7 @@ final class MethodHandleStaticCharFieldAccessor extends MethodHandleFieldAccesso
 	}
 }
 
-final class MethodHandleStaticShortFieldAccessor extends MethodHandleFieldAccessor {
+class MethodHandleStaticShortFieldAccessor extends MethodHandleFieldAccessor {
 	public MethodHandleStaticShortFieldAccessor(Field f) {
 		super(f);
 	}
@@ -921,7 +925,7 @@ final class MethodHandleStaticShortFieldAccessor extends MethodHandleFieldAccess
 	}
 }
 
-final class MethodHandleStaticIntFieldAccessor extends MethodHandleFieldAccessor {
+class MethodHandleStaticIntFieldAccessor extends MethodHandleFieldAccessor {
 	public MethodHandleStaticIntFieldAccessor(Field f) {
 		super(f);
 	}
@@ -986,7 +990,7 @@ final class MethodHandleStaticIntFieldAccessor extends MethodHandleFieldAccessor
 	}
 }
 
-final class MethodHandleStaticLongFieldAccessor extends MethodHandleFieldAccessor {
+class MethodHandleStaticLongFieldAccessor extends MethodHandleFieldAccessor {
 	public MethodHandleStaticLongFieldAccessor(Field f) {
 		super(f);
 	}
@@ -1051,7 +1055,7 @@ final class MethodHandleStaticLongFieldAccessor extends MethodHandleFieldAccesso
 	}
 }
 
-final class MethodHandleStaticFloatFieldAccessor extends MethodHandleFieldAccessor {
+class MethodHandleStaticFloatFieldAccessor extends MethodHandleFieldAccessor {
 	public MethodHandleStaticFloatFieldAccessor(Field f) {
 		super(f);
 	}
@@ -1116,7 +1120,7 @@ final class MethodHandleStaticFloatFieldAccessor extends MethodHandleFieldAccess
 	}
 }
 
-final class MethodHandleStaticDoubleFieldAccessor extends MethodHandleFieldAccessor {
+class MethodHandleStaticDoubleFieldAccessor extends MethodHandleFieldAccessor {
 	public MethodHandleStaticDoubleFieldAccessor(Field f) {
 		super(f);
 	}

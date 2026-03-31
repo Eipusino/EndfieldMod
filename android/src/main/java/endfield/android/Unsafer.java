@@ -33,10 +33,12 @@ public final class Unsafer {
 	}
 
 	public static String getSetMessage(Field field, String attemptedType, String attemptedValue) {
+		int modifiers = field.getModifiers();
+
 		StringBuilder err = new StringBuilder().append("Can not set");
-		if (Modifier.isStatic(field.getModifiers()))
+		if ((modifiers & Modifier.STATIC) != 0)
 			err.append(" static");
-		if (Modifier.isFinal(field.getModifiers()))
+		if ((modifiers & Modifier.FINAL) != 0)
 			err.append(" final");
 		err.append(" ").append(field.getType().getName()).append(" field ").append(field.getDeclaringClass().getName()).append(".").append(field.getName()).append(" to ");
 		if (!attemptedValue.isEmpty()) {
@@ -53,7 +55,7 @@ public final class Unsafer {
 	public static void setByte(Field field, Object object, byte value) {
 		long offset = AndroidField.fieldOffset(field);
 
-		if (Modifier.isVolatile(field.getModifiers()))
+		if ((field.getModifiers() & Modifier.VOLATILE) != 0)
 			unsafe.putByteVolatile(object, offset, value);
 		else
 			unsafe.putByte(object, offset, value);
@@ -62,7 +64,7 @@ public final class Unsafer {
 	public static void setByteStatic(Field field, byte value) {
 		long offset = AndroidField.fieldOffset(field);
 
-		if (Modifier.isVolatile(field.getModifiers()))
+		if ((field.getModifiers() & Modifier.VOLATILE) != 0)
 			unsafe.putByteVolatile(field.getDeclaringClass(), offset, value);
 		else
 			unsafe.putByte(field.getDeclaringClass(), offset, value);
@@ -71,7 +73,7 @@ public final class Unsafer {
 	public static byte getByte(Field field, Object object) {
 		long offset = AndroidField.fieldOffset(field);
 
-		return Modifier.isVolatile(field.getModifiers()) ?
+		return (field.getModifiers() & Modifier.VOLATILE) != 0 ?
 				unsafe.getByteVolatile(object, offset) :
 				unsafe.getByte(object, offset);
 	}
@@ -79,7 +81,7 @@ public final class Unsafer {
 	public static byte getByteStatic(Field field) {
 		long offset = AndroidField.fieldOffset(field);
 
-		return Modifier.isVolatile(field.getModifiers()) ?
+		return (field.getModifiers() & Modifier.VOLATILE) != 0 ?
 				unsafe.getByteVolatile(field.getDeclaringClass(), offset) :
 				unsafe.getByte(field.getDeclaringClass(), offset);
 	}
@@ -87,7 +89,7 @@ public final class Unsafer {
 	public static void setShort(Field field, Object object, short value) {
 		long offset = AndroidField.fieldOffset(field);
 
-		if (Modifier.isVolatile(field.getModifiers()))
+		if ((field.getModifiers() & Modifier.VOLATILE) != 0)
 			unsafe.putShortVolatile(object, offset, value);
 		else
 			unsafe.putShort(object, offset, value);
@@ -96,7 +98,7 @@ public final class Unsafer {
 	public static void setShortStatic(Field field, short value) {
 		long offset = AndroidField.fieldOffset(field);
 
-		if (Modifier.isVolatile(field.getModifiers()))
+		if ((field.getModifiers() & Modifier.VOLATILE) != 0)
 			unsafe.putShortVolatile(field.getDeclaringClass(), offset, value);
 		else
 			unsafe.putShort(field.getDeclaringClass(), offset, value);
@@ -105,7 +107,7 @@ public final class Unsafer {
 	public static short getShort(Field field, Object object) {
 		long offset = AndroidField.fieldOffset(field);
 
-		return Modifier.isVolatile(field.getModifiers()) ?
+		return (field.getModifiers() & Modifier.VOLATILE) != 0 ?
 				unsafe.getShortVolatile(object, offset) :
 				unsafe.getShort(object, offset);
 	}
@@ -113,7 +115,7 @@ public final class Unsafer {
 	public static short getShortStatic(Field field) {
 		long offset = AndroidField.fieldOffset(field);
 
-		return Modifier.isVolatile(field.getModifiers()) ?
+		return (field.getModifiers() & Modifier.VOLATILE) != 0 ?
 				unsafe.getShortVolatile(field.getDeclaringClass(), offset) :
 				unsafe.getShort(field.getDeclaringClass(), offset);
 	}
@@ -121,7 +123,7 @@ public final class Unsafer {
 	public static void setInt(Field field, Object object, int value) {
 		long offset = AndroidField.fieldOffset(field);
 
-		if (Modifier.isVolatile(field.getModifiers()))
+		if ((field.getModifiers() & Modifier.VOLATILE) != 0)
 			unsafe.putIntVolatile(object, offset, value);
 		else
 			unsafe.putInt(object, offset, value);
@@ -130,7 +132,7 @@ public final class Unsafer {
 	public static void setIntStatic(Field field, int value) {
 		long offset = AndroidField.fieldOffset(field);
 
-		if (Modifier.isVolatile(field.getModifiers()))
+		if ((field.getModifiers() & Modifier.VOLATILE) != 0)
 			unsafe.putIntVolatile(field.getDeclaringClass(), offset, value);
 		else
 			unsafe.putInt(field.getDeclaringClass(), offset, value);
@@ -139,7 +141,7 @@ public final class Unsafer {
 	public static int getInt(Field field, Object object) {
 		long offset = AndroidField.fieldOffset(field);
 
-		return Modifier.isVolatile(field.getModifiers()) ?
+		return (field.getModifiers() & Modifier.VOLATILE) != 0 ?
 				unsafe.getIntVolatile(object, offset) :
 				unsafe.getInt(object, offset);
 	}
@@ -147,7 +149,7 @@ public final class Unsafer {
 	public static int getIntStatic(Field field) {
 		long offset = AndroidField.fieldOffset(field);
 
-		return Modifier.isVolatile(field.getModifiers()) ?
+		return (field.getModifiers() & Modifier.VOLATILE) != 0 ?
 				unsafe.getIntVolatile(field.getDeclaringClass(), offset) :
 				unsafe.getInt(field.getDeclaringClass(), offset);
 	}
@@ -155,7 +157,7 @@ public final class Unsafer {
 	public static void setLong(Field field, Object object, long value) {
 		long offset = AndroidField.fieldOffset(field);
 
-		if (Modifier.isVolatile(field.getModifiers()))
+		if ((field.getModifiers() & Modifier.VOLATILE) != 0)
 			unsafe.putLongVolatile(object, offset, value);
 		else
 			unsafe.putLong(object, offset, value);
@@ -164,7 +166,7 @@ public final class Unsafer {
 	public static void setLongStatic(Field field, long value) {
 		long offset = AndroidField.fieldOffset(field);
 
-		if (Modifier.isVolatile(field.getModifiers()))
+		if ((field.getModifiers() & Modifier.VOLATILE) != 0)
 			unsafe.putLongVolatile(field.getDeclaringClass(), offset, value);
 		else
 			unsafe.putLong(field.getDeclaringClass(), offset, value);
@@ -173,7 +175,7 @@ public final class Unsafer {
 	public static long getLong(Field field, Object object) {
 		long offset = AndroidField.fieldOffset(field);
 
-		return Modifier.isVolatile(field.getModifiers()) ?
+		return (field.getModifiers() & Modifier.VOLATILE) != 0 ?
 				unsafe.getLongVolatile(object, offset) :
 				unsafe.getLong(object, offset);
 	}
@@ -181,7 +183,7 @@ public final class Unsafer {
 	public static long getLongStatic(Field field) {
 		long offset = AndroidField.fieldOffset(field);
 
-		return Modifier.isVolatile(field.getModifiers()) ?
+		return (field.getModifiers() & Modifier.VOLATILE) != 0 ?
 				unsafe.getLongVolatile(field.getDeclaringClass(), offset) :
 				unsafe.getLong(field.getDeclaringClass(), offset);
 	}
@@ -189,7 +191,7 @@ public final class Unsafer {
 	public static void setFloat(Field field, Object object, float value) {
 		long offset = AndroidField.fieldOffset(field);
 
-		if (Modifier.isVolatile(field.getModifiers()))
+		if ((field.getModifiers() & Modifier.VOLATILE) != 0)
 			unsafe.putFloatVolatile(object, offset, value);
 		else
 			unsafe.putFloat(object, offset, value);
@@ -198,7 +200,7 @@ public final class Unsafer {
 	public static void setFloatStatic(Field field, float value) {
 		long offset = AndroidField.fieldOffset(field);
 
-		if (Modifier.isVolatile(field.getModifiers())) {
+		if ((field.getModifiers() & Modifier.VOLATILE) != 0) {
 			unsafe.putFloatVolatile(field.getDeclaringClass(), offset, value);
 		} else unsafe.putFloat(field.getDeclaringClass(), offset, value);
 	}
@@ -206,7 +208,7 @@ public final class Unsafer {
 	public static float getFloat(Field field, Object object) {
 		long offset = AndroidField.fieldOffset(field);
 
-		return Modifier.isVolatile(field.getModifiers()) ?
+		return (field.getModifiers() & Modifier.VOLATILE) != 0 ?
 				unsafe.getFloatVolatile(object, offset) :
 				unsafe.getFloat(object, offset);
 	}
@@ -214,7 +216,7 @@ public final class Unsafer {
 	public static float getFloatStatic(Field field) {
 		long offset = AndroidField.fieldOffset(field);
 
-		return Modifier.isVolatile(field.getModifiers()) ?
+		return (field.getModifiers() & Modifier.VOLATILE) != 0 ?
 				unsafe.getFloatVolatile(field.getDeclaringClass(), offset) :
 				unsafe.getFloat(field.getDeclaringClass(), offset);
 	}
@@ -222,7 +224,7 @@ public final class Unsafer {
 	public static void setDouble(Field field, Object object, double value) {
 		long offset = AndroidField.fieldOffset(field);
 
-		if (Modifier.isVolatile(field.getModifiers()))
+		if ((field.getModifiers() & Modifier.VOLATILE) != 0)
 			unsafe.putDoubleVolatile(object, offset, value);
 		else
 			unsafe.putDouble(object, offset, value);
@@ -231,7 +233,7 @@ public final class Unsafer {
 	public static void setDoubleStatic(Field field, double value) {
 		long offset = AndroidField.fieldOffset(field);
 
-		if (Modifier.isVolatile(field.getModifiers()))
+		if ((field.getModifiers() & Modifier.VOLATILE) != 0)
 			unsafe.putDoubleVolatile(field.getDeclaringClass(), offset, value);
 		else
 			unsafe.putDouble(field.getDeclaringClass(), offset, value);
@@ -240,7 +242,7 @@ public final class Unsafer {
 	public static double getDouble(Field field, Object object) {
 		long offset = AndroidField.fieldOffset(field);
 
-		return Modifier.isVolatile(field.getModifiers()) ?
+		return (field.getModifiers() & Modifier.VOLATILE) != 0 ?
 				unsafe.getDoubleVolatile(object, offset) :
 				unsafe.getDouble(object, offset);
 	}
@@ -248,7 +250,7 @@ public final class Unsafer {
 	public static double getDoubleStatic(Field field) {
 		long offset = AndroidField.fieldOffset(field);
 
-		return Modifier.isVolatile(field.getModifiers()) ?
+		return (field.getModifiers() & Modifier.VOLATILE) != 0 ?
 				unsafe.getDoubleVolatile(field.getDeclaringClass(), offset) :
 				unsafe.getDouble(field.getDeclaringClass(), offset);
 	}
@@ -256,7 +258,7 @@ public final class Unsafer {
 	public static void setChar(Field field, Object object, char value) {
 		long offset = AndroidField.fieldOffset(field);
 
-		if (Modifier.isVolatile(field.getModifiers()))
+		if ((field.getModifiers() & Modifier.VOLATILE) != 0)
 			unsafe.putCharVolatile(object, offset, value);
 		else
 			unsafe.putChar(object, offset, value);
@@ -265,7 +267,7 @@ public final class Unsafer {
 	public static void setCharStatic(Field field, char value) {
 		long offset = AndroidField.fieldOffset(field);
 
-		if (Modifier.isVolatile(field.getModifiers()))
+		if ((field.getModifiers() & Modifier.VOLATILE) != 0)
 			unsafe.putCharVolatile(field.getDeclaringClass(), offset, value);
 		else
 			unsafe.putChar(field.getDeclaringClass(), offset, value);
@@ -274,7 +276,7 @@ public final class Unsafer {
 	public static char getChar(Field field, Object object) {
 		long offset = AndroidField.fieldOffset(field);
 
-		return Modifier.isVolatile(field.getModifiers()) ?
+		return (field.getModifiers() & Modifier.VOLATILE) != 0 ?
 				unsafe.getCharVolatile(object, offset) :
 				unsafe.getChar(object, offset);
 	}
@@ -282,7 +284,7 @@ public final class Unsafer {
 	public static char getCharStatic(Field field) {
 		long offset = AndroidField.fieldOffset(field);
 
-		return Modifier.isVolatile(field.getModifiers()) ?
+		return (field.getModifiers() & Modifier.VOLATILE) != 0 ?
 				unsafe.getCharVolatile(field.getDeclaringClass(), offset) :
 				unsafe.getChar(field.getDeclaringClass(), offset);
 	}
@@ -290,7 +292,7 @@ public final class Unsafer {
 	public static void setBoolean(Field field, Object object, boolean value) {
 		long offset = AndroidField.fieldOffset(field);
 
-		if (Modifier.isVolatile(field.getModifiers()))
+		if ((field.getModifiers() & Modifier.VOLATILE) != 0)
 			unsafe.putBooleanVolatile(object, offset, value);
 		else
 			unsafe.putBoolean(object, offset, value);
@@ -299,7 +301,7 @@ public final class Unsafer {
 	public static void setBooleanStatic(Field field, boolean value) {
 		long offset = AndroidField.fieldOffset(field);
 
-		if (Modifier.isVolatile(field.getModifiers()))
+		if ((field.getModifiers() & Modifier.VOLATILE) != 0)
 			unsafe.putBooleanVolatile(field.getDeclaringClass(), offset, value);
 		else
 			unsafe.putBoolean(field.getDeclaringClass(), offset, value);
@@ -308,7 +310,7 @@ public final class Unsafer {
 	public static boolean getBoolean(Field field, Object object) {
 		long offset = AndroidField.fieldOffset(field);
 
-		return Modifier.isVolatile(field.getModifiers()) ?
+		return (field.getModifiers() & Modifier.VOLATILE) != 0 ?
 				unsafe.getBooleanVolatile(object, offset) :
 				unsafe.getBoolean(object, offset);
 	}
@@ -316,7 +318,7 @@ public final class Unsafer {
 	public static boolean getBooleanStatic(Field field) {
 		long offset = AndroidField.fieldOffset(field);
 
-		return Modifier.isVolatile(field.getModifiers()) ?
+		return (field.getModifiers() & Modifier.VOLATILE) != 0 ?
 				unsafe.getBooleanVolatile(field.getDeclaringClass(), offset) :
 				unsafe.getBoolean(field.getDeclaringClass(), offset);
 	}
@@ -324,7 +326,7 @@ public final class Unsafer {
 	public static void setObject(Field field, Object object, Object value) {
 		long offset = AndroidField.fieldOffset(field);
 
-		if (Modifier.isVolatile(field.getModifiers()))
+		if ((field.getModifiers() & Modifier.VOLATILE) != 0)
 			unsafe.putObjectVolatile(object, offset, value);
 		else
 			unsafe.putObject(object, offset, value);
@@ -333,7 +335,7 @@ public final class Unsafer {
 	public static void setObjectStatic(Field field, Object value) {
 		long offset = AndroidField.fieldOffset(field);
 
-		if (Modifier.isVolatile(field.getModifiers()))
+		if ((field.getModifiers() & Modifier.VOLATILE) != 0)
 			unsafe.putObjectVolatile(field.getDeclaringClass(), offset, value);
 		else
 			unsafe.putObject(field.getDeclaringClass(), offset, value);
@@ -342,7 +344,7 @@ public final class Unsafer {
 	public static Object getObject(Field field, Object object) {
 		long offset = AndroidField.fieldOffset(field);
 
-		return Modifier.isVolatile(field.getModifiers()) ?
+		return (field.getModifiers() & Modifier.VOLATILE) != 0 ?
 				unsafe.getObjectVolatile(object, offset) :
 				unsafe.getObject(object, offset);
 	}
@@ -350,7 +352,7 @@ public final class Unsafer {
 	public static Object getObjectStatic(Field field) {
 		long offset = AndroidField.fieldOffset(field);
 
-		return Modifier.isVolatile(field.getModifiers()) ?
+		return (field.getModifiers() & Modifier.VOLATILE) != 0 ?
 				unsafe.getObjectVolatile(field.getDeclaringClass(), offset) :
 				unsafe.getObject(field.getDeclaringClass(), offset);
 	}
@@ -358,7 +360,7 @@ public final class Unsafer {
 	public static void set(Field field, Object object, Object value) {
 		long offset = AndroidField.fieldOffset(field);
 		Class<?> clazz = field.getType();
-		if (Modifier.isVolatile(field.getModifiers()))
+		if ((field.getModifiers() & Modifier.VOLATILE) != 0)
 			putVolatile(value, object, offset, clazz);
 		else
 			put(value, object, offset, clazz);
@@ -369,7 +371,7 @@ public final class Unsafer {
 		long offset = AndroidField.fieldOffset(field);
 		Class<?> clazz = field.getType();
 
-		if (Modifier.isVolatile(field.getModifiers()))
+		if ((field.getModifiers() & Modifier.VOLATILE) != 0)
 			putVolatile(value, base, offset, clazz);
 		else
 			put(value, base, offset, clazz);
@@ -379,7 +381,7 @@ public final class Unsafer {
 		long offset = AndroidField.fieldOffset(field);
 		Class<?> clazz = field.getType();
 
-		return Modifier.isVolatile(field.getModifiers()) ?
+		return (field.getModifiers() & Modifier.VOLATILE) != 0 ?
 				getVolatile(object, offset, clazz) :
 				get(object, offset, clazz);
 	}
@@ -389,7 +391,7 @@ public final class Unsafer {
 		long offset = AndroidField.fieldOffset(field);
 		Class<?> clazz = field.getType();
 
-		return Modifier.isVolatile(field.getModifiers()) ?
+		return (field.getModifiers() & Modifier.VOLATILE) != 0 ?
 				getVolatile(base, offset, clazz) :
 				get(base, offset, clazz);
 	}

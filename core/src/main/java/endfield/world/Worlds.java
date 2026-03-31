@@ -6,8 +6,8 @@ import arc.files.Fi;
 import arc.struct.Seq;
 import arc.util.Log;
 import arc.util.Strings;
-import endfield.Vars2;
 import endfield.entities.Entitys2;
+import endfield.files.Files2;
 import endfield.game.TeamPayloadData;
 import endfield.graphics.PositionLightning;
 import endfield.util.CollectionList;
@@ -52,7 +52,7 @@ public final class Worlds {
 
 	public static void loadAll() {
 		// These properties should not be included in the code
-		Fi file = Vars2.internalTree.child("other").child("fallback.properties");
+		Fi file = Files2.otherDir.child("fallback.properties");
 
 		Properties properties = new Properties(8);
 		try (Reader reader = file.reader(512)) {

@@ -1,4 +1,4 @@
-package endfield.desktop;
+package endfield.android;
 
 import arc.func.Prov;
 import dynamilize.FunctionType;
@@ -7,23 +7,18 @@ import endfield.util.MethodInvokeHelper;
 import endfield.util.Reflects;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import static endfield.Vars2.classHelper;
-import static endfield.desktop.DesktopClassHelper.ctypes;
-import static endfield.desktop.DesktopClassHelper.mtypes;
-import static endfield.desktop.DesktopClassHelper.ptypes;
-import static endfield.desktop.DesktopImpl.lookup;
+import static endfield.Vars2.platformImpl;
 
-public class DesktopMethodInvokeHelper implements MethodInvokeHelper {
-	protected static final CollectionObjectMap<Class<?>, CollectionObjectMap<String, CollectionObjectMap<FunctionType, MethodHandle>>> methodPool = new CollectionObjectMap<>(Class.class, CollectionObjectMap.class);
+public class AndroidMethodHandleMethodInvokeHelper implements MethodInvokeHelper {
+	static final CollectionObjectMap<Class<?>, CollectionObjectMap<String, CollectionObjectMap<FunctionType, MethodHandle>>> methodPool = new CollectionObjectMap<>(Class.class, CollectionObjectMap.class);
 
-	protected static final Prov<CollectionObjectMap<String, CollectionObjectMap<FunctionType, MethodHandle>>> prov1 = () -> new CollectionObjectMap<>(String.class, CollectionObjectMap.class);
-	protected static final Prov<CollectionObjectMap<FunctionType, MethodHandle>> prov2 = () -> new CollectionObjectMap<>(FunctionType.class, MethodHandle.class);
+	static final Prov<CollectionObjectMap<String, CollectionObjectMap<FunctionType, MethodHandle>>> prov1 = () -> new CollectionObjectMap<>(String.class, CollectionObjectMap.class);
+	static final Prov<CollectionObjectMap<FunctionType, MethodHandle>> prov2 = () -> new CollectionObjectMap<>(FunctionType.class, MethodHandle.class);
 
-	protected MethodHandle getMethod(Class<?> clazz, String name, FunctionType argTypes) throws NoSuchMethodException, IllegalAccessException {
+	protected MethodHandle getMethod(Class<?> clazz, String name, FunctionType argTypes) {
 		CollectionObjectMap<FunctionType, MethodHandle> map = methodPool.get(clazz, prov1).get(name, prov2);
 
 		FunctionType type = FunctionType.inst(argTypes);
@@ -38,11 +33,15 @@ public class DesktopMethodInvokeHelper implements MethodInvokeHelper {
 		Class<?> curr = clazz;
 
 		while (curr != null) {
-			Method method = classHelper.findMethod(curr, name, argTypes.getTypes());
+			try {
+				Method method = curr.getDeclaredMethod(name, argTypes.getTypes());
+				method.setAccessible(true);
+				res = platformImpl.lookup(curr).unreflect(method);
+				map.put(FunctionType.from(method), res);
+			} catch (Throwable ignored) {}
 
-			if (method != null) {
-				res = lookup.unreflect(method);
-				map.put(inst(res.type()), res);
+			if (res != null) {
+				map.put(FunctionType.inst(res.type().parameterArray()), res);
 				break;
 			}
 
@@ -54,14 +53,18 @@ public class DesktopMethodInvokeHelper implements MethodInvokeHelper {
 		curr = clazz;
 		a:
 		while (curr != null) {
-			for (Method method : classHelper.getMethods(curr)) {
+			for (Method method : curr.getDeclaredMethods()) {
 				if (!method.getName().equals(name)) continue;
-				Class<?>[] methodArgs = (Class<?>[]) mtypes.get(method);
-
 				FunctionType t;
-				if ((t = from(method)).match(methodArgs)) {
-					res = lookup.unreflect(method);
+				if ((t = FunctionType.from(method)).match(argTypes.getTypes())) {
+					method.setAccessible(true);
+					try {
+						res = platformImpl.lookup(curr).unreflect(method);
+					} catch (IllegalAccessException e) {
+						throw new RuntimeException(e);
+					}
 					map.put(t, res);
+					//methodMap.put(method, res);
 					break a;
 				}
 				t.recycle();
@@ -71,13 +74,13 @@ public class DesktopMethodInvokeHelper implements MethodInvokeHelper {
 		}
 
 		if (res == null)
-			throw new NoSuchMethodException("no such method " + name + " in class: " + clazz + " with assignable parameter: " + argTypes);
+			throw new RuntimeException("no such method " + name + " in class: " + clazz + " with assignable parameter: " + argTypes);
 
 		return res;
 	}
 
-	protected MethodHandle getConstructor(Class<?> clazz, FunctionType argsType) throws IllegalAccessException, NoSuchMethodException {
-		CollectionObjectMap<FunctionType, MethodHandle> map = methodPool.get(clazz, prov1).get("<init>", prov2);
+	protected MethodHandle getConstructor(Class<?> type, FunctionType argsType) {
+		CollectionObjectMap<FunctionType, MethodHandle> map = methodPool.get(type, prov1).get("<init>", prov2);
 
 		MethodHandle res = map.get(argsType);
 		if (res != null) return res;
@@ -86,22 +89,25 @@ public class DesktopMethodInvokeHelper implements MethodInvokeHelper {
 			if (entry.key.match(argsType.getTypes())) return entry.value;
 		}
 
-		Constructor<?> cons = classHelper.findConstructor(clazz, argsType.getTypes());
-		if (cons != null) {
-			cons.setAccessible(true);
-			res = lookup.unreflectConstructor(cons);
-			map.put(from(cons), res);
-		}
+		try {
+			Constructor<?> constructor = type.getConstructor(argsType.getTypes());
+			constructor.setAccessible(true);
+			res = platformImpl.lookup(type).unreflectConstructor(constructor);
+			map.put(FunctionType.inst(res.type().parameterArray()), res);
+		} catch (NoSuchMethodException | IllegalAccessException ignored) {}
 
 		if (res != null) return res;
 
-		for (Constructor<?> constructor : classHelper.getConstructors(clazz)) {
+		for (Constructor<?> constructor : type.getDeclaredConstructors()) {
 			FunctionType functionType;
-			if ((functionType = from(constructor)).match(argsType.getTypes())) {
-				constructor.setAccessible(true);
-
-				res = lookup.unreflectConstructor(constructor);
-				map.put(functionType, res);
+			if ((functionType = FunctionType.from(constructor)).match(argsType.getTypes())) {
+				try {
+					constructor.setAccessible(true);
+					res = platformImpl.lookup(type).unreflectConstructor(constructor);
+					map.put(functionType, res);
+				} catch (IllegalAccessException e) {
+					throw new RuntimeException(e);
+				}
 
 				break;
 			}
@@ -110,7 +116,7 @@ public class DesktopMethodInvokeHelper implements MethodInvokeHelper {
 
 		if (res != null) return res;
 
-		throw new NoSuchMethodException("no such constructor in class: " + clazz + " with assignable parameter: " + argsType);
+		throw new RuntimeException("no such constructor in class: " + type + " with assignable parameter: " + argsType);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -203,9 +209,9 @@ public class DesktopMethodInvokeHelper implements MethodInvokeHelper {
 			if (entry.key.match(argTypes.getTypes())) return entry.value;
 		}
 
-		res = lookup.unreflect(method);
+		res = platformImpl.lookup(method.getDeclaringClass()).unreflect(method);
 
-		map.put(inst(res.type()), res);
+		map.put(FunctionType.inst(res.type()), res);
 
 		return res;
 	}
@@ -220,7 +226,7 @@ public class DesktopMethodInvokeHelper implements MethodInvokeHelper {
 			if (entry.key.match(argsType.getTypes())) return entry.value;
 		}
 
-		res = lookup.unreflectConstructor(constructor);
+		res = platformImpl.lookup(constructor.getDeclaringClass()).unreflectConstructor(constructor);
 
 		map.put(argsType, res);
 
@@ -230,7 +236,7 @@ public class DesktopMethodInvokeHelper implements MethodInvokeHelper {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T invoke(Method method, Object object, Object... args) {
-		FunctionType type = from(method);
+		FunctionType type = FunctionType.from(method);
 		try {
 			return (T) Reflects.invokeVirtual(object, getMethod(method, type), args);
 		} catch (Throwable e) {
@@ -243,7 +249,7 @@ public class DesktopMethodInvokeHelper implements MethodInvokeHelper {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T invokeStatic(Method method, Object... args) {
-		FunctionType type = from(method);
+		FunctionType type = FunctionType.from(method);
 		try {
 			return (T) Reflects.invokeStatic(getMethod(method, type), args);
 		} catch (Throwable e) {
@@ -256,7 +262,7 @@ public class DesktopMethodInvokeHelper implements MethodInvokeHelper {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T newInstance(Constructor<T> constructor, Object... args) {
-		FunctionType type = from(constructor);
+		FunctionType type = FunctionType.from(constructor);
 		try {
 			return (T) Reflects.invokeStatic(getConstructor(constructor, type), args);
 		} catch (Throwable e) {
@@ -264,17 +270,5 @@ public class DesktopMethodInvokeHelper implements MethodInvokeHelper {
 		} finally {
 			type.recycle();
 		}
-	}
-
-	public static FunctionType inst(MethodType methodType) {
-		return FunctionType.inst((Class<?>[]) ptypes.get(methodType));
-	}
-
-	public static FunctionType from(Method method) {
-		return FunctionType.inst((Class<?>[]) mtypes.get(method));
-	}
-
-	public static FunctionType from(Constructor<?> constructor) {
-		return FunctionType.inst((Class<?>[]) ctypes.get(constructor));
 	}
 }

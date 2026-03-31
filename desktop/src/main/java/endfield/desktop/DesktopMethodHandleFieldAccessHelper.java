@@ -49,10 +49,9 @@ public class DesktopMethodHandleFieldAccessHelper implements FieldAccessHelper {
 	protected MethodHandle getter(Field field) {
 		return getters.computeIfAbsent(field, f -> {
 			try {
-				return (f.getModifiers() & Modifier.STATIC) == 0 ?
-						lookup.findGetter(f.getDeclaringClass(), f.getName(), f.getType()) :
-						lookup.findStaticGetter(f.getDeclaringClass(), f.getName(), f.getType());
-				//return lookup.unreflectGetter(f);
+				return (f.getModifiers() & Modifier.STATIC) != 0 ?
+						lookup.findStaticGetter(f.getDeclaringClass(), f.getName(), f.getType()) :
+						lookup.findGetter(f.getDeclaringClass(), f.getName(), f.getType());
 			} catch (IllegalAccessException | NoSuchFieldException e) {
 				throw new RuntimeException(e);
 			}
@@ -62,10 +61,9 @@ public class DesktopMethodHandleFieldAccessHelper implements FieldAccessHelper {
 	protected MethodHandle setter(Field field) {
 		return setters.computeIfAbsent(field, f -> {
 			try {
-				return (f.getModifiers() & Modifier.STATIC) == 0 ?
-						lookup.findSetter(f.getDeclaringClass(), f.getName(), f.getType()) :
-						lookup.findStaticSetter(f.getDeclaringClass(), f.getName(), f.getType());
-				//return lookup.unreflectSetter(f);
+				return (f.getModifiers() & Modifier.STATIC) != 0 ?
+						lookup.findStaticSetter(f.getDeclaringClass(), f.getName(), f.getType()) :
+						lookup.findSetter(f.getDeclaringClass(), f.getName(), f.getType());
 			} catch (IllegalAccessException | NoSuchFieldException e) {
 				throw new RuntimeException(e);
 			}

@@ -29,6 +29,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Set;
 
 import static endfield.Vars2.accessibleHelper;
@@ -161,13 +162,12 @@ public final class Reflects {
 
 		if (argTypes == null || argTypes.length == 0) return buf.append("()").toString();
 
-		int max = argTypes.length - 1;
+		int max = argTypes.length;
 
 		buf.append('(');
 		int i = 0;
 		while (true) {
-			i++;
-			buf.append(argTypes[i].getName());
+			buf.append(argTypes[i++].getName());
 			if (i == max) return buf.append(')').toString();
 			buf.append(',');
 		}
@@ -258,6 +258,8 @@ public final class Reflects {
 	}
 
 	/**
+	 * Set the {@code accessible} flag of the reflection object to {@code true}.
+	 *
 	 * @return Has it been successfully set as accessible
 	 * @since 1.0.9
 	 */
@@ -278,6 +280,16 @@ public final class Reflects {
 		}
 
 		return true;
+	}
+
+	// Only on Android.
+	public static <T> Class<T> setClassAccessible(Class<T> clazz) {
+		int modifiers = clazz.getModifiers();
+		if ((modifiers & Modifier.PUBLIC) == 0 || (modifiers & Modifier.FINAL) != 0) {
+			accessibleHelper.makeClassAccessible(clazz);
+		}
+
+		return clazz;
 	}
 
 	/**

@@ -3,6 +3,7 @@ package endfield.desktop;
 import arc.func.Boolf;
 import endfield.util.ClassHelper;
 import endfield.util.Reflects;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
@@ -35,7 +36,7 @@ public class DesktopClassHelper implements ClassHelper {
 	}
 
 	@Override
-	public Field findField(Class<?> clazz, String name) {
+	public @Nullable Field findField(Class<?> clazz, String name) {
 		try {
 			Field[] fields = (Field[]) getFields.invokeExact(clazz, false);
 			for (Field field : fields) {
@@ -48,7 +49,7 @@ public class DesktopClassHelper implements ClassHelper {
 	}
 
 	@Override
-	public Method findMethod(Class<?> clazz, String name, Class<?>... parameterTypes) {
+	public @Nullable Method findMethod(Class<?> clazz, String name, Class<?>... parameterTypes) {
 		try {
 			Method[] methods = (Method[]) getMethods.invokeExact(clazz, false);
 			for (Method method : methods) {
@@ -62,7 +63,7 @@ public class DesktopClassHelper implements ClassHelper {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Constructor<T> findConstructor(Class<T> clazz, Class<?>... parameterTypes) {
+	public <T> @Nullable Constructor<T> findConstructor(Class<T> clazz, Class<?>... parameterTypes) {
 		try {
 			Constructor<T>[] constructors = (Constructor<T>[]) getConstructors.invokeExact(clazz, false);
 			for (Constructor<T> constructor : constructors) {
@@ -146,7 +147,7 @@ public class DesktopClassHelper implements ClassHelper {
 	}
 
 	@Override
-	public Field findField(Class<?> clazz, Boolf<Field> filler) {
+	public @Nullable Field findField(Class<?> clazz, Boolf<Field> filler) {
 		try {
 			Field[] fields = (Field[]) getFields.invokeExact(clazz, false);
 			for (Field field : fields) {
@@ -161,7 +162,7 @@ public class DesktopClassHelper implements ClassHelper {
 	}
 
 	@Override
-	public Method findMethod(Class<?> clazz, Boolf<Method> filler) {
+	public @Nullable Method findMethod(Class<?> clazz, Boolf<Method> filler) {
 		try {
 			Method[] methods = (Method[]) getMethods.invokeExact(clazz, false);
 			for (Method method : methods) {
@@ -175,7 +176,7 @@ public class DesktopClassHelper implements ClassHelper {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Constructor<T> findConstructor(Class<T> clazz, Boolf<Constructor<T>> filler) {
+	public <T> @Nullable Constructor<T> findConstructor(Class<T> clazz, Boolf<Constructor<T>> filler) {
 		try {
 			Constructor<T>[] constructors = (Constructor<T>[]) getConstructors.invokeExact(clazz, false);
 			for (Constructor<T> constructor : constructors) {

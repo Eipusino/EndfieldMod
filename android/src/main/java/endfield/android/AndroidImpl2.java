@@ -3,7 +3,7 @@ package endfield.android;
 import static endfield.android.InternalUnsafer.internalUnsafe;
 
 // Sdk_version>=33
-public class AndroidTiramisuImpl extends AndroidImpl {
+public class AndroidImpl2 extends AndroidImpl {
 	@Override
 	public void put(long srcAddress, long destAddress, long bytes) {
 		internalUnsafe.copyMemory(srcAddress, destAddress, bytes);

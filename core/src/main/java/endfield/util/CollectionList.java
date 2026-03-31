@@ -153,7 +153,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 		return new CollectionList<>(true, array);
 	}
 
-	public static <T> CollectionList<T> with(Class<?> arrayType, Iterable<T> array) {
+	public static <T> CollectionList<T> with(Class<?> arrayType, Iterable<? extends T> array) {
 		CollectionList<T> out = new CollectionList<>(arrayType);
 		for (T thing : array) {
 			out.add(thing);
@@ -164,7 +164,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 	/**
 	 * @see #CollectionList(Object[])
 	 */
-	public static <T> CollectionList<T> select(T[] array, Boolf<T> test) {
+	public static <T> CollectionList<T> select(T[] array, Boolf<? super T> test) {
 		CollectionList<T> out = new CollectionList<>(array.length, array.getClass().getComponentType());
 		for (T t : array) {
 			if (test.get(t)) {
@@ -174,7 +174,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 		return out;
 	}
 
-	public <K, V> CollectionObjectMap<K, V> asMap(Func<E, K> keygen, Func<E, V> valgen, Class<?> keyType, Class<?> valueType) {
+	public <K, V> CollectionObjectMap<K, V> asMap(Func<? super E, ? extends K> keygen, Func<? super E, ? extends V> valgen, Class<?> keyType, Class<?> valueType) {
 		CollectionObjectMap<K, V> map = new CollectionObjectMap<>(keyType, valueType);
 		for (int i = 0; i < size; i++) {
 			map.put(keygen.get(items[i]), valgen.get(items[i]));
@@ -182,7 +182,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 		return map;
 	}
 
-	public <K> CollectionObjectMap<K, E> asMap(Func<E, K> keygen, Class<?> keyType, Class<?> valueType) {
+	public <K> CollectionObjectMap<K, E> asMap(Func<? super E, ? extends K> keygen, Class<?> keyType, Class<?> valueType) {
 		return asMap(keygen, t -> t, keyType, valueType);
 	}
 
@@ -206,7 +206,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 		}
 	}
 
-	public float sumf(Floatf<E> summer) {
+	public float sumf(Floatf<? super E> summer) {
 		float sum = 0f;
 		for (int i = 0; i < size; i++) {
 			sum += summer.get(items[i]);
@@ -214,7 +214,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 		return sum;
 	}
 
-	public int sum(Intf<E> summer) {
+	public int sum(Intf<? super E> summer) {
 		int sum = 0;
 		for (int i = 0; i < size; i++) {
 			sum += summer.get(items[i]);
@@ -243,7 +243,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 	}
 
 	/** Replaces values without creating a new array. */
-	public void replace(Func<E, E> mapper) {
+	public void replace(Func<? super E, ? extends E> mapper) {
 		for (int i = 0; i < size; i++) {
 			items[i] = mapper.get(items[i]);
 		}
@@ -260,7 +260,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 	}
 
 	/** Returns a new array with the mapped values. */
-	public <R> CollectionList<R> flatMap(Func<E, Iterable<R>> mapper) {
+	public <R> CollectionList<R> flatMap(Func<? super E, Iterable<? extends R>> mapper) {
 		CollectionList<R> arr = new CollectionList<>(size, componentType);
 		for (int i = 0; i < size; i++) {
 			arr.addAll(mapper.get(items[i]));
@@ -269,7 +269,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 	}
 
 	/** Returns a new array with the mapped values. */
-	public <R> CollectionList<R> map(Func<E, R> mapper) {
+	public <R> CollectionList<R> map(Func<? super E, ? extends R> mapper) {
 		CollectionList<R> arr = new CollectionList<>(size, componentType);
 		for (int i = 0; i < size; i++) {
 			arr.add(mapper.get(items[i]));
@@ -280,7 +280,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 	/**
 	 * @return a new int array with the mapped values.
 	 */
-	public IntSeq mapInt(Intf<E> mapper) {
+	public IntSeq mapInt(Intf<? super E> mapper) {
 		IntSeq arr = new IntSeq(size);
 		for (int i = 0; i < size; i++) {
 			arr.add(mapper.get(items[i]));
@@ -291,7 +291,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 	/**
 	 * @return a new int array with the mapped values.
 	 */
-	public IntSeq mapInt(Intf<E> mapper, Boolf<E> retain) {
+	public IntSeq mapInt(Intf<? super E> mapper, Boolf<? super E> retain) {
 		IntSeq arr = new IntSeq(size);
 		for (int i = 0; i < size; i++) {
 			E item = items[i];
@@ -305,7 +305,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 	/**
 	 * @return a new float array with the mapped values.
 	 */
-	public FloatSeq mapFloat(Floatf<E> mapper) {
+	public FloatSeq mapFloat(Floatf<? super E> mapper) {
 		FloatSeq arr = new FloatSeq(size);
 		for (int i = 0; i < size; i++) {
 			arr.add(mapper.get(items[i]));
@@ -313,7 +313,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 		return arr;
 	}
 
-	public <R> R reduce(R initial, Func2<E, R, R> reducer) {
+	public <R> R reduce(R initial, Func2<? super E, ? super R, ? extends R> reducer) {
 		R result = initial;
 		for (int i = 0; i < size; i++) {
 			result = reducer.get(items[i], result);
@@ -321,7 +321,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 		return result;
 	}
 
-	public boolean allMatch(Boolf<E> predicate) {
+	public boolean allMatch(Boolf<? super E> predicate) {
 		for (int i = 0; i < size; i++) {
 			if (!predicate.get(items[i])) {
 				return false;
@@ -330,7 +330,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 		return true;
 	}
 
-	public boolean contains(Boolf<E> predicate) {
+	public boolean contains(Boolf<? super E> predicate) {
 		for (int i = 0; i < size; i++) {
 			if (predicate.get(items[i])) {
 				return true;
@@ -361,7 +361,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 		return result;
 	}
 
-	public E min(Boolf<E> filter, Floatf<E> func) {
+	public E min(Boolf<? super E> filter, Floatf<? super E> func) {
 		E result = null;
 		float min = Float.MAX_VALUE;
 		for (int i = 0; i < size; i++) {
@@ -387,7 +387,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 		return result;
 	}
 
-	public E min(Floatf<E> func) {
+	public E min(Floatf<? super E> func) {
 		E result = null;
 		float min = Float.MAX_VALUE;
 		for (int i = 0; i < size; i++) {
@@ -401,7 +401,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 		return result;
 	}
 
-	public E max(Floatf<E> func) {
+	public E max(Floatf<? super E> func) {
 		E result = null;
 		float max = Float.NEGATIVE_INFINITY;
 		for (int i = 0; i < size; i++) {
@@ -415,7 +415,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 		return result;
 	}
 
-	public @Nullable E find(Boolf<E> predicate) {
+	public @Nullable E find(Boolf<? super E> predicate) {
 		for (int i = 0; i < size; i++) {
 			if (predicate.get(items[i])) {
 				return items[i];
@@ -814,7 +814,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 	 * If this array is empty, returns an object specified by the constructor.
 	 * Otherwise, acts like pop().
 	 */
-	public E pop(Prov<E> constructor) {
+	public E pop(Prov<? extends E> constructor) {
 		if (size == 0) return constructor.get();
 		return pop();
 	}
@@ -840,12 +840,12 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 		return items[0];
 	}
 
-	public E peek(Prov<E> constructor) {
+	public E peek(Prov<? extends E> constructor) {
 		if (size == 0) return constructor.get();
 		return items[size - 1];
 	}
 
-	public E first(Prov<E> constructor) {
+	public E first(Prov<? extends E> constructor) {
 		if (size == 0) return constructor.get();
 		return items[0];
 	}

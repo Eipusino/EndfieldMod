@@ -23,7 +23,7 @@ public class JavaMethodReference implements IFunctionEntry {
 		type = FunctionType.inst(met);
 
 		Class<?>[] parameterTypes = met.getParameterTypes();
-		if (parameterTypes.length == 1 && ArgumentList.class.isAssignableFrom(parameterTypes[0])) {
+		if (parameterTypes.length == 1 && parameterTypes[0] == ArgumentList.class) {
 			func = accessor::invoke;
 		} else {
 			func = (self, args) -> accessor.invoke(self, args.args());

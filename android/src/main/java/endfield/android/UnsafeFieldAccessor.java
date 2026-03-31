@@ -23,10 +23,9 @@ public abstract class UnsafeFieldAccessor extends AbstractFieldAccessor {
 	public static FieldAccessor getUnsafeFieldAccessor(Field f) {
 		Class<?> type = f.getType();
 		int modifiers = f.getModifiers();
-		boolean isStatic = Modifier.isStatic(modifiers), isVolatile = Modifier.isVolatile(modifiers);
 
-		if (isStatic) {
-			if (isVolatile) {
+		if ((modifiers & Modifier.STATIC) != 0) {
+			if ((modifiers & Modifier.VOLATILE) != 0) {
 				if (type.isPrimitive()) {
 					if (type == boolean.class) return new UnsafeQualifiedStaticBooleanFieldAccessor(f);
 					else if (type == byte.class) return new UnsafeQualifiedStaticByteFieldAccessor(f);
@@ -52,7 +51,7 @@ public abstract class UnsafeFieldAccessor extends AbstractFieldAccessor {
 				} else return new UnsafeStaticObjectFieldAccessor(f);
 			}
 		} else {
-			if (isVolatile) {
+			if ((modifiers & Modifier.VOLATILE) != 0) {
 				if (type.isPrimitive()) {
 					if (type == boolean.class) return new UnsafeQualifiedBooleanFieldAccessor(f);
 					else if (type == byte.class) return new UnsafeQualifiedByteFieldAccessor(f);
@@ -847,7 +846,7 @@ abstract class UnsafeStaticFieldAccessor extends UnsafeFieldAccessor {
 	protected UnsafeStaticFieldAccessor(Field f) {
 		super(f);
 
-		if (Modifier.isStatic(f.getModifiers())) base = f.getDeclaringClass();
+		if ((f.getModifiers() & Modifier.STATIC) != 0) base = f.getDeclaringClass();
 		else throw new IllegalArgumentException("This field is not a static field: " + f);
 	}
 }
