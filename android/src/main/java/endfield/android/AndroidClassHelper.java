@@ -1,13 +1,10 @@
 package endfield.android;
 
-import arc.Core;
 import endfield.util.ClassHelper;
-import mindustry.android.AndroidRhinoContext;
 import mindustry.android.AndroidRhinoContext.AndroidContextFactory;
 import rhino.ContextFactory;
 import rhino.GeneratedClassLoader;
 
-import java.io.File;
 import java.util.Objects;
 
 import static endfield.android.Unsafer.unsafe;
@@ -15,9 +12,6 @@ import static endfield.android.Unsafer.unsafe;
 public class AndroidClassHelper implements ClassHelper {
 	@Override
 	public Class<?> defineClass(String name, byte[] bytes, ClassLoader loader) {
-		if (!(ContextFactory.getGlobal() instanceof AndroidContextFactory)) {
-			AndroidRhinoContext.enter(new File(Core.settings.getDataDirectory() + "/rhino/"));
-		}
 		return ((GeneratedClassLoader) ((AndroidContextFactory) ContextFactory.getGlobal())
 				.createClassLoader(loader))
 				.defineClass(name, bytes);

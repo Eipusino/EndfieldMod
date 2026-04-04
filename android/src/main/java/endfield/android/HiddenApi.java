@@ -30,7 +30,8 @@ public class HiddenApi {
 			"Lsun/misc/Unsafe;",
 			"Lsun/nio/ch/DirectBuffer;"
 	};
-	static VMRuntime runtime;
+	static Class<VMRuntime> runtimeClass = VMRuntime.class;
+	static VMRuntime runtime = VMRuntime.getRuntime();
 	// Not using the 'L' wildcard is to ensure basic security and prevent strange issues caused by things we don't want to call in certain parts of the program.
 	//static final String[] values = {"L"};
 
@@ -43,8 +44,6 @@ public class HiddenApi {
 
 	static void load() throws Throwable {
 		if (AndroidProperties.load()) return;
-
-		runtime = VMRuntime.getRuntime();
 
 		oneArray = (Object[]) runtime.newNonMovableArray(Object.class, 1);
 		intArray = (int[]) runtime.newNonMovableArray(int.class, 0);

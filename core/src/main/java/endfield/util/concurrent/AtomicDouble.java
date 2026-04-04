@@ -3,9 +3,9 @@ package endfield.util.concurrent;
 import endfield.func.DoubleDoublef;
 import endfield.func.DoubleDoublef2;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.invoke.VarHandle;
+
+import static endfield.Vars2.platformImpl;
 
 /**
  * Since Java does not provide {@code AtomicDouble}, we implemented it ourselves using {@code VarHandle}.
@@ -19,8 +19,7 @@ public class AtomicDouble extends Number {
 
 	static {
 		try {
-			Lookup lookup = MethodHandles.lookup();
-			handle = lookup.findVarHandle(AtomicDouble.class, "value", double.class);
+			handle = platformImpl.lookup(AtomicDouble.class).findVarHandle(AtomicDouble.class, "value", double.class);
 		} catch (NoSuchFieldException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}

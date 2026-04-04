@@ -4,9 +4,9 @@ import endfield.func.CharCharf;
 import endfield.func.CharCharf2;
 
 import java.io.Serializable;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.invoke.VarHandle;
+
+import static endfield.Vars2.platformImpl;
 
 public class AtomicChar implements Serializable {
 	private static final long serialVersionUID = -1593944861369051563l;
@@ -16,8 +16,7 @@ public class AtomicChar implements Serializable {
 
 	static {
 		try {
-			Lookup lookup = MethodHandles.lookup();
-			handle = lookup.findVarHandle(AtomicChar.class, "value", char.class);
+			handle = platformImpl.lookup(AtomicChar.class).findVarHandle(AtomicChar.class, "value", char.class);
 		} catch (NoSuchFieldException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}

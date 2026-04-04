@@ -1,8 +1,8 @@
 package endfield.util.concurrent;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.invoke.VarHandle;
+
+import static endfield.Vars2.platformImpl;
 
 public class AtomicByte extends Number {
 	private static final long serialVersionUID = 913606535282412697l;
@@ -12,8 +12,7 @@ public class AtomicByte extends Number {
 
 	static {
 		try {
-			Lookup lookup = MethodHandles.lookup();
-			handle = lookup.findVarHandle(AtomicByte.class, "value", byte.class);
+			handle = platformImpl.lookup(AtomicByte.class).findVarHandle(AtomicByte.class, "value", byte.class);
 		} catch (NoSuchFieldException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}

@@ -3,9 +3,9 @@ package endfield.util.concurrent;
 import arc.func.FloatFloatf;
 import endfield.func.FloatFloatf2;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.invoke.VarHandle;
+
+import static endfield.Vars2.platformImpl;
 
 /**
  * Since Java does not provide {@code AtomicFloat}, we implemented it ourselves using {@code VarHandle}.
@@ -19,8 +19,7 @@ public class AtomicFloat extends Number {
 
 	static {
 		try {
-			Lookup lookup = MethodHandles.lookup();
-			handle = lookup.findVarHandle(AtomicFloat.class, "value", float.class);
+			handle = platformImpl.lookup(AtomicFloat.class).findVarHandle(AtomicFloat.class, "value", float.class);
 		} catch (NoSuchFieldException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}

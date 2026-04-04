@@ -225,7 +225,7 @@ final class MethodHandleBooleanFieldAccessor extends MethodHandleFieldAccessor {
 	@Override
 	public boolean getBoolean(Object object) {
 		try {
-			return (boolean) getter.invokeExact();
+			return (boolean) getter.invokeExact(object);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
@@ -260,7 +260,7 @@ final class MethodHandleByteFieldAccessor extends MethodHandleFieldAccessor {
 	@Override
 	public byte getByte(Object object) {
 		try {
-			return (byte) getter.invokeExact();
+			return (byte) getter.invokeExact(object);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
@@ -320,7 +320,7 @@ final class MethodHandleCharFieldAccessor extends MethodHandleFieldAccessor {
 	@Override
 	public char getChar(Object object) {
 		try {
-			return (char) getter.invokeExact();
+			return (char) getter.invokeExact(object);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
@@ -380,7 +380,7 @@ final class MethodHandleShortFieldAccessor extends MethodHandleFieldAccessor {
 	@Override
 	public short getShort(Object object) {
 		try {
-			return (short) getter.invokeExact();
+			return (short) getter.invokeExact(object);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}

@@ -43,16 +43,14 @@ public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper
 			if (method != null) {
 				res = lookup.unreflect(method);
 				map.put(inst(res.type()), res);
-				break;
+				return res;
 			}
 
 			curr = curr.getSuperclass();
 		}
 
-		if (res != null) return res;
-
 		curr = clazz;
-		a:
+
 		while (curr != null) {
 			for (Method method : classHelper.getMethods(curr)) {
 				if (!method.getName().equals(name)) continue;
@@ -62,7 +60,7 @@ public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper
 				if ((t = from(method)).match(methodArgs)) {
 					res = lookup.unreflect(method);
 					map.put(t, res);
-					break a;
+					return res;
 				}
 				t.recycle();
 			}
@@ -70,10 +68,7 @@ public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper
 			curr = curr.getSuperclass();
 		}
 
-		if (res == null)
-			throw new NoSuchMethodException("no such method " + name + " in class: " + clazz + " with assignable parameter: " + argTypes);
-
-		return res;
+		throw new NoSuchMethodException("no such method " + name + " in class: " + clazz + " with assignable parameter: " + argTypes);
 	}
 
 	protected MethodHandle getConstructor(Class<?> clazz, FunctionType argsType) throws IllegalAccessException, NoSuchMethodException {
@@ -154,7 +149,7 @@ public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T invokeWithAsType(Object object, String name, Class<?>[] parameterTypes, Object... args) {
+	public <T> T invokeAsType(Object object, String name, Class<?>[] parameterTypes, Object... args) {
 		FunctionType type = FunctionType.inst(parameterTypes);
 		try {
 			return (T) Reflects.invokeVirtual(object, getMethod(object.getClass(), name, type), args);
@@ -167,7 +162,7 @@ public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T invokeStaticWithAsType(Class<?> clazz, String name, Class<?>[] parameterTypes, Object... args) {
+	public <T> T invokeStaticAsType(Class<?> clazz, String name, Class<?>[] parameterTypes, Object... args) {
 		FunctionType type = FunctionType.inst(parameterTypes);
 		try {
 			return (T) Reflects.invokeStatic(getMethod(clazz, name, type), args);
@@ -180,7 +175,7 @@ public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T newInstanceWithAsType(Class<T> clazz, Class<?>[] parameterTypes, Object... args) {
+	public <T> T newInstanceAsType(Class<T> clazz, Class<?>[] parameterTypes, Object... args) {
 		FunctionType type = FunctionType.inst(parameterTypes);
 		try {
 			return (T) Reflects.invokeStatic(getConstructor(clazz, type), args);

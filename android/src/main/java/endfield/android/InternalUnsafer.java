@@ -1,12 +1,15 @@
 package endfield.android;
 
+import android.annotation.TargetApi;
+import android.os.Build.VERSION_CODES;
 import jdk.internal.misc.Unsafe;
 
 import java.lang.reflect.Field;
 
 // Sdk_version>=33
+@TargetApi(VERSION_CODES.TIRAMISU)
 public final class InternalUnsafer {
-	static Unsafe internalUnsafe;
+	static final Unsafe internalUnsafe;
 
 	static {
 		try {

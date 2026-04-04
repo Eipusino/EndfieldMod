@@ -35,17 +35,14 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 				res = curr.getDeclaredMethod(name, argTypes.getTypes());
 				res.setAccessible(true);
 				map.put(FunctionType.from(res), res);
+				return res;
 			} catch (Throwable ignored) {}
-
-			if (res != null) break;
 
 			curr = curr.getSuperclass();
 		}
 
-		if (res != null) return res;
-
 		curr = clazz;
-		a:
+
 		while (curr != null) {
 			for (Method method : curr.getDeclaredMethods()) {
 				if (!method.getName().equals(name)) continue;
@@ -55,7 +52,7 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 					method.setAccessible(true);
 					res = method;
 					map.put(t, res);
-					break a;
+					return res;
 				}
 				t.recycle();
 			}
@@ -63,10 +60,7 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 			curr = curr.getSuperclass();
 		}
 
-		if (res == null)
-			throw new NoSuchMethodException("no such method " + name + " in class: " + clazz + " with assignable parameter: " + argTypes);
-
-		return res;
+		throw new NoSuchMethodException("no such method " + name + " in class: " + clazz + " with assignable parameter: " + argTypes);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -145,7 +139,7 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T invokeWithAsType(Object object, String name, Class<?>[] parameterTypes, Object... args) {
+	public <T> T invokeAsType(Object object, String name, Class<?>[] parameterTypes, Object... args) {
 		FunctionType type = FunctionType.inst(parameterTypes);
 		try {
 			return (T) getMethod(object.getClass(), name, type).invoke(object, args);
@@ -158,7 +152,7 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T invokeStaticWithAsType(Class<?> clazz, String name, Class<?>[] parameterTypes, Object... args) {
+	public <T> T invokeStaticAsType(Class<?> clazz, String name, Class<?>[] parameterTypes, Object... args) {
 		FunctionType type = FunctionType.inst(parameterTypes);
 		try {
 			return (T) getMethod(clazz, name, type).invoke(null, args);
@@ -170,7 +164,7 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 	}
 
 	@Override
-	public <T> T newInstanceWithAsType(Class<T> type, Class<?>[] parameterTypes, Object... args) {
+	public <T> T newInstanceAsType(Class<T> type, Class<?>[] parameterTypes, Object... args) {
 		FunctionType funcType = FunctionType.inst(parameterTypes);
 		try {
 			return getConstructor(type, funcType).newInstance(args);

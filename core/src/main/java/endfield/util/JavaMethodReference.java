@@ -13,7 +13,7 @@ public class JavaMethodReference implements IFunctionEntry {
 	final Method method;
 	final MethodAccessor accessor;
 	final String name;
-	final Function<?, ?> func;
+	final Function<Object, Object> func;
 	final FunctionType type;
 
 	public JavaMethodReference(Method met) {

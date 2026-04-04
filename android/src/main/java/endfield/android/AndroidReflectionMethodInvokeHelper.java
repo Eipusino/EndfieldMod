@@ -9,6 +9,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 public class AndroidReflectionMethodInvokeHelper extends ReflectionMethodInvokeHelper {
+	@Override
 	protected Method getMethod(Class<?> clazz, String name, FunctionType argTypes) throws NoSuchMethodException {
 		CollectionObjectMap<FunctionType, Method> map = methodPool.get(clazz, prov1).get(name, prov2);
 
@@ -63,6 +64,7 @@ public class AndroidReflectionMethodInvokeHelper extends ReflectionMethodInvokeH
 	}
 
 	@SuppressWarnings("unchecked")
+	@Override
 	protected <T> Constructor<T> getConstructor(Class<T> clazz, FunctionType argsType) throws NoSuchMethodException {
 		CollectionObjectMap<FunctionType, Constructor<?>> map = constructorMap.get(clazz, prov3);
 

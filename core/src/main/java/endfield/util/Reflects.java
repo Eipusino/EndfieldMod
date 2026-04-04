@@ -15,6 +15,7 @@ package endfield.util;
 
 import arc.func.Boolf;
 import arc.func.Prov;
+import arc.util.Structs;
 import dynamilize.FunctionType;
 import mindustry.Vars;
 import org.jetbrains.annotations.Nullable;
@@ -39,11 +40,6 @@ import static endfield.Vars2.classHelper;
  * Reflection utilities, mainly for wrapping reflective operations to eradicate checked exceptions.
  *
  * @author Eipusino
- * @see endfield.util.handler.ClassHandler
- * @see endfield.util.handler.FieldHandler
- * @see endfield.util.handler.MethodHandler
- * @see endfield.util.handler.ObjectHandler
- * @see endfield.util.handler.EnumHandler
  * @since 1.0.6
  */
 public final class Reflects {
@@ -182,13 +178,14 @@ public final class Reflects {
 
 	public static boolean isInstanceButNotSubclass(Object obj, Class<?> type) {
 		if (type.isInstance(obj)) {
-			try {
-				if (getClassSubclassHierarchy(obj.getClass()).contains(type)) {
-					return false;
-				}
-			} catch (ClassCastException e) {
-				return false;
+			Class<?> cur = obj.getClass().getSuperclass();
+			while (cur != null) {
+				Class<?>[] interfaces = cur.getInterfaces();
+				if (Structs.contains(interfaces, type)) return false;
+
+				cur = cur.getSuperclass();
 			}
+
 			return true;
 		}
 
@@ -196,14 +193,14 @@ public final class Reflects {
 	}
 
 	public static Set<Class<?>> getClassSubclassHierarchy(Class<?> clazz) {
-		Class<?> c = clazz.getSuperclass();
+		Class<?> curr = clazz.getSuperclass();
 		CollectionObjectSet<Class<?>> hierarchy = new CollectionObjectSet<>(Class.class);
-		while (c != Object.class) {
-			hierarchy.add(c);
-			Class<?>[] interfaces = c.getInterfaces();
+		while (curr != null) {
+			hierarchy.add(curr);
+			Class<?>[] interfaces = curr.getInterfaces();
 			hierarchy.addAll(interfaces);
 
-			c = c.getSuperclass();
+			curr = curr.getSuperclass();
 		}
 		return hierarchy;
 	}

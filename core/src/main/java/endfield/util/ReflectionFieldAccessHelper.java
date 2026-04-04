@@ -7,8 +7,8 @@ public class ReflectionFieldAccessHelper implements FieldAccessHelper {
 	protected static final CollectionObjectMap<Class<?>, CollectionObjectMap<String, Field>> fieldMap = new CollectionObjectMap<>(Class.class, CollectionObjectMap.class);
 
 	public Field getField(Class<?> clazz, String name, boolean isStatic) throws NoSuchFieldException {
-		Field field = fieldMap.get(clazz, empty).get(name);
-		if (field != null) return field;
+		Field res = fieldMap.get(clazz, empty).get(name);
+		if (res != null) return res;
 
 		if (isStatic) {
 			return getField(clazz, name);

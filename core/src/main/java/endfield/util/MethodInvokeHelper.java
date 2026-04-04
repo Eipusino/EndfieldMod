@@ -11,11 +11,11 @@ public interface MethodInvokeHelper {
 
 	<T> T newInstance(Class<T> type, Object... args);
 
-	<T> T invokeWithAsType(Object object, String name, Class<?>[] parameterTypes, Object... args);
+	<T> T invokeAsType(Object object, String name, Class<?>[] parameterTypes, Object... args);
 
-	<T> T invokeStaticWithAsType(Class<?> clazz, String name, Class<?>[] parameterTypes, Object... args);
+	<T> T invokeStaticAsType(Class<?> clazz, String name, Class<?>[] parameterTypes, Object... args);
 
-	<T> T newInstanceWithAsType(Class<T> type, Class<?>[] parameterTypes, Object... args);
+	<T> T newInstanceAsType(Class<T> type, Class<?>[] parameterTypes, Object... args);
 
 	@SuppressWarnings("unchecked")
 	default <T> T invoke(Method method, Object object, Object... args) {
