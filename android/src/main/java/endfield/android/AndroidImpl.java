@@ -37,7 +37,7 @@ public class AndroidImpl implements PlatformImpl {
 
 	static {
 		try {
-			HiddenApi.load();
+			HiddenApi.setup();
 		} catch (Throwable e) {
 			Log.err("It seems you platform is special. (But don't worry)", e);
 		}
@@ -65,6 +65,10 @@ public class AndroidImpl implements PlatformImpl {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T clone(T object) {
+		Class<?> type = object.getClass();
+
+		if (type == Class.class) return null;
+
 		try {
 			return (T) clone.invoke(object);
 		} catch (Exception e) {

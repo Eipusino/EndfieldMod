@@ -23,7 +23,7 @@ importPackage(endfield.gen);
 importPackage(endfield.graphics);
 importPackage(endfield.graphics.g2d);
 importPackage(endfield.graphics.g3d);
-importPackage(endfield.graphics.gl);
+//importPackage(endfield.graphics.gl);
 importPackage(endfield.input);
 importPackage(endfield.io);
 importPackage(endfield.maps);

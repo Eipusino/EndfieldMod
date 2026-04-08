@@ -18,22 +18,22 @@ public class DesktopUnsafeFieldAccessHelper implements FieldAccessHelper {
 
 	public Field getField(Class<?> clazz, String name, boolean isStatic) {
 		CollectionObjectMap<String, Field> map = fieldMap.get(clazz, prov);
-		Field field = map.get(name);
-		if (field != null) return field;
+		Field res = map.get(name);
+		if (res != null) return res;
 
 		if (isStatic) {
-			Field f = classHelper.findField(clazz, name);
-			if (f != null && (f.getModifiers() & Modifier.STATIC) != 0) {
-				map.put(name, f);
-				return f;
+			res = classHelper.findField(clazz, name);
+			if (res != null && (res.getModifiers() & Modifier.STATIC) != 0) {
+				map.put(name, res);
+				return res;
 			}
 		} else {
 			Class<?> curr = clazz;
 			while (curr != Object.class) {
-				Field f = classHelper.findField(curr, name);
-				if (f != null && (f.getModifiers() & Modifier.STATIC) == 0) {
-					map.put(name, f);
-					return f;
+				res = classHelper.findField(curr, name);
+				if (res != null && (res.getModifiers() & Modifier.STATIC) == 0) {
+					map.put(name, res);
+					return res;
 				}
 
 				curr = curr.getSuperclass();

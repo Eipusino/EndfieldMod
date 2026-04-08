@@ -9,204 +9,105 @@ import arc.graphics.g2d.Draw;
 import arc.graphics.gl.FrameBuffer;
 import arc.graphics.gl.GLFrameBuffer;
 import arc.graphics.gl.Shader;
-import arc.util.serialization.Jval;
 import endfield.util.FieldAccessor;
-import endfield.util.handler.FieldHandler;
-import mindustry.Vars;
-import mindustry.game.EventType.Trigger;
-import mindustry.graphics.Layer;
-import mindustry.graphics.Pixelator;
-import org.jetbrains.annotations.Nullable;
-
-import java.lang.reflect.Field;
+import mindustry.game.EventType.ResizeEvent;
 
 import static endfield.Vars2.platformImpl;
 
 public final class ScreenSampler {
-	private static FieldAccessor lastBoundFramebufferAccessor;
-	private static FieldAccessor bufferAccessor;
+	private static final FieldAccessor currentBoundBuffer;
 
-	private static FrameBuffer worldBuffer, uiBuffer, currBuffer;
-
-	private static FrameBuffer pixelatorBuffer;
-
-	private static boolean activity = false;
+	private static final FrameBuffer swapBuffer = new FrameBuffer();
 
 	private ScreenSampler() {}
 
-	public static void init() {
+	static {
 		try {
-			lastBoundFramebufferAccessor = platformImpl.fieldAccessor(GLFrameBuffer.class.getDeclaredField("lastBoundFramebuffer"));
-			bufferAccessor = platformImpl.fieldAccessor(Pixelator.class.getDeclaredField("buffer"));
+			currentBoundBuffer = platformImpl.fieldAccessor(GLFrameBuffer.class.getDeclaredField("currentBoundFramebuffer"));
 		} catch (NoSuchFieldException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private static void ensurePixelatorBufferInitialized() {
-		if (pixelatorBuffer == null) {
-			Pixelator pixelator = Vars.renderer.pixelator;
-			pixelatorBuffer = bufferAccessor.get(pixelator);
-		}
-	}
-
-	public static void resetMark() {
-		Core.settings.remove("sampler.setup");
-	}
-
-	/**
-	 * Load Events for ScreenSampler.
-	 * If you try to load it a second time, nothing will happen.
-	 */
 	public static void setup() {
-		if (activity) return;
+		swapBuffer.resize(Core.graphics.getWidth(), Core.graphics.getHeight());
 
-		Jval jval = Jval.read(Core.settings.getString("sampler.setup", "{enabled: false}"));
+		Events.on(ResizeEvent.class, event -> swapBuffer.resize(Core.graphics.getWidth(), Core.graphics.getHeight()));
+	}
 
-		if (!jval.getBool("enabled", false)) {
-			jval = Jval.newObject();
-			jval.put("enabled", true);
-			jval.put("className", ScreenSampler.class.getName());
-			jval.put("worldBuffer", "worldBuffer");
-			jval.put("uiBuffer", "uiBuffer");
+	public static void toBuffer(FrameBuffer target) {
+		GLFrameBuffer<?> buffer = currentBoundBuffer.getObject(null);
 
-			worldBuffer = new FrameBuffer();
-			uiBuffer = new FrameBuffer();
-
-			Core.settings.put("sampler.setup", jval.toString());
-
-			Events.run(Trigger.draw, () -> {
-				Draw.draw(Layer.min - 0.001f, ScreenSampler::beginWorld);
-				Draw.draw(Layer.end + 0.001f, ScreenSampler::endWorld);
-			});
-
-			Events.run(Trigger.uiDrawBegin, ScreenSampler::beginUI);
-			Events.run(Trigger.uiDrawEnd, ScreenSampler::endUI);
+		if (buffer != null) {
+			if (buffer.getWidth() == target.getWidth() && buffer.getHeight() == target.getHeight()) {
+				buffer.begin();
+				target.getTexture().bind();
+				Gl.copyTexSubImage2D(
+						Gl.texture2d,
+						0,
+						0, 0,
+						0, 0,
+						target.getWidth(), target.getHeight());
+				Gl.bindTexture(Gl.texture2d, 0);
+				buffer.end();
+			} else {
+				blitBuffer(buffer, target);
+			}
 		} else {
-			try {
-				String className = jval.getString("className");
-				String worldBufferName = jval.getString("worldBuffer");
-				String uiBufferName = jval.getString("uiBuffer");
-				Class<?> type = Class.forName(className);
-				Field worldBufferField = type.getDeclaredField(worldBufferName);
-				Field uiBufferField = type.getDeclaredField(uiBufferName);
+			if (swapBuffer.getWidth() == target.getWidth() && swapBuffer.getHeight() == target.getHeight()) {
+				Draw.flush();
+				target.getTexture().bind();
+				Gl.copyTexSubImage2D(
+						Gl.texture2d,
+						0,
+						0, 0,
+						0, 0,
+						target.getWidth(), target.getHeight()
+				);
+				Gl.bindTexture(Gl.texture2d, 0);
+			} else {
+				Draw.flush();
+				swapBuffer.getTexture().bind();
+				Gl.copyTexSubImage2D(
+						Gl.texture2d,
+						0,
+						0, 0,
+						0, 0,
+						swapBuffer.getWidth(), swapBuffer.getHeight()
+				);
+				Gl.bindTexture(Gl.texture2d, 0);
 
-				worldBufferField.setAccessible(true);
-				uiBufferField.setAccessible(true);
-				worldBuffer = FieldHandler.get(null, worldBufferField);
-				uiBuffer = FieldHandler.get(null, uiBufferField);
-
-				Events.run(Trigger.preDraw, () -> currBuffer = worldBuffer);
-				Events.run(Trigger.postDraw, () -> currBuffer = null);
-				Events.run(Trigger.uiDrawBegin, () -> currBuffer = uiBuffer);
-				Events.run(Trigger.uiDrawEnd, () -> currBuffer = null);
-			} catch (ClassNotFoundException | NoSuchFieldException e) {
-				throw new RuntimeException("Failed to setup buffers from reflection", e);
+				blitBuffer(swapBuffer, target);
 			}
 		}
-
-		activity = true;
 	}
 
-	/**
-	 * @return Has whether set up.
-	 */
-	public static boolean isActivity() {
-		return activity;
-	}
+	public static void blitShader(Shader shader, int unit) {
+		GLFrameBuffer<?> buffer = currentBoundBuffer.getObject(null);
 
-	private static void beginWorld() {
-		if (Vars.renderer.pixelate) {
-			ensurePixelatorBufferInitialized();
-
-			currBuffer = pixelatorBuffer;
-		} else {
-			currBuffer = worldBuffer;
-
-			if (currBuffer.isBound()) return;
-
-			worldBuffer.resize(Core.graphics.getWidth(), Core.graphics.getHeight());
-			worldBuffer.begin(Color.clear);
+		if (buffer != null) {
+			buffer.getTexture().bind(unit);
+			Draw.blit(shader);
 		}
 	}
 
-	private static void endWorld() {
-		if (!Vars.renderer.pixelate) {
-			worldBuffer.end();
-			blitBuffer(worldBuffer, null);
-		}
-	}
-
-	private static void beginUI() {
-		currBuffer = uiBuffer;
-
-		if (uiBuffer.isBound()) return;
-
-		uiBuffer.resize(Core.graphics.getWidth(), Core.graphics.getHeight());
-		uiBuffer.begin(Color.clear);
-
-		ensurePixelatorBufferInitialized();
-
-		if (Vars.renderer.pixelate) blitBuffer(pixelatorBuffer, uiBuffer);
-		else blitBuffer(worldBuffer, uiBuffer);
-	}
-
-	private static void endUI() {
-		currBuffer = null;
-		uiBuffer.end();
-		blitBuffer(uiBuffer, null);
-	}
-
-	/**
-	 * Draw the current screen texture onto the screen using the passed shader.
-	 *
-	 * @param unit Texture units bound to screen sampling textures
-	 */
-	public static void blit(Shader shader, int unit) {
-		if (currBuffer == null) {
-			throw new IllegalStateException("currently no buffer bound");
-		}
-
-		currBuffer.getTexture().bind(unit);
-		Draw.blit(shader);
-	}
-
-	/** Overload method, use default texture unit {@code 0}. */
-	public static void blit(Shader shader) {
-		blit(shader, 0);
-	}
-
-	private static void blitBuffer(FrameBuffer from, @Nullable FrameBuffer to) {
-		if (Core.gl30 == null) {
-			from.blit(Shaders2.distBase);
-		} else {
-			GLFrameBuffer<?> target = to != null ? to : lastBoundFramebufferAccessor.get(from);
-			Gl.bindFramebuffer(GL30.GL_READ_FRAMEBUFFER, from.getFramebufferHandle());
-			Gl.bindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, target != null ? target.getFramebufferHandle() : 0);
+	private static void blitBuffer(GLFrameBuffer<?> source, GLFrameBuffer<?> target) {
+		if (Core.gl30 != null) {
+			Core.gl30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, source.getFramebufferHandle());
+			Core.gl30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, target.getFramebufferHandle());
 			Core.gl30.glBlitFramebuffer(
-					0, 0, from.getWidth(), from.getHeight(),
-					0, 0,
-					target != null ? target.getWidth() : Core.graphics.getWidth(),
-					target != null ? target.getHeight() : Core.graphics.getHeight(),
+					0, 0, source.getWidth(), source.getHeight(),
+					0, 0, target.getWidth(), target.getHeight(),
 					Gl.colorBufferBit, Gl.nearest
 			);
+			Core.gl30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, 0);
+			Core.gl30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, 0);
+		} else {
+			target.begin(Color.clear);
+			source.getTexture().bind(0);
+			Draw.blit(Shaders2.distBase);
+			Gl.bindTexture(Gl.texture2d, 0);
+			target.end();
 		}
-	}
-
-	/**
-	 * Transfer the current screen texture to a{@linkplain FrameBuffer frame buffer}, This will become a copy that can be used to temporarily store screen content.
-	 *
-	 * @param target Target buffer for transferring screen textures.
-	 * @param clear  Is the frame buffer cleared before transferring.
-	 */
-	public static void getToBuffer(FrameBuffer target, boolean clear) {
-		if (currBuffer == null) throw new IllegalStateException("currently no buffer bound");
-
-		if (clear) target.begin(Color.clear);
-		else target.begin();
-
-		blitBuffer(currBuffer, target);
-
-		target.end();
 	}
 }

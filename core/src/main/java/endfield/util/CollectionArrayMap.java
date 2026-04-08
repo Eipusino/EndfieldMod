@@ -277,7 +277,7 @@ public class CollectionArrayMap<K, V> extends AbstractMap<K, V> implements Itera
 	/**
 	 * @param identity If true, == comparison will be used. If false, .equals() comparison will be used.
 	 */
-	public boolean containsValue(V value, boolean identity) {
+	public boolean containsValue(Object value, boolean identity) {
 		int i = size - 1;
 		if (identity || value == null) {
 			while (i >= 0)
@@ -289,7 +289,7 @@ public class CollectionArrayMap<K, V> extends AbstractMap<K, V> implements Itera
 		return false;
 	}
 
-	public int indexOfKey(K key) {
+	public int indexOfKey(Object key) {
 		if (key == null) {
 			for (int i = 0, n = size; i < n; i++)
 				if (keys[i] == null) return i;
@@ -300,7 +300,7 @@ public class CollectionArrayMap<K, V> extends AbstractMap<K, V> implements Itera
 		return -1;
 	}
 
-	public int indexOfValue(V value, boolean identity) {
+	public int indexOfValue(Object value, boolean identity) {
 		if (identity || value == null) {
 			for (int i = 0, n = size; i < n; i++)
 				if (values[i] == value) return i;
@@ -332,7 +332,7 @@ public class CollectionArrayMap<K, V> extends AbstractMap<K, V> implements Itera
 		return null;
 	}
 
-	public boolean removeValue(V value, boolean identity) {
+	public boolean removeValue(Object value, boolean identity) {
 		if (identity || value == null) {
 			for (int i = 0, n = size; i < n; i++) {
 				if (values[i] == value) {

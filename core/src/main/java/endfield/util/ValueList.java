@@ -1,9 +1,10 @@
 package endfield.util;
 
 import java.util.Iterator;
+import java.util.function.Consumer;
 
 public class ValueList extends ValueMap implements Iterable<ValueMap> {
-	CollectionList<ValueMap> list = new CollectionList<>(ValueMap.class);
+	protected CollectionList<ValueMap> list = new CollectionList<>(ValueMap.class);
 
 	public ValueMap getMap(int index) {
 		return list.get(index);
@@ -45,6 +46,11 @@ public class ValueList extends ValueMap implements Iterable<ValueMap> {
 	@Override
 	public Iterator<ValueMap> iterator() {
 		return list.iterator();
+	}
+
+	@Override
+	public void forEach(Consumer<? super ValueMap> action) {
+		list.forEach(action);
 	}
 
 	public int length() {

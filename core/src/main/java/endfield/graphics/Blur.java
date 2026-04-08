@@ -202,7 +202,7 @@ public class Blur implements Disposable {
 		blur.setUniformf("dir", blurSpace, 0f);
 		blur.setUniformi("def_alpha", 1);
 		buffer.getTexture().bind(0);
-		ScreenSampler.blit(blur, 1);
+		ScreenSampler.blitShader(blur, 1);
 		pingpong.end();
 
 		blur.bind();

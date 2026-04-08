@@ -92,6 +92,10 @@ public class DesktopImpl implements PlatformImpl {
 				return (T) clone.invokeExact(object);
 			}
 
+			Class<?> type = object.getClass();
+
+			if (type == Class.class || type == Field.class || type == Method.class || type == Constructor.class) return null;
+
 			T out = (T) unsafe.allocateInstance(object.getClass());
 			// The performance overhead may be high, but there is currently no other way.
 			ObjectHandler.copyField(object, out);

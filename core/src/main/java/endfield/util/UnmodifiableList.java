@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.function.Consumer;
 
 /**
  * The unmodifiable List class, Used to prevent elements in an array from being altered.
@@ -31,6 +32,13 @@ public class UnmodifiableList<E> extends AbstractList<E> implements Iterable<E>,
 	public void each(Cons<? super E> cons) {
 		for (E item : items) {
 			cons.get(item);
+		}
+	}
+
+	@Override
+	public void forEach(Consumer<? super E> action) {
+		for (E item : items) {
+			action.accept(item);
 		}
 	}
 

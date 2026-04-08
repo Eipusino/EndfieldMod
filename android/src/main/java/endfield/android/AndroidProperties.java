@@ -16,7 +16,7 @@ public final class AndroidProperties {
 
 	private AndroidProperties() {}
 
-	static boolean load() {
+	static boolean setup() {
 		try {
 			methods = Property.of(Class.class, Method[].class, "declaredMethods");
 			constructors = Property.of(Class.class, Constructor[].class, "declaredConstructors");

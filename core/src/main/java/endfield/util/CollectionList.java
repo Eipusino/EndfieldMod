@@ -376,7 +376,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 		return result;
 	}
 
-	public E min(Boolf<E> filter, Comparator<? super E> func) {
+	public E min(Boolf<? super E> filter, Comparator<? super E> func) {
 		E result = null;
 		for (int i = 0; i < size; i++) {
 			E t = items[i];
@@ -424,7 +424,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 		return null;
 	}
 
-	public CollectionList<E> with(Cons<CollectionList<E>> cons) {
+	public CollectionList<E> with(Cons<? super CollectionList<E>> cons) {
 		cons.get(this);
 		return this;
 	}

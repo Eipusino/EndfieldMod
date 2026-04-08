@@ -1,6 +1,6 @@
 package endfield.android;
 
-import endfield.android.util.field.AndroidField;
+import endfield.android.util.Fields;
 import endfield.util.AbstractFieldAccessor;
 import endfield.util.FieldAccessor;
 
@@ -17,7 +17,7 @@ public abstract class UnsafeFieldAccessor extends AbstractFieldAccessor {
 
 	protected UnsafeFieldAccessor(Field f) {
 		super(f);
-		offset = AndroidField.fieldOffset(f);
+		offset = Fields.getOffset(f);
 	}
 
 	public static FieldAccessor getUnsafeFieldAccessor(Field f) {

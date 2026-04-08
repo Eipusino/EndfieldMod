@@ -11,6 +11,7 @@ import arc.util.Eachable;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.function.Consumer;
 
 /**
  * Use floats to restore the coords of a 2D vector to improve the performance. <p>
@@ -221,6 +222,13 @@ public class Vec2Seq implements Iterable<Vec2>, Eachable<Vec2> {
 	public void each(Cons<? super Vec2> cons) {
 		for (int i = 0; i < size(); i++) {
 			cons.get(tmpVec2(i));
+		}
+	}
+
+	@Override
+	public void forEach(Consumer<? super Vec2> action) {
+		for (int i = 0; i < size(); i++) {
+			action.accept(tmpVec2(i));
 		}
 	}
 
