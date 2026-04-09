@@ -183,8 +183,8 @@ public final class PatternManager {
 			if (tile == null) return;
 
 			for (Patterned p : getPatternedBlocks(tile)) {
-				if (!(p instanceof Block pBlock)) continue;
-				if (resolvedBlocks != null && resolvedBlocks.contains(pBlock)) continue;
+				if (!(p instanceof Block block)) continue;
+				if (resolvedBlocks != null && resolvedBlocks.contains(block)) continue;
 
 				Shape shape = p.getShape();
 				shape.each((sx, sy) -> {
@@ -192,13 +192,13 @@ public final class PatternManager {
 						Tile potentialAnchor = Vars.world.tile(tile.x - sx, tile.y - sy);
 						if (potentialAnchor != null) {
 							CollectionObjectSet<Block> checked = processedAnchors.get(potentialAnchor.pos());
-							if (checked != null && checked.contains(pBlock)) return;
+							if (checked != null && checked.contains(block)) return;
 
 							if (checked == null) {
 								checked = new CollectionObjectSet<>(Block.class);
 								processedAnchors.put(potentialAnchor.pos(), checked);
 							}
-							checked.add(pBlock);
+							checked.add(block);
 
 							if (isPatternComplete(p, potentialAnchor, resolved)) {
 								onPatternFound.get(new PatternAnchor(potentialAnchor, p));
@@ -235,9 +235,9 @@ public final class PatternManager {
 	}
 
 	static IntSet findContiguousTiles(Tile startTile, Patterned patterned, IntMap2<CollectionObjectSet<Block>> visited) {
-		if (!(patterned instanceof Block pBlock)) return new IntSet();
+		if (!(patterned instanceof Block block)) return new IntSet();
 
-		if (isVisited(visited, startTile.pos(), pBlock)) return new IntSet();
+		if (isVisited(visited, startTile.pos(), block)) return new IntSet();
 
 		IntSet contiguous = new IntSet();
 		IntSeq stack = new IntSeq();
@@ -252,7 +252,7 @@ public final class PatternManager {
 			int y = Point2.y(popped);
 
 			int x1 = startX;
-			while (x1 >= 0 && hasPatterned(Vars.world.tile(x1, y), patterned) && !isVisited(visited, Point2.pack(x1, y), pBlock)) {
+			while (x1 >= 0 && hasPatterned(Vars.world.tile(x1, y), patterned) && !isVisited(visited, Point2.pack(x1, y), block)) {
 				x1--;
 			}
 			x1++;
@@ -260,21 +260,21 @@ public final class PatternManager {
 			boolean spanAbove = false;
 			boolean spanBelow = false;
 
-			while (x1 < width && hasPatterned(Vars.world.tile(x1, y), patterned) && !isVisited(visited, Point2.pack(x1, y), pBlock)) {
-				visit(visited, x1, y, pBlock);
+			while (x1 < width && hasPatterned(Vars.world.tile(x1, y), patterned) && !isVisited(visited, Point2.pack(x1, y), block)) {
+				visit(visited, x1, y, block);
 				contiguous.add(Point2.pack(x1, y));
 
-				if (!spanAbove && y > 0 && hasPatterned(Vars.world.tile(x1, y - 1), patterned) && !isVisited(visited, Point2.pack(x1, y - 1), pBlock)) {
+				if (!spanAbove && y > 0 && hasPatterned(Vars.world.tile(x1, y - 1), patterned) && !isVisited(visited, Point2.pack(x1, y - 1), block)) {
 					stack.add(Point2.pack(x1, y - 1));
 					spanAbove = true;
-				} else if (spanAbove && !(hasPatterned(Vars.world.tile(x1, y - 1), patterned) && !isVisited(visited, Point2.pack(x1, y - 1), pBlock))) {
+				} else if (spanAbove && !(hasPatterned(Vars.world.tile(x1, y - 1), patterned) && !isVisited(visited, Point2.pack(x1, y - 1), block))) {
 					spanAbove = false;
 				}
 
-				if (!spanBelow && y < height - 1 && hasPatterned(Vars.world.tile(x1, y + 1), patterned) && !isVisited(visited, Point2.pack(x1, y + 1), pBlock)) {
+				if (!spanBelow && y < height - 1 && hasPatterned(Vars.world.tile(x1, y + 1), patterned) && !isVisited(visited, Point2.pack(x1, y + 1), block)) {
 					stack.add(Point2.pack(x1, y + 1));
 					spanBelow = true;
-				} else if (spanBelow && y < height - 1 && !(hasPatterned(Vars.world.tile(x1, y + 1), patterned) && !isVisited(visited, Point2.pack(x1, y + 1), pBlock))) {
+				} else if (spanBelow && y < height - 1 && !(hasPatterned(Vars.world.tile(x1, y + 1), patterned) && !isVisited(visited, Point2.pack(x1, y + 1), block))) {
 					spanBelow = false;
 				}
 				x1++;
@@ -300,7 +300,7 @@ public final class PatternManager {
 	}
 
 	static void addAnchor(Patterned p, Tile anchor, IntMap2<CollectionObjectSet<Block>> localClaimed) {
-		if (!(p instanceof Block pBlock)) return;
+		if (!(p instanceof Block block)) return;
 
 		PatternAnchor pa = new PatternAnchor(anchor, p);
 		anchorTree.insert(pa);
@@ -316,21 +316,21 @@ public final class PatternManager {
 						map = new CollectionObjectMap<>(Block.class, Tile.class);
 						tileToAnchorMap.put(member.pos(), map);
 					}
-					map.put(pBlock, anchor);
+					map.put(block, anchor);
 
 					CollectionObjectSet<Block> claimedSet = localClaimed.get(member.pos());
 					if (claimedSet == null) {
 						claimedSet = new CollectionObjectSet<>(Block.class);
 						localClaimed.put(member.pos(), claimedSet);
 					}
-					claimedSet.add(pBlock);
+					claimedSet.add(block);
 				}
 			}
 		});
 	}
 
 	static boolean isPatternComplete(Patterned patterned, Tile anchor, IntMap2<CollectionObjectSet<Block>> localClaimed) {
-		if (!(patterned instanceof Block pBlock)) return false;
+		if (!(patterned instanceof Block block)) return false;
 
 		for (int x = 0; x < patterned.getShape().width(); x++) {
 			for (int y = 0; y < patterned.getShape().height(); y++) {
@@ -341,7 +341,7 @@ public final class PatternManager {
 					}
 					if (localClaimed != null) {
 						CollectionObjectSet<Block> claimed = localClaimed.get(other.pos());
-						if (claimed != null && claimed.contains(pBlock)) {
+						if (claimed != null && claimed.contains(block)) {
 							return false;
 						}
 					}
@@ -356,10 +356,10 @@ public final class PatternManager {
 	}
 
 	public static Tile getAnchor(Tile tile, Patterned p) {
-		if (tile == null || !(p instanceof Block pBlock)) return null;
+		if (tile == null || !(p instanceof Block block)) return null;
 		CollectionObjectMap<Block, Tile> map = tileToAnchorMap.get(tile.pos());
 		if (map == null) return null;
-		return map.get(pBlock);
+		return map.get(block);
 	}
 
 	public static CollectionList<Patterned> getPatternedBlocks(Tile tile) {
@@ -373,8 +373,8 @@ public final class PatternManager {
 	}
 
 	public static boolean hasPatterned(Tile tile, Patterned p) {
-		if (tile == null || !(p instanceof Block pBlock)) return false;
-		return tile.block() == pBlock || tile.floor() == pBlock || tile.overlay() == pBlock;
+		if (tile == null || !(p instanceof Block block)) return false;
+		return tile.block() == block || tile.floor() == block || tile.overlay() == block;
 	}
 
 	static class PatternAnchor implements QuadTree.QuadTreeObject {

@@ -12,20 +12,6 @@ repositories {
 		patternLayout { artifact '/[organisation]/[module]/releases/download/[revision]/server-release.jar' }
 		metadataSources { artifact() }
 	}
-
-	//"Latest" option to depend on BE builds.
-	ivy {
-		url 'https://github.com/'
-		patternLayout { artifact '/[organisation]/[module]/releases/download/master/[revision].jar' }
-		metadataSources { artifact() }
-	}
-
-	//Do the same with jabel
-	ivy {
-		url 'https://github.com/'
-		patternLayout { artifact '/[organisation]/[module]/releases/download/[revision]/jabel.jar' }
-		metadataSources { artifact() }
-	}
 }
 
 java {
@@ -45,12 +31,15 @@ dependencies {
 	compileOnly "Anuken:Mindustry:$mindustryVersion"
 
 	implementation "org.jetbrains:annotations:26.0.2"
-
-	implementation files("libs/java-dynamilizer.jar", "libs/commonmark.jar")
+	implementation "org.ow2.asm:asm:$asmVersion"
+	implementation "org.ow2.asm:asm-tree:$asmVersion"
+	implementation "org.ow2.asm:asm-commons:$asmVersion"
 }
 
 jar {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+	exclude "module-info.class"
 
 	from {
 		configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }

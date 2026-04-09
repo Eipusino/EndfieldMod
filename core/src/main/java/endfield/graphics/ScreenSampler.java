@@ -12,6 +12,8 @@ import arc.graphics.gl.Shader;
 import endfield.util.FieldAccessor;
 import mindustry.game.EventType.ResizeEvent;
 
+import java.util.Objects;
+
 import static endfield.Vars2.platformImpl;
 
 public final class ScreenSampler {
@@ -85,10 +87,8 @@ public final class ScreenSampler {
 	public static void blitShader(Shader shader, int unit) {
 		GLFrameBuffer<?> buffer = currentBoundBuffer.getObject(null);
 
-		if (buffer != null) {
-			buffer.getTexture().bind(unit);
-			Draw.blit(shader);
-		}
+		Objects.requireNonNullElse(buffer, swapBuffer).getTexture().bind(unit);
+		Draw.blit(shader);
 	}
 
 	private static void blitBuffer(GLFrameBuffer<?> source, GLFrameBuffer<?> target) {

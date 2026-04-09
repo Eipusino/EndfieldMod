@@ -144,23 +144,23 @@ public class MethodHandler<T> {
 	 * Specify strict parameter calling methods. If there are strange issues with using the {@link #invoke(Object, String, Object[])}
 	 * method, you can use the method.
 	 */
-	public <R> R invokeAsType(T object, String name, Class<?>[] parameterTypes, Object... args) {
-		return methodInvokeHelper.invokeAsType(object, name, parameterTypes, args);
+	public <R> R invokeExplicit(T object, String name, Class<?>[] parameterTypes, Object... args) {
+		return methodInvokeHelper.invokeExplicit(object, name, parameterTypes, args);
 	}
 
 	/**
 	 * Specify strict parameter calling methods. If there are strange issues with using the {@link #invokeStatic(String, Object[])}
 	 * method, you can use the method.
 	 */
-	public <R> R invokeStaticAsType(String name, Class<?>[] parameterTypes, Object... args) {
-		return methodInvokeHelper.invokeStaticAsType(clazz, name, parameterTypes, args);
+	public <R> R invokeStaticExplicit(String name, Class<?>[] parameterTypes, Object... args) {
+		return methodInvokeHelper.invokeStaticExplicit(clazz, name, parameterTypes, args);
 	}
 
 	/**
 	 * Specify strict parameter calling methods. If there are strange issues with using the {@link #newInstance(Object...)}
 	 * method, you can use the method.
 	 */
-	public T newInstanceAsType(Class<?>[] parameterTypes, Object... args) {
-		return methodInvokeHelper.newInstanceAsType(clazz, parameterTypes, args);
+	public T newInstanceExplicit(Class<?>[] parameterTypes, Object... args) {
+		return methodInvokeHelper.newInstanceExplicit(clazz, parameterTypes, args);
 	}
 }

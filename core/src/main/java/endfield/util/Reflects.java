@@ -16,7 +16,6 @@ package endfield.util;
 import arc.func.Boolf;
 import arc.func.Prov;
 import arc.util.Structs;
-import dynamilize.FunctionType;
 import mindustry.Vars;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -27,14 +26,15 @@ import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.List;
 import java.util.Set;
 
 import static endfield.Vars2.accessibleHelper;
 import static endfield.Vars2.classHelper;
+import static endfield.Vars2.platformImpl;
 
 /**
  * Reflection utilities, mainly for wrapping reflective operations to eradicate checked exceptions.
@@ -48,7 +48,7 @@ public final class Reflects {
 	/** Don't let anyone instantiate this class. */
 	private Reflects() {}
 
-	public static String defs(Class<?> type) {
+	public static String def(Class<?> type) {
 		// boolean
 		if (type == boolean.class || type == Boolean.class) return "false";
 		// integer
@@ -64,20 +64,11 @@ public final class Reflects {
 		return "null";
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <T> T def(Class<T> type) {
-		Object value;
-		if (type == boolean.class || type == Boolean.class) value = false;
-		else if (type == byte.class || type == Byte.class) value = (byte) 0;
-		else if (type == short.class || type == Short.class) value = (short) 0;
-		else if (type == int.class || type == Integer.class) value = 0;
-		else if (type == long.class || type == Long.class) value = 0l;
-		else if (type == char.class || type == Character.class) value = '\u0000';
-		else if (type == float.class || type == Float.class) value = 0f;
-		else if (type == double.class || type == Double.class) value = 0d;
-		else value = null;
+	public static <T> Prov<T> supply(Class<T> type, String name, Class<?>[] parameterTypes, T object, Object... args) {
+		Method method = classHelper.getMethod(type, name, parameterTypes);
+		MethodAccessor accessor = platformImpl.methodAccessor(method);
 
-		return (T) value;
+		return () -> accessor.invoke(object, args);
 	}
 
 	/**
@@ -86,18 +77,10 @@ public final class Reflects {
 	 * @throws RuntimeException Any exception that occurs in reflection.
 	 */
 	public static <T> Prov<T> supply(Class<T> type, Class<?>[] parameterTypes, Object... args) {
-		try {
-			Constructor<T> cons = type.getDeclaredConstructor(parameterTypes);
-			return () -> {
-				try {
-					return cons.newInstance(args);
-				} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-					throw new RuntimeException(e);
-				}
-			};
-		} catch (NoSuchMethodException e) {
-			throw new RuntimeException(e);
-		}
+		Constructor<?> constructor = classHelper.getConstructor(type, parameterTypes);
+		ConstructorAccessor accessor = platformImpl.constructorAccessor(constructor);
+
+		return () -> accessor.newInstance(args);
 	}
 
 	/**
@@ -230,28 +213,107 @@ public final class Reflects {
 	}
 
 	/**
+	 * This type of data has frequent calls, small data volume, and unnecessary performance costs when
+	 * using stream processing. Using for traversal instead of stream processing.
+	 */
+	public static Class<?>[] wrapper(Class<?>[] clazz) {
+		for (int i = 0; i < clazz.length; i++) {
+			clazz[i] = wrapper(clazz[i]);
+		}
+		return clazz;
+	}
+
+	public static Class<?>[] unwrapped(Class<?>[] clazz) {
+		for (int i = 0; i < clazz.length; i++) {
+			clazz[i] = unwrapped(clazz[i]);
+		}
+		return clazz;
+	}
+
+	public static Class<?> wrapper(Class<?> clazz) {
+		if (clazz == int.class) return Integer.class;
+		if (clazz == float.class) return Float.class;
+		if (clazz == long.class) return Long.class;
+		if (clazz == double.class) return Double.class;
+		if (clazz == byte.class) return Byte.class;
+		if (clazz == short.class) return Short.class;
+		if (clazz == boolean.class) return Boolean.class;
+		if (clazz == char.class) return Character.class;
+		if (clazz == void.class) return Void.class;
+		return clazz;
+	}
+
+	public static Class<?> unwrapped(Class<?> clazz) {
+		if (clazz == Integer.class) return int.class;
+		if (clazz == Float.class) return float.class;
+		if (clazz == Long.class) return long.class;
+		if (clazz == Double.class) return double.class;
+		if (clazz == Byte.class) return byte.class;
+		if (clazz == Short.class) return short.class;
+		if (clazz == Boolean.class) return boolean.class;
+		if (clazz == Character.class) return char.class;
+		if (clazz == Void.class) return void.class;
+		return clazz;
+	}
+
+	public static Class<?>[] toTypes(Object... objects) {
+		Class<?>[] types = new Class[objects.length];
+
+		for (int i = 0; i < types.length; i++) {
+			Object object = objects[i];
+			types[i] = object == null ? void.class : object.getClass();
+		}
+
+		return types;
+	}
+
+	public static Class<?>[] toTypes(List<?> objects) {
+		Class<?>[] types = new Class[objects.size()];
+
+		for (int i = 0; i < types.length; i++) {
+			Object object = objects.get(i);
+			types[i] = object == null ? void.class : object.getClass();
+		}
+
+		return types;
+	}
+
+	public static int typeNameHash(Class<?>[] types) {
+		int result = 1;
+
+		for (Class<?> type : types) {
+			result = 31 * result + type.getName().hashCode();
+		}
+
+		return result;
+		//return Arrays.hashCode(Arrays.stream(types).map(Class::getName).toArray());
+	}
+
+	public static boolean match(Class<?>[] sourceTypes, Object... args) {
+		return match(sourceTypes, unwrapped(toTypes(args)));
+	}
+
+	/**
 	 * This method is compatible with primitive types and their corresponding wrapper classes, but the
 	 * performance overhead may be slightly higher.
 	 *
 	 * @param sourceTypes Source parameter type
 	 * @param targetTypes Parameter type to be assigned
+	 * @throws NullPointerException If the array or any of its elements is null
 	 * @since 1.0.9
 	 */
-	public static boolean isAssignableWithBoxing(Class<?>[] sourceTypes, Class<?>[] targetTypes) {
-		if (sourceTypes.length != targetTypes.length) return false;
+	public static boolean match(Class<?>[] sourceTypes, Class<?>[] targetTypes) {
+		if (targetTypes.length != sourceTypes.length) return false;
 
 		for (int i = 0; i < sourceTypes.length; i++) {
-			if (!isAssignableWithBoxing(sourceTypes[i], targetTypes[i])) {
-				return false;
-			}
-		}
-		return true;
-	}
+			Class<?> sourceType = sourceTypes[i];
+			Class<?> targetType = targetTypes[i];
 
-	public static boolean isAssignableWithBoxing(Class<?> sourceType, Class<?> targetType) {
-		return targetType.isAssignableFrom(sourceType) ||
-				targetType.isPrimitive() && FunctionType.wrapper(targetType).isAssignableFrom(sourceType) ||
-				sourceType.isPrimitive() && targetType.isAssignableFrom(FunctionType.wrapper(sourceType));
+			if (targetType == void.class) continue;
+			if (!sourceType.isAssignableFrom(targetType)) return false;
+		}
+
+		return true;
 	}
 
 	/**

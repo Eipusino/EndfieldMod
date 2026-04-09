@@ -76,6 +76,11 @@ public class SizedGraphics extends Graphics {
 	}
 
 	@Override
+	public boolean supportsInstancing() {
+		return delegate.supportsInstancing();
+	}
+
+	@Override
 	public GL20 getGL20() {
 		return delegate.getGL20();
 	}
@@ -191,23 +196,23 @@ public class SizedGraphics extends Graphics {
 	}
 
 	@Override
-	public boolean setFullscreen() {
-		return delegate.setFullscreen();
+	public boolean setFullscreen(boolean fullscreen) {
+		return delegate.setFullscreen(fullscreen);
 	}
 
 	@Override
-	public boolean setWindowedMode(int width, int height) {
-		return delegate.setWindowedMode(width, height);
+	public void setWindowPosition(int x, int y) {
+		delegate.setWindowPosition(x, y);
+	}
+
+	@Override
+	public void setWindowSize(int width, int height) {
+		delegate.setWindowSize(width, height);
 	}
 
 	@Override
 	public void setTitle(String title) {
 		delegate.setTitle(title);
-	}
-
-	@Override
-	public void setBorderless(boolean undecorated) {
-		delegate.setBorderless(undecorated);
 	}
 
 	@Override
@@ -223,6 +228,11 @@ public class SizedGraphics extends Graphics {
 	@Override
 	public boolean supportsExtension(String extension) {
 		return delegate.supportsExtension(extension);
+	}
+
+	@Override
+	public void setPreferredFPS(int fps) {
+		delegate.setPreferredFPS(fps);
 	}
 
 	@Override

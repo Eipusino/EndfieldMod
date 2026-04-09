@@ -4,11 +4,11 @@ import arc.graphics.Color;
 import arc.graphics.g3d.VertexBatch3D;
 import arc.math.geom.Vec3;
 
-public final class Draw3DUtils {
+public final class Draw3d {
 	private static final Vec3 a = new Vec3(), b = new Vec3(), c = new Vec3(), d = new Vec3();
 
 	/** Don't let anyone instantiate this class. */
-	private Draw3DUtils() {}
+	private Draw3d() {}
 
 	public static void quad(
 			VertexBatch3D batch,

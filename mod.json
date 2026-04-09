@@ -9,7 +9,7 @@
 	"repo": "Eipusino/EndfieldMod",
 	"java": true,
 	"hidden": false,
-	"minGameVersion": 156.2,
+	"minGameVersion": 157,
 	"dependencies": [],
 	"hideBrowser": true
 }

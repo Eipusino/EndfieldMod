@@ -5,6 +5,7 @@ import dalvik.system.VMStack;
 import endfield.util.CollectionObjectMap;
 import endfield.util.FieldAccessor;
 import endfield.util.PlatformImpl;
+import endfield.util.ReflectionMethodInvokeHelper;
 import libcore.io.Memory;
 
 import java.lang.invoke.MethodHandles.Lookup;
@@ -45,7 +46,7 @@ public class AndroidImpl implements PlatformImpl {
 		accessibleHelper = new AndroidAccessibleHelper();
 		classHelper = new AndroidClassHelper();
 		fieldAccessHelper = new AndroidUnsafeFieldAccessHelper();
-		methodInvokeHelper = new AndroidReflectionMethodInvokeHelper();
+		methodInvokeHelper = new ReflectionMethodInvokeHelper();
 
 		try {
 			constructor = Lookup.class.getDeclaredConstructor(Class.class, int.class);

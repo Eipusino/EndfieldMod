@@ -580,10 +580,9 @@ public final class Arrays2 {
 	 * @throws NullPointerException if e is null
 	 * @since 1.0.7
 	 */
-	@SuppressWarnings("unchecked")
-	public static <K, V> ObjectHolder<K, V> copyOf(Entry<? extends K, ? extends V> e) {
-		if (e instanceof ObjectHolder<? extends K, ? extends V>) {
-			return (ObjectHolder<K, V>) e;
+	public static <K, V> ObjectHolder<K, V> copyOf(Entry<K, V> e) {
+		if (e instanceof ObjectHolder<K, V> h) {
+			return h;
 		} else {
 			return new ObjectHolder<>(e.getKey(), e.getValue());
 		}

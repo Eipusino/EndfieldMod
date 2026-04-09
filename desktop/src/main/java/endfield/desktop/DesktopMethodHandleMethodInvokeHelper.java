@@ -1,8 +1,8 @@
 package endfield.desktop;
 
 import arc.func.Prov;
-import dynamilize.FunctionType;
 import endfield.util.CollectionObjectMap;
+import endfield.util.FunctionType;
 import endfield.util.MethodInvokeHelper;
 import endfield.util.Reflects;
 
@@ -23,22 +23,22 @@ public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper
 	protected static final Prov<CollectionObjectMap<String, CollectionObjectMap<FunctionType, MethodHandle>>> prov1 = () -> new CollectionObjectMap<>(String.class, CollectionObjectMap.class);
 	protected static final Prov<CollectionObjectMap<FunctionType, MethodHandle>> prov2 = () -> new CollectionObjectMap<>(FunctionType.class, MethodHandle.class);
 
-	protected MethodHandle getMethod(Class<?> clazz, String name, FunctionType argTypes) throws NoSuchMethodException, IllegalAccessException {
+	protected MethodHandle getMethod(Class<?> clazz, String name, FunctionType types) throws NoSuchMethodException, IllegalAccessException {
 		CollectionObjectMap<FunctionType, MethodHandle> map = methodPool.get(clazz, prov1).get(name, prov2);
 
-		FunctionType type = FunctionType.inst(argTypes);
+		FunctionType type = FunctionType.inst(types);
 		MethodHandle res = map.get(type);
 
 		if (res != null) return res;
 
 		for (var entry : map) {
-			if (entry.key.match(argTypes.getTypes())) return entry.value;
+			if (entry.key.match(types)) return entry.value;
 		}
 
 		Class<?> curr = clazz;
 
 		while (curr != null) {
-			Method method = classHelper.findMethod(curr, name, argTypes.getTypes());
+			Method method = classHelper.findMethod(curr, name, types.paramType());
 
 			if (method != null) {
 				res = lookup.unreflect(method);
@@ -68,20 +68,20 @@ public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper
 			curr = curr.getSuperclass();
 		}
 
-		throw new NoSuchMethodException("no such method " + name + " in class: " + clazz + " with assignable parameter: " + argTypes);
+		throw new NoSuchMethodException("no such method " + name + " in class: " + clazz + " with assignable parameter: " + types);
 	}
 
-	protected MethodHandle getConstructor(Class<?> clazz, FunctionType argsType) throws IllegalAccessException, NoSuchMethodException {
+	protected MethodHandle getConstructor(Class<?> clazz, FunctionType types) throws IllegalAccessException, NoSuchMethodException {
 		CollectionObjectMap<FunctionType, MethodHandle> map = methodPool.get(clazz, prov1).get("<init>", prov2);
 
-		MethodHandle res = map.get(argsType);
+		MethodHandle res = map.get(types);
 		if (res != null) return res;
 
 		for (var entry : map) {
-			if (entry.key.match(argsType.getTypes())) return entry.value;
+			if (entry.key.match(types)) return entry.value;
 		}
 
-		Constructor<?> cons = classHelper.findConstructor(clazz, argsType.getTypes());
+		Constructor<?> cons = classHelper.findConstructor(clazz, types.paramType());
 		if (cons != null) {
 			cons.setAccessible(true);
 			res = lookup.unreflectConstructor(cons);
@@ -92,7 +92,7 @@ public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper
 
 		for (Constructor<?> constructor : classHelper.getConstructors(clazz)) {
 			FunctionType functionType;
-			if ((functionType = from(constructor)).match(argsType.getTypes())) {
+			if ((functionType = from(constructor)).match(types)) {
 				constructor.setAccessible(true);
 
 				res = lookup.unreflectConstructor(constructor);
@@ -105,7 +105,7 @@ public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper
 
 		if (res != null) return res;
 
-		throw new NoSuchMethodException("no such constructor in class: " + clazz + " with assignable parameter: " + argsType);
+		throw new NoSuchMethodException("no such constructor in class: " + clazz + " with assignable parameter: " + types);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -149,7 +149,7 @@ public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T invokeAsType(Object object, String name, Class<?>[] parameterTypes, Object... args) {
+	public <T> T invokeExplicit(Object object, String name, Class<?>[] parameterTypes, Object... args) {
 		FunctionType type = FunctionType.inst(parameterTypes);
 		try {
 			return (T) Reflects.invokeVirtual(object, getMethod(object.getClass(), name, type), args);
@@ -162,7 +162,7 @@ public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T invokeStaticAsType(Class<?> clazz, String name, Class<?>[] parameterTypes, Object... args) {
+	public <T> T invokeStaticExplicit(Class<?> clazz, String name, Class<?>[] parameterTypes, Object... args) {
 		FunctionType type = FunctionType.inst(parameterTypes);
 		try {
 			return (T) Reflects.invokeStatic(getMethod(clazz, name, type), args);
@@ -175,7 +175,7 @@ public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T newInstanceAsType(Class<T> clazz, Class<?>[] parameterTypes, Object... args) {
+	public <T> T newInstanceExplicit(Class<T> clazz, Class<?>[] parameterTypes, Object... args) {
 		FunctionType type = FunctionType.inst(parameterTypes);
 		try {
 			return (T) Reflects.invokeStatic(getConstructor(clazz, type), args);
@@ -186,16 +186,16 @@ public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper
 		}
 	}
 
-	protected MethodHandle getMethod(Method method, FunctionType argTypes) throws IllegalAccessException {
+	protected MethodHandle getMethod(Method method, FunctionType types) throws IllegalAccessException {
 		CollectionObjectMap<FunctionType, MethodHandle> map = methodPool.get(method.getDeclaringClass(), prov1).get(method.getName(), prov2);
 
-		FunctionType type = FunctionType.inst(argTypes);
+		FunctionType type = FunctionType.inst(types);
 		MethodHandle res = map.get(type);
 
 		if (res != null) return res;
 
 		for (var entry : map) {
-			if (entry.key.match(argTypes.getTypes())) return entry.value;
+			if (entry.key.match(types)) return entry.value;
 		}
 
 		res = lookup.unreflect(method);
@@ -205,19 +205,19 @@ public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper
 		return res;
 	}
 
-	protected MethodHandle getConstructor(Constructor<?> constructor, FunctionType argsType) throws IllegalAccessException {
+	protected MethodHandle getConstructor(Constructor<?> constructor, FunctionType types) throws IllegalAccessException {
 		CollectionObjectMap<FunctionType, MethodHandle> map = methodPool.get(constructor.getDeclaringClass(), prov1).get("<init>", prov2);
 
-		MethodHandle res = map.get(argsType);
+		MethodHandle res = map.get(types);
 		if (res != null) return res;
 
 		for (var entry : map) {
-			if (entry.key.match(argsType.getTypes())) return entry.value;
+			if (entry.key.match(types)) return entry.value;
 		}
 
 		res = lookup.unreflectConstructor(constructor);
 
-		map.put(argsType, res);
+		map.put(types, res);
 
 		return res;
 	}
