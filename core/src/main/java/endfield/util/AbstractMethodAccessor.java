@@ -19,7 +19,7 @@ public abstract class AbstractMethodAccessor implements MethodAccessor {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj == this || obj instanceof AbstractMethodAccessor other && other.getMethod().equals(method);
+		return obj == this || obj instanceof AbstractMethodAccessor other && other.method.equals(method);
 	}
 
 	@Override

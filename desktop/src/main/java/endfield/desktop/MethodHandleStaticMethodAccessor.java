@@ -8,10 +8,10 @@ import java.lang.reflect.Method;
 
 import static endfield.desktop.DesktopImpl.lookup;
 
-public final class DesktopStaticMethodAccessor extends AbstractMethodAccessor {
+public final class MethodHandleStaticMethodAccessor extends AbstractMethodAccessor {
 	final MethodHandle spreadHandle;
 
-	public DesktopStaticMethodAccessor(Method met) {
+	public MethodHandleStaticMethodAccessor(Method met) {
 		super(met);
 
 		try {
@@ -38,6 +38,6 @@ public final class DesktopStaticMethodAccessor extends AbstractMethodAccessor {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj == this || obj instanceof DesktopStaticMethodAccessor other && other.getMethod().equals(method);
+		return obj == this || obj instanceof MethodHandleStaticMethodAccessor other && other.method.equals(method);
 	}
 }

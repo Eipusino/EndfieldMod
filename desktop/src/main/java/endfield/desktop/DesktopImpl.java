@@ -46,8 +46,8 @@ public class DesktopImpl implements PlatformImpl {
 			Demodulator.ensureFieldOpen();
 
 			classHelper = new DesktopClassHelper();
-			fieldAccessHelper = new DesktopUnsafeFieldAccessHelper();
-			methodInvokeHelper = new DesktopMethodHandleMethodInvokeHelper();
+			fieldAccessHelper = new UnsafeFieldAccessHelper();
+			methodInvokeHelper = new MethodHandleMethodInvokeHelper();
 			accessibleHelper = new DesktopAccessibleHelper();
 		} catch (Throwable e) {
 			Log.err("It seems you platform is special. (But don't worry)", e);
@@ -115,13 +115,13 @@ public class DesktopImpl implements PlatformImpl {
 	@Override
 	public MethodAccessor methodAccessor(Method method) {
 		return (method.getModifiers() & Modifier.STATIC) != 0 ?
-				new DesktopStaticMethodAccessor(method) :
-				new DesktopVirtualMethodAccessor(method);
+				new MethodHandleStaticMethodAccessor(method) :
+				new MethodHandleVirtualMethodAccessor(method);
 	}
 
 	@Override
 	public ConstructorAccessor constructorAccessor(Constructor<?> constructor) {
-		return new DesktopConstructorAccessor(constructor);
+		return new MethodHandleConstructorAccessor(constructor);
 	}
 
 	@Override

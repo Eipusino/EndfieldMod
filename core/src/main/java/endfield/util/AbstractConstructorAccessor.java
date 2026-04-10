@@ -19,7 +19,7 @@ public abstract class AbstractConstructorAccessor implements ConstructorAccessor
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj == this || obj instanceof AbstractConstructorAccessor other && other.getConstructor().equals(constructor);
+		return obj == this || obj instanceof AbstractConstructorAccessor other && other.constructor.equals(constructor);
 	}
 
 	@Override

@@ -8,10 +8,10 @@ import java.lang.reflect.Constructor;
 
 import static endfield.desktop.DesktopImpl.lookup;
 
-public final class DesktopConstructorAccessor extends AbstractConstructorAccessor {
+public final class MethodHandleConstructorAccessor extends AbstractConstructorAccessor {
 	final MethodHandle spreadHandle;
 
-	public DesktopConstructorAccessor(Constructor<?> cons) {
+	public MethodHandleConstructorAccessor(Constructor<?> cons) {
 		super(cons);
 
 		try {
@@ -37,6 +37,6 @@ public final class DesktopConstructorAccessor extends AbstractConstructorAccesso
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj == this || obj instanceof DesktopConstructorAccessor other && other.getConstructor().equals(constructor);
+		return obj == this || obj instanceof MethodHandleConstructorAccessor other && other.constructor.equals(constructor);
 	}
 }

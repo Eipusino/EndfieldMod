@@ -1,46 +1,53 @@
-package endfield.desktop;
+package endfield.android;
 
 import arc.func.Prov;
 import endfield.util.CollectionObjectMap;
 import endfield.util.FieldAccessHelper;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 
-import static endfield.Vars2.classHelper;
-import static endfield.desktop.Unsafer.getGetMessage;
-import static endfield.desktop.Unsafer.getSetMessage;
+import static endfield.android.Unsafer.getGetMessage;
+import static endfield.android.Unsafer.getSetMessage;
 
-public class DesktopUnsafeFieldAccessHelper implements FieldAccessHelper {
+public class UnsafeFieldAccessHelper implements FieldAccessHelper {
 	protected static final CollectionObjectMap<Class<?>, CollectionObjectMap<String, Field>> fieldMap = new CollectionObjectMap<>(Class.class, CollectionObjectMap.class);
 
 	protected static final Prov<CollectionObjectMap<String, Field>> prov = () -> new CollectionObjectMap<>(String.class, Field.class);
 
 	public Field getField(Class<?> clazz, String name, boolean isStatic) {
 		CollectionObjectMap<String, Field> map = fieldMap.get(clazz, prov);
-		Field res = map.get(name);
-		if (res != null) return res;
+		Field field = map.get(name);
+		if (field != null) return field;
 
 		if (isStatic) {
-			res = classHelper.findField(clazz, name);
-			if (res != null && (res.getModifiers() & Modifier.STATIC) != 0) {
-				map.put(name, res);
-				return res;
+			try {
+				Field f = getField(clazz, name);
+				map.put(name, f);
+				return f;
+			} catch (NoSuchFieldException e) {
+				throw new RuntimeException(e.getMessage());
 			}
 		} else {
 			Class<?> curr = clazz;
 			while (curr != Object.class) {
-				res = classHelper.findField(curr, name);
-				if (res != null && (res.getModifiers() & Modifier.STATIC) == 0) {
-					map.put(name, res);
-					return res;
-				}
+				try {
+					Field f = getField(clazz, name);
+					map.put(name, f);
+					return f;
+				} catch (NoSuchFieldException ignored) {}
 
 				curr = curr.getSuperclass();
 			}
 		}
 
 		throw new RuntimeException("field " + name + " was not found in class: " + clazz);
+	}
+
+	protected Field getField(Class<?> clazz, String name) throws NoSuchFieldException {
+		Field field = clazz.getDeclaredField(name);
+		field.setAccessible(true);
+
+		return field;
 	}
 
 	@Override

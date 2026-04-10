@@ -22,6 +22,6 @@ public class ReflectionMethodAccessor extends AbstractMethodAccessor {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj == this || obj instanceof ReflectionMethodAccessor other && other.getMethod().equals(method);
+		return obj == this || obj instanceof ReflectionMethodAccessor other && other.method.equals(method);
 	}
 }

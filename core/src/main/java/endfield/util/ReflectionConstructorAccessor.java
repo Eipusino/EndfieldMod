@@ -23,6 +23,6 @@ public class ReflectionConstructorAccessor extends AbstractConstructorAccessor {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj == this || obj instanceof ReflectionConstructorAccessor other && other.getConstructor().equals(constructor);
+		return obj == this || obj instanceof ReflectionConstructorAccessor other && other.constructor.equals(constructor);
 	}
 }

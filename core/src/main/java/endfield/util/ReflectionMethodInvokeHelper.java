@@ -15,7 +15,7 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 	protected static final Prov<CollectionObjectMap<FunctionType, Method>> prov2 = () -> new CollectionObjectMap<>(FunctionType.class, Method.class);
 	protected static final Prov<CollectionObjectMap<FunctionType, Constructor<?>>> prov3 = () -> new CollectionObjectMap<>(FunctionType.class, Constructor.class);
 
-	protected Method getMethod(Class<?> clazz, String name, FunctionType types) throws NoSuchMethodException {
+	protected Method getMethod(Class<?> clazz, String name, FunctionType types) {
 		CollectionObjectMap<FunctionType, Method> map = methodPool.get(clazz, prov1).get(name, prov2);
 
 		FunctionType type = FunctionType.inst(types);
@@ -59,11 +59,11 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 			curr = curr.getSuperclass();
 		}
 
-		throw new NoSuchMethodException("no such method " + name + " in class: " + clazz + " with assignable parameter: " + types);
+		throw new RuntimeException("no such method " + name + " in class: " + clazz + " with assignable parameter: " + types);
 	}
 
 	@SuppressWarnings("unchecked")
-	protected <T> Constructor<T> getConstructor(Class<T> clazz, FunctionType types) throws NoSuchMethodException {
+	protected <T> Constructor<T> getConstructor(Class<T> clazz, FunctionType types) {
 		CollectionObjectMap<FunctionType, Constructor<?>> map = constructorMap.get(clazz, prov3);
 
 		Constructor<T> res = (Constructor<T>) map.get(types);
@@ -95,7 +95,7 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 
 		if (res != null) return res;
 
-		throw new NoSuchMethodException("no such constructor in class: " + clazz + " with assignable parameter: " + types);
+		throw new RuntimeException("no such constructor in class: " + clazz + " with assignable parameter: " + types);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -104,7 +104,7 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 		FunctionType type = FunctionType.inst(args);
 		try {
 			return (T) getMethod(object.getClass(), name, type).invoke(object, args);
-		} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+		} catch (IllegalAccessException | InvocationTargetException e) {
 			throw new RuntimeException(e);
 		} finally {
 			type.recycle();
@@ -117,7 +117,7 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 		FunctionType type = FunctionType.inst(args);
 		try {
 			return (T) getMethod(clazz, name, type).invoke(null, args);
-		} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+		} catch (IllegalAccessException | InvocationTargetException e) {
 			throw new RuntimeException(e);
 		} finally {
 			type.recycle();
@@ -129,7 +129,7 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 		FunctionType funcType = FunctionType.inst(args);
 		try {
 			return getConstructor(type, funcType).newInstance(args);
-		} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+		} catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
 			throw new RuntimeException(e);
 		} finally {
 			funcType.recycle();
@@ -142,7 +142,7 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 		FunctionType type = FunctionType.inst(parameterTypes);
 		try {
 			return (T) getMethod(object.getClass(), name, type).invoke(object, args);
-		} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+		} catch (IllegalAccessException | InvocationTargetException e) {
 			throw new RuntimeException(e);
 		} finally {
 			type.recycle();
@@ -155,7 +155,7 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 		FunctionType type = FunctionType.inst(parameterTypes);
 		try {
 			return (T) getMethod(clazz, name, type).invoke(null, args);
-		} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+		} catch (IllegalAccessException | InvocationTargetException e) {
 			throw new RuntimeException(e);
 		} finally {
 			type.recycle();
@@ -167,7 +167,7 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 		FunctionType funcType = FunctionType.inst(parameterTypes);
 		try {
 			return getConstructor(type, funcType).newInstance(args);
-		} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+		} catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
 			throw new RuntimeException(e);
 		} finally {
 			funcType.recycle();

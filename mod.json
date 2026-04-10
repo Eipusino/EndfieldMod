@@ -4,7 +4,7 @@
 	"author": "Eipusino",
 	"subtitle": "E-INDUSTRY JSON/JS Mod",
 	"main": "endfield.core.EndFieldMod",
-	"description": "This mod requires at least Android 9 (Android) or Java17 (Desktop)\nAttention: The English content is machine translated!\n\nContent expansion mod based on vanilla. It can also be used as a hidden mod that does not load content and only serves as a pre development library, providing various tools and methods.\n\n该mod至少需要安卓9（安卓）或java17（桌面）\n基于原版的内容拓展mod。 也可以作为隐藏mod不加载内容仅作为开发前置库，提供多种工具和方法。以及对json和js便利的api支持。\n\n该模组可能会对部分包含js的模组导致冲突。",
+	"description": "Attention: The English content is machine translated!\n\nContent expansion mod based on vanilla. It can also be used as a hidden mod that does not load content and only serves as a pre development library, providing various tools and methods.\n\nThis mod requires at least Android 9 (Android) or Java17 (Desktop)\n\n基于原版的内容拓展mod。 也可以作为隐藏mod不加载内容仅作为开发前置库，提供多种工具和方法。以及对json和js便利的api支持。\n但可能会对部分包含js的模组导致冲突。\n\n该模组至少需要安卓9（安卓）或java17（桌面）运行",
 	"version": "1.0.9-build-beta",
 	"repo": "Eipusino/EndfieldMod",
 	"java": true,

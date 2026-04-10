@@ -29,6 +29,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -68,6 +69,9 @@ public final class Reflects {
 		Method method = classHelper.getMethod(type, name, parameterTypes);
 		MethodAccessor accessor = platformImpl.methodAccessor(method);
 
+		if (!match(parameterTypes, args))
+			throw new IllegalArgumentException(Arrays.toString(toTypes(args)) + " cannot be assigned to " + Arrays.toString(parameterTypes));
+
 		return () -> accessor.invoke(object, args);
 	}
 
@@ -79,6 +83,9 @@ public final class Reflects {
 	public static <T> Prov<T> supply(Class<T> type, Class<?>[] parameterTypes, Object... args) {
 		Constructor<?> constructor = classHelper.getConstructor(type, parameterTypes);
 		ConstructorAccessor accessor = platformImpl.constructorAccessor(constructor);
+
+		if (!match(parameterTypes, args))
+			throw new IllegalArgumentException(Arrays.toString(toTypes(args)) + " cannot be assigned to " + Arrays.toString(parameterTypes));
 
 		return () -> accessor.newInstance(args);
 	}
@@ -256,22 +263,26 @@ public final class Reflects {
 		return clazz;
 	}
 
-	public static Class<?>[] toTypes(Object... objects) {
-		Class<?>[] types = new Class[objects.length];
+	public static Class<?>[] toTypes(Object... args) {
+		if (args == null) return Constant.EMPTY_CLASS;
+
+		Class<?>[] types = new Class[args.length];
 
 		for (int i = 0; i < types.length; i++) {
-			Object object = objects[i];
+			Object object = args[i];
 			types[i] = object == null ? void.class : object.getClass();
 		}
 
 		return types;
 	}
 
-	public static Class<?>[] toTypes(List<?> objects) {
-		Class<?>[] types = new Class[objects.size()];
+	public static Class<?>[] toTypes(List<?> args) {
+		if (args == null) return Constant.EMPTY_CLASS;
+
+		Class<?>[] types = new Class[args.size()];
 
 		for (int i = 0; i < types.length; i++) {
-			Object object = objects.get(i);
+			Object object = args.get(i);
 			types[i] = object == null ? void.class : object.getClass();
 		}
 

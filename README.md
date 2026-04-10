@@ -28,7 +28,7 @@
 **Before playing this mod, please ensure that your device environment meets the requirements for the mod's operating environment.**
 **Otherwise, the module cannot function properly.**
 
-+ **Minimum  Mindustry Version Requirement: 156.2**
++ **Minimum  Mindustry Version Requirement: 157**
 + **{Desktop, Linux, and MAC OS} Minimum Java version requirement: 17**
 + **{Android} Minimum Android version requirement: 9 (API Level 28)**
 + **Not compatible with IOS**

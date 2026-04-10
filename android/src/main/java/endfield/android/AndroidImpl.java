@@ -45,7 +45,7 @@ public class AndroidImpl implements PlatformImpl {
 
 		accessibleHelper = new AndroidAccessibleHelper();
 		classHelper = new AndroidClassHelper();
-		fieldAccessHelper = new AndroidUnsafeFieldAccessHelper();
+		fieldAccessHelper = new UnsafeFieldAccessHelper();
 		methodInvokeHelper = new ReflectionMethodInvokeHelper();
 
 		try {

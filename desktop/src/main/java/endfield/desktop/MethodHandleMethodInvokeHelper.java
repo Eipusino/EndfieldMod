@@ -17,13 +17,13 @@ import static endfield.desktop.DesktopClassHelper.mtypes;
 import static endfield.desktop.DesktopClassHelper.ptypes;
 import static endfield.desktop.DesktopImpl.lookup;
 
-public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper {
+public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 	protected static final CollectionObjectMap<Class<?>, CollectionObjectMap<String, CollectionObjectMap<FunctionType, MethodHandle>>> methodPool = new CollectionObjectMap<>(Class.class, CollectionObjectMap.class);
 
 	protected static final Prov<CollectionObjectMap<String, CollectionObjectMap<FunctionType, MethodHandle>>> prov1 = () -> new CollectionObjectMap<>(String.class, CollectionObjectMap.class);
 	protected static final Prov<CollectionObjectMap<FunctionType, MethodHandle>> prov2 = () -> new CollectionObjectMap<>(FunctionType.class, MethodHandle.class);
 
-	protected MethodHandle getMethod(Class<?> clazz, String name, FunctionType types) throws NoSuchMethodException, IllegalAccessException {
+	protected MethodHandle getMethod(Class<?> clazz, String name, FunctionType types) throws IllegalAccessException {
 		CollectionObjectMap<FunctionType, MethodHandle> map = methodPool.get(clazz, prov1).get(name, prov2);
 
 		FunctionType type = FunctionType.inst(types);
@@ -54,10 +54,9 @@ public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper
 		while (curr != null) {
 			for (Method method : classHelper.getMethods(curr)) {
 				if (!method.getName().equals(name)) continue;
-				Class<?>[] methodArgs = (Class<?>[]) mtypes.get(method);
 
 				FunctionType t;
-				if ((t = from(method)).match(methodArgs)) {
+				if ((t = from(method)).match(types)) {
 					res = lookup.unreflect(method);
 					map.put(t, res);
 					return res;
@@ -68,7 +67,7 @@ public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper
 			curr = curr.getSuperclass();
 		}
 
-		throw new NoSuchMethodException("no such method " + name + " in class: " + clazz + " with assignable parameter: " + types);
+		throw new RuntimeException("no such method " + name + " in class: " + clazz + " with assignable parameter: " + types);
 	}
 
 	protected MethodHandle getConstructor(Class<?> clazz, FunctionType types) throws IllegalAccessException, NoSuchMethodException {
@@ -83,7 +82,6 @@ public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper
 
 		Constructor<?> cons = classHelper.findConstructor(clazz, types.paramType());
 		if (cons != null) {
-			cons.setAccessible(true);
 			res = lookup.unreflectConstructor(cons);
 			map.put(from(cons), res);
 		}
@@ -93,8 +91,6 @@ public class DesktopMethodHandleMethodInvokeHelper implements MethodInvokeHelper
 		for (Constructor<?> constructor : classHelper.getConstructors(clazz)) {
 			FunctionType functionType;
 			if ((functionType = from(constructor)).match(types)) {
-				constructor.setAccessible(true);
-
 				res = lookup.unreflectConstructor(constructor);
 				map.put(functionType, res);
 

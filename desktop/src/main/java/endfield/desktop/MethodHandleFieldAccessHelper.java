@@ -11,7 +11,7 @@ import java.lang.reflect.Modifier;
 import static endfield.Vars2.classHelper;
 import static endfield.desktop.DesktopImpl.lookup;
 
-public class DesktopMethodHandleFieldAccessHelper implements FieldAccessHelper {
+public class MethodHandleFieldAccessHelper implements FieldAccessHelper {
 	protected static final CollectionObjectMap<Class<?>, CollectionObjectMap<String, Field>> fieldMap = new CollectionObjectMap<>(Class.class, CollectionObjectMap.class);
 
 	protected static final Prov<CollectionObjectMap<String, Field>> prov = () -> new CollectionObjectMap<>(String.class, Field.class);
@@ -19,7 +19,7 @@ public class DesktopMethodHandleFieldAccessHelper implements FieldAccessHelper {
 	protected static final CollectionObjectMap<Field, MethodHandle> getters = new CollectionObjectMap<>(Field.class, MethodHandle.class);
 	protected static final CollectionObjectMap<Field, MethodHandle> setters = new CollectionObjectMap<>(Field.class, MethodHandle.class);
 
-	public Field getField(Class<?> clazz, String name, boolean isStatic) throws NoSuchFieldException {
+	public Field getField(Class<?> clazz, String name, boolean isStatic) {
 		CollectionObjectMap<String, Field> map = fieldMap.get(clazz, prov);
 		Field res = map.get(name);
 		if (res != null) return res;
@@ -43,7 +43,7 @@ public class DesktopMethodHandleFieldAccessHelper implements FieldAccessHelper {
 			}
 		}
 
-		throw new NoSuchFieldException("field " + name + " was not found in class: " + clazz);
+		throw new RuntimeException("field " + name + " was not found in class: " + clazz);
 	}
 
 	protected MethodHandle getter(Field field) {
