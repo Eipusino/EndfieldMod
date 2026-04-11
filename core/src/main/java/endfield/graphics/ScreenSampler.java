@@ -110,4 +110,8 @@ public final class ScreenSampler {
 			target.end();
 		}
 	}
+
+	public static void dispose() {
+		swapBuffer.dispose();
+	}
 }

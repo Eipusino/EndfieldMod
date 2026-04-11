@@ -10,7 +10,7 @@ import java.util.Objects;
 
 import static endfield.desktop.DesktopImpl.lookup;
 
-public class NativeConstructorAccessor extends AbstractConstructorAccessor {
+public class NativeConstructorAccessor<T> extends AbstractConstructorAccessor<T> {
 	static final MethodHandle newInstance;
 
 	static {
@@ -25,17 +25,17 @@ public class NativeConstructorAccessor extends AbstractConstructorAccessor {
 		}
 	}
 
-	public NativeConstructorAccessor(Constructor<?> cons) {
+	public NativeConstructorAccessor(Constructor<T> cons) {
 		super(cons);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T newInstance(Constructor<?> constructor, Object... args) throws Throwable {
+	public static <T> T newInstance(Constructor<T> constructor, Object... args) throws Throwable {
 		return (T) newInstance.invokeExact(constructor, args);
 	}
 
 	@Override
-	public <T> T newInstance(Object... args) {
+	public T newInstance(Object... args) {
 		try {
 			return newInstance(constructor, args);
 		} catch (Throwable e) {
@@ -45,6 +45,6 @@ public class NativeConstructorAccessor extends AbstractConstructorAccessor {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj == this || obj instanceof NativeConstructorAccessor other && other.constructor.equals(constructor);
+		return obj == this || obj instanceof NativeConstructorAccessor<?> other && other.constructor.equals(constructor);
 	}
 }

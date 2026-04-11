@@ -135,42 +135,4 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 			funcType.recycle();
 		}
 	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T invokeExplicit(Object object, String name, Class<?>[] parameterTypes, Object... args) {
-		FunctionType type = FunctionType.inst(parameterTypes);
-		try {
-			return (T) getMethod(object.getClass(), name, type).invoke(object, args);
-		} catch (IllegalAccessException | InvocationTargetException e) {
-			throw new RuntimeException(e);
-		} finally {
-			type.recycle();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T invokeStaticExplicit(Class<?> clazz, String name, Class<?>[] parameterTypes, Object... args) {
-		FunctionType type = FunctionType.inst(parameterTypes);
-		try {
-			return (T) getMethod(clazz, name, type).invoke(null, args);
-		} catch (IllegalAccessException | InvocationTargetException e) {
-			throw new RuntimeException(e);
-		} finally {
-			type.recycle();
-		}
-	}
-
-	@Override
-	public <T> T newInstanceExplicit(Class<T> type, Class<?>[] parameterTypes, Object... args) {
-		FunctionType funcType = FunctionType.inst(parameterTypes);
-		try {
-			return getConstructor(type, funcType).newInstance(args);
-		} catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
-			throw new RuntimeException(e);
-		} finally {
-			funcType.recycle();
-		}
-	}
 }

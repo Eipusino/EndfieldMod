@@ -7,9 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
-import static endfield.util.Reflects.toTypes;
-import static endfield.util.Reflects.unwrapped;
-
 /**
  * Function type encapsulates objects, recording the parameter types of functions for comparison and
  * search.
@@ -52,7 +49,7 @@ public class FunctionType {
 	}
 
 	public static FunctionType inst(Object... param) {
-		return inst(unwrapped(toTypes(param)));
+		return inst(Reflects.unwrapped(Reflects.toTypes(param)));
 	}
 
 	public static FunctionType inst(FunctionType type) {
@@ -86,7 +83,7 @@ public class FunctionType {
 	}
 
 	public boolean match(Object... args) {
-		return match(unwrapped(toTypes(args)));
+		return Reflects.match(paramType, args);
 	}
 
 	public boolean match(Class<?>... types) {
@@ -94,7 +91,7 @@ public class FunctionType {
 	}
 
 	public boolean match(FunctionType type) {
-		return match(type.paramType);
+		return Reflects.match(paramType, type.paramType);
 	}
 
 	public Class<?>[] paramType() {

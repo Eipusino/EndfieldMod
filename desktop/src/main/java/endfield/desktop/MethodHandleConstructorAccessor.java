@@ -8,10 +8,10 @@ import java.lang.reflect.Constructor;
 
 import static endfield.desktop.DesktopImpl.lookup;
 
-public final class MethodHandleConstructorAccessor extends AbstractConstructorAccessor {
+public final class MethodHandleConstructorAccessor<T> extends AbstractConstructorAccessor<T> {
 	final MethodHandle spreadHandle;
 
-	public MethodHandleConstructorAccessor(Constructor<?> cons) {
+	public MethodHandleConstructorAccessor(Constructor<T> cons) {
 		super(cons);
 
 		try {
@@ -27,7 +27,7 @@ public final class MethodHandleConstructorAccessor extends AbstractConstructorAc
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T newInstance(Object... args) {
+	public T newInstance(Object... args) {
 		try {
 			return (T) spreadHandle.invokeExact(args);
 		} catch (Throwable e) {
@@ -37,6 +37,6 @@ public final class MethodHandleConstructorAccessor extends AbstractConstructorAc
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj == this || obj instanceof MethodHandleConstructorAccessor other && other.constructor.equals(constructor);
+		return obj == this || obj instanceof MethodHandleConstructorAccessor<?> other && other.constructor.equals(constructor);
 	}
 }

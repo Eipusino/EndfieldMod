@@ -44,42 +44,6 @@ public class NativeMethodInvokeHelper extends ReflectionMethodInvokeHelper {
 	}
 
 	@Override
-	public <T> T invokeExplicit(Object object, String name, Class<?>[] parameterTypes, Object... args) {
-		FunctionType type = FunctionType.inst(parameterTypes);
-		try {
-			return NativeMethodAccessor.invoke(getMethod(object.getClass(), name, type), object, args);
-		} catch (Throwable e) {
-			throw new RuntimeException(e);
-		} finally {
-			type.recycle();
-		}
-	}
-
-	@Override
-	public <T> T invokeStaticExplicit(Class<?> clazz, String name, Class<?>[] parameterTypes, Object... args) {
-		FunctionType type = FunctionType.inst(parameterTypes);
-		try {
-			return NativeMethodAccessor.invoke(getMethod(clazz, name, type), null, args);
-		} catch (Throwable e) {
-			throw new RuntimeException(e);
-		} finally {
-			type.recycle();
-		}
-	}
-
-	@Override
-	public <T> T newInstanceExplicit(Class<T> type, Class<?>[] parameterTypes, Object... args) {
-		FunctionType funcType = FunctionType.inst(parameterTypes);
-		try {
-			return NativeConstructorAccessor.newInstance(getConstructor(type, funcType), args);
-		} catch (Throwable e) {
-			throw new RuntimeException(e);
-		} finally {
-			funcType.recycle();
-		}
-	}
-
-	@Override
 	public <T> T invoke(Method method, Object object, Object... args) {
 		try {
 			return NativeMethodAccessor.invoke(method, object, args);

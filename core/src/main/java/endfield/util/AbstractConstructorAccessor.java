@@ -3,23 +3,23 @@ package endfield.util;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 
-public abstract class AbstractConstructorAccessor implements ConstructorAccessor {
-	protected final Constructor<?> constructor;
+public abstract class AbstractConstructorAccessor<T> implements ConstructorAccessor<T> {
+	protected final Constructor<T> constructor;
 
 	protected int hash;
 
-	protected AbstractConstructorAccessor(Constructor<?> cons) {
+	protected AbstractConstructorAccessor(Constructor<T> cons) {
 		constructor = cons;
 	}
 
 	@Override
-	public Constructor<?> getConstructor() {
+	public Constructor<T> getConstructor() {
 		return constructor;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj == this || obj instanceof AbstractConstructorAccessor other && other.constructor.equals(constructor);
+		return obj == this || obj instanceof AbstractConstructorAccessor<?> other && other.constructor.equals(constructor);
 	}
 
 	@Override

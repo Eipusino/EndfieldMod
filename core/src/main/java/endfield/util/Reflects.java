@@ -81,8 +81,8 @@ public final class Reflects {
 	 * @throws RuntimeException Any exception that occurs in reflection.
 	 */
 	public static <T> Prov<T> supply(Class<T> type, Class<?>[] parameterTypes, Object... args) {
-		Constructor<?> constructor = classHelper.getConstructor(type, parameterTypes);
-		ConstructorAccessor accessor = platformImpl.constructorAccessor(constructor);
+		Constructor<T> constructor = classHelper.getConstructor(type, parameterTypes);
+		ConstructorAccessor<T> accessor = platformImpl.constructorAccessor(constructor);
 
 		if (!match(parameterTypes, args))
 			throw new IllegalArgumentException(Arrays.toString(toTypes(args)) + " cannot be assigned to " + Arrays.toString(parameterTypes));

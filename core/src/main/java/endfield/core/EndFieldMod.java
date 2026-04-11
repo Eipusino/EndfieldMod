@@ -165,6 +165,7 @@ public final class EndFieldMod extends Mod {
 		Events.on(DisposeEvent.class, event -> {
 			if (!Vars.headless) {
 				Shaders2.dispose();
+				ScreenSampler.dispose();
 			}
 		});
 

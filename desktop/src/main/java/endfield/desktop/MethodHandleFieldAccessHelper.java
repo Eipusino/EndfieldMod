@@ -7,6 +7,7 @@ import endfield.util.FieldAccessHelper;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.function.Function;
 
 import static endfield.Vars2.classHelper;
 import static endfield.desktop.DesktopImpl.lookup;
@@ -18,6 +19,30 @@ public class MethodHandleFieldAccessHelper implements FieldAccessHelper {
 
 	protected static final CollectionObjectMap<Field, MethodHandle> getters = new CollectionObjectMap<>(Field.class, MethodHandle.class);
 	protected static final CollectionObjectMap<Field, MethodHandle> setters = new CollectionObjectMap<>(Field.class, MethodHandle.class);
+
+	protected static final Function<Field, MethodHandle> function1 = field -> {
+		try {
+			String name = field.getName();
+			Class<?> dec = field.getDeclaringClass(), type = field.getType();
+
+			return (field.getModifiers() & Modifier.STATIC) != 0 ?
+					lookup.findStaticGetter(dec, name, type) :
+					lookup.findGetter(dec, name, type);
+		} catch (IllegalAccessException | NoSuchFieldException e) {
+			throw new RuntimeException(e);
+		}
+	}, function2 = field -> {
+		try {
+			String name = field.getName();
+			Class<?> dec = field.getDeclaringClass(), type = field.getType();
+
+			return (field.getModifiers() & Modifier.STATIC) != 0 ?
+					lookup.findStaticSetter(dec, name, type) :
+					lookup.findSetter(dec, name, type);
+		} catch (IllegalAccessException | NoSuchFieldException e) {
+			throw new RuntimeException(e);
+		}
+	};
 
 	public Field getField(Class<?> clazz, String name, boolean isStatic) {
 		CollectionObjectMap<String, Field> map = fieldMap.get(clazz, prov);
@@ -47,27 +72,11 @@ public class MethodHandleFieldAccessHelper implements FieldAccessHelper {
 	}
 
 	protected MethodHandle getter(Field field) {
-		return getters.computeIfAbsent(field, f -> {
-			try {
-				return (f.getModifiers() & Modifier.STATIC) != 0 ?
-						lookup.findStaticGetter(f.getDeclaringClass(), f.getName(), f.getType()) :
-						lookup.findGetter(f.getDeclaringClass(), f.getName(), f.getType());
-			} catch (IllegalAccessException | NoSuchFieldException e) {
-				throw new RuntimeException(e);
-			}
-		});
+		return getters.computeIfAbsent(field, function1);
 	}
 
 	protected MethodHandle setter(Field field) {
-		return setters.computeIfAbsent(field, f -> {
-			try {
-				return (f.getModifiers() & Modifier.STATIC) != 0 ?
-						lookup.findStaticSetter(f.getDeclaringClass(), f.getName(), f.getType()) :
-						lookup.findSetter(f.getDeclaringClass(), f.getName(), f.getType());
-			} catch (IllegalAccessException | NoSuchFieldException e) {
-				throw new RuntimeException(e);
-			}
-		});
+		return setters.computeIfAbsent(field, function2);
 	}
 
 	@Override

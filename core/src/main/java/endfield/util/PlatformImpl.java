@@ -59,8 +59,8 @@ public interface PlatformImpl {
 	 * @param constructor Constructor to be packaged
 	 * @return New constructor accessor
 	 */
-	default ConstructorAccessor constructorAccessor(Constructor<?> constructor) {
-		return new ReflectionConstructorAccessor(constructor);
+	default <T> ConstructorAccessor<T> constructorAccessor(Constructor<T> constructor) {
+		return new ReflectionConstructorAccessor<>(constructor);
 	}
 
 	/** Gets the {@code Class} object of the caller who invoked the method that invoked {@code getCallerClass}. */

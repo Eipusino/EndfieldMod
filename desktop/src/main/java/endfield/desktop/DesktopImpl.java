@@ -10,12 +10,12 @@ import endfield.util.ReflectionMethodInvokeHelper;
 import endfield.util.FieldAccessor;
 import endfield.util.MethodAccessor;
 import endfield.util.PlatformImpl;
+import endfield.util.Reflects;
 import endfield.util.handler.ObjectHandler;
 import sun.reflect.ReflectionFactory;
 
 import java.lang.StackWalker.Option;
 import java.lang.StackWalker.StackFrame;
-import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
@@ -52,7 +52,7 @@ public class DesktopImpl implements PlatformImpl {
 		} catch (Throwable e) {
 			Log.err("It seems you platform is special. (But don't worry)", e);
 
-			lookup = MethodHandles.publicLookup();
+			lookup = Reflects.publicLookup;
 
 			classHelper = new ClassHelper() {
 				@Override
@@ -120,8 +120,8 @@ public class DesktopImpl implements PlatformImpl {
 	}
 
 	@Override
-	public ConstructorAccessor constructorAccessor(Constructor<?> constructor) {
-		return new MethodHandleConstructorAccessor(constructor);
+	public <T> ConstructorAccessor<T> constructorAccessor(Constructor<T> constructor) {
+		return new MethodHandleConstructorAccessor<>(constructor);
 	}
 
 	@Override

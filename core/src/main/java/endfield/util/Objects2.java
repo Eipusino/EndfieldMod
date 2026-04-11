@@ -13,13 +13,8 @@
 */
 package endfield.util;
 
-import arc.func.Cons;
-import arc.func.ConsT;
 import arc.func.Prov;
-import arc.util.Log;
 import endfield.Vars2;
-import endfield.func.ProvT;
-import endfield.func.RunT;
 import endfield.util.handler.FieldHandler;
 
 import java.lang.reflect.Array;
@@ -82,51 +77,9 @@ public final class Objects2 {
 		return obj;
 	}
 
-	public static <T> T apply(T obj, Cons<? super T> cons) {
-		cons.get(obj);
-		return obj;
-	}
-
-	/** Used to optimize code conciseness in specific situations. */
-	public static void run(RunT<? extends Throwable> run) {
-		try {
-			run.run();
-		} catch (Throwable e) {
-			Log.err(e);
-		}
-	}
-
-	/** Used to optimize code conciseness in specific situations. */
-	public static <T> void get(ConsT<? super T, ? extends Throwable> cons, T obj) {
-		try {
-			cons.get(obj);
-		} catch (Throwable e) {
-			Log.err(e);
-		}
-	}
-
-	/** Used to optimize code conciseness in specific situations. */
-	public static <T> T get(ProvT<? extends T, ? extends Throwable> prov, T def) {
-		try {
-			return prov.get();
-		} catch (Throwable e) {
-			Log.err(e);
-
-			return def;
-		}
-	}
-
-	/** Used to optimize code conciseness in specific situations. */
-	public static <T> T get(ProvT<? extends T, ? extends Throwable> prov, ConsT<? super T, ? extends Throwable> cons, T def) {
-		try {
-			T t = prov.get();
-			cons.get(t);
-			return t;
-		} catch (Throwable e) {
-			Log.err(e);
-
-			return def;
-		}
+	@SuppressWarnings("unchecked")
+	public static <T, E extends Throwable> T thrower(Throwable t) throws E {
+		throw (E) t;
 	}
 
 	public static String toString(Object object) {
@@ -206,91 +159,5 @@ public final class Objects2 {
 		}
 
 		return buf.append('}').toString();
-	}
-
-	/*static String toString(Object object, Class<?> componentType, final boolean deep) {
-		if (object instanceof float[] floats) {
-		} else if (object instanceof int[] ints) {
-		} else if (object instanceof boolean[] booleans) {
-		} else if (object instanceof byte[] bytes) {
-		} else if (object instanceof char[] chars) {
-		} else if (object instanceof double[] doubles) {
-		} else if (object instanceof long[] longs) {
-		} else if (object instanceof short[] shorts) {
-		} else if (object instanceof Object[] objects) {
-		} else {
-		}
-	}*/
-
-	/**
-	 * Convert Class object to JVM type descriptor.
-	 * <p>Example:
-	 * <ul>
-	 *     <li>boolean -> {@code Z}
-	 *     <li>int -> {@code I}
-	 *     <li>long -> {@code J}
-	 *     <li>float[] -> {@code [F}
-	 *     <li>java.lang.Object -> {@code Ljava/lang/Object;}
-	 *     <li>java.lang.invoke.MethodHandles.Lookup -> {@code Ljava/lang/invoke/MethodHandles$Lookup;}
-	 *     <li>mindustry.world.Tile[][] -> {@code [[Lmindustry/world/Tile;}
-	 * </ul>
-	 *
-	 * @param type The Class object to be converted
-	 * @return JVM type descriptor string
-	 * @throws NullPointerException If {@code type} is null.
-	 */
-	public static String descriptor(Class<?> type) {
-		if (type == null) throw new NullPointerException("type is null");
-
-		int depth = 0;
-		Class<?> current = type;
-		while (current.isArray()) {
-			depth++;
-			current = current.getComponentType();
-		}
-
-		String baseDesc = buildBaseDesc(type, current);
-
-		return switch (depth) {
-			case 0 -> baseDesc;
-			case 1 -> baseDesc + "[";
-			case 2 -> baseDesc + "[[";
-			case 3 -> baseDesc + "[[[";
-			case 4 -> baseDesc + "[[[[";
-			case 5 -> baseDesc + "[[[[[";
-			default -> buildArrayDescriptor(depth, baseDesc);
-		};
-	}
-
-	static String buildBaseDesc(Class<?> type, Class<?> current) {
-		String baseDesc;
-		if (current.isPrimitive()) {
-			if (current == void.class) baseDesc = "V";
-			else if (current == boolean.class) baseDesc = "Z";
-			else if (current == byte.class) baseDesc = "B";
-			else if (current == short.class) baseDesc = "S";
-			else if (current == int.class) baseDesc = "I";
-			else if (current == long.class) baseDesc = "J";
-			else if (current == float.class) baseDesc = "F";
-			else if (current == double.class) baseDesc = "D";
-			else if (current == char.class) baseDesc = "C";
-			else throw new IllegalArgumentException("unknown type of " + type);
-		} else {
-			baseDesc = 'L' + current.getName().replace('.', '/') + ';';
-		}
-		return baseDesc;
-	}
-
-	static String buildArrayDescriptor(int depth, String baseDesc) {
-		int length = baseDesc.length(), totalLength = depth + length;
-		char[] result = new char[totalLength];
-
-		for (int i = 0; i < depth; i++) {
-			result[i] = '[';
-		}
-
-		baseDesc.getChars(0, length, result, depth);
-
-		return String.valueOf(result);
 	}
 }

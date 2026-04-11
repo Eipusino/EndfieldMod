@@ -11,12 +11,6 @@ public interface MethodInvokeHelper {
 
 	<T> T newInstance(Class<T> type, Object... args);
 
-	<T> T invokeExplicit(Object object, String name, Class<?>[] parameterTypes, Object... args);
-
-	<T> T invokeStaticExplicit(Class<?> clazz, String name, Class<?>[] parameterTypes, Object... args);
-
-	<T> T newInstanceExplicit(Class<T> type, Class<?>[] parameterTypes, Object... args);
-
 	@SuppressWarnings("unchecked")
 	default <T> T invoke(Method method, Object object, Object... args) {
 		try {

@@ -143,45 +143,6 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T invokeExplicit(Object object, String name, Class<?>[] parameterTypes, Object... args) {
-		FunctionType type = FunctionType.inst(parameterTypes);
-		try {
-			return (T) Reflects.invokeVirtual(object, getMethod(object.getClass(), name, type), args);
-		} catch (Throwable e) {
-			throw new RuntimeException(e);
-		} finally {
-			type.recycle();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T invokeStaticExplicit(Class<?> clazz, String name, Class<?>[] parameterTypes, Object... args) {
-		FunctionType type = FunctionType.inst(parameterTypes);
-		try {
-			return (T) Reflects.invokeStatic(getMethod(clazz, name, type), args);
-		} catch (Throwable e) {
-			throw new RuntimeException(e);
-		} finally {
-			type.recycle();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T newInstanceExplicit(Class<T> clazz, Class<?>[] parameterTypes, Object... args) {
-		FunctionType type = FunctionType.inst(parameterTypes);
-		try {
-			return (T) Reflects.invokeStatic(getConstructor(clazz, type), args);
-		} catch (Throwable e) {
-			throw new RuntimeException(e);
-		} finally {
-			type.recycle();
-		}
-	}
-
 	protected MethodHandle getMethod(Method method, FunctionType types) throws IllegalAccessException {
 		CollectionObjectMap<FunctionType, MethodHandle> map = methodPool.get(method.getDeclaringClass(), prov1).get(method.getName(), prov2);
 
