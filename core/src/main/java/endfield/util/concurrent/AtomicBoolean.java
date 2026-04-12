@@ -1,9 +1,9 @@
 package endfield.util.concurrent;
 
+import endfield.util.Reflects;
+
 import java.io.Serializable;
 import java.lang.invoke.VarHandle;
-
-import static endfield.Vars2.platformImpl;
 
 public class AtomicBoolean implements Serializable {
 	private static final long serialVersionUID = 4654671469794556979l;
@@ -12,11 +12,7 @@ public class AtomicBoolean implements Serializable {
 	private volatile boolean value;
 
 	static {
-		try {
-			handle = platformImpl.lookup(AtomicBoolean.class).findVarHandle(AtomicBoolean.class, "value", boolean.class);
-		} catch (NoSuchFieldException | IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
+		handle = Reflects.findVarHandle(AtomicBoolean.class, "value", boolean.class);
 	}
 
 	public AtomicBoolean(boolean initialValue) {

@@ -8,7 +8,7 @@ public final class UnitCommands2 {
 
 	private UnitCommands2() {}
 
-	public static void loadAll() {
+	public static void load() {
 		nullUnitCommand = new UnitCommand("nullAI", "none", u -> new NullAI());
 	}
 }

@@ -3,9 +3,9 @@ package endfield.util;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Stack;
 
 /**
  * Function type encapsulates objects, recording the parameter types of functions for comparison and
@@ -21,7 +21,7 @@ public class FunctionType {
 	 */
 	public static int maxRecycle = 4096;
 
-	static final Stack<FunctionType> recyclePool = new Stack<>();
+	static final ArrayDeque<FunctionType> recyclePool = new ArrayDeque<>();
 
 	Class<?>[] paramType;
 	int hash;
@@ -35,7 +35,7 @@ public class FunctionType {
 		return inst(paramType.toArray(Constant.EMPTY_CLASS));
 	}
 
-	public static synchronized FunctionType inst(Class<?>... paramType) {
+	public static FunctionType inst(Class<?>... paramType) {
 		if (recyclePool.isEmpty()) return new FunctionType(paramType);
 
 		FunctionType res = recyclePool.pop();
@@ -102,7 +102,7 @@ public class FunctionType {
 		if (recyclePool.size() >= maxRecycle) return;
 
 		paramType = Constant.EMPTY_CLASS;
-		hash = -1;
+		hash = 0;
 		recyclePool.push(this);
 	}
 

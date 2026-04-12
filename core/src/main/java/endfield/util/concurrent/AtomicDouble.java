@@ -2,10 +2,9 @@ package endfield.util.concurrent;
 
 import endfield.func.DoubleDoublef;
 import endfield.func.DoubleDoublef2;
+import endfield.util.Reflects;
 
 import java.lang.invoke.VarHandle;
-
-import static endfield.Vars2.platformImpl;
 
 /**
  * Since Java does not provide {@code AtomicDouble}, we implemented it ourselves using {@code VarHandle}.
@@ -18,11 +17,7 @@ public class AtomicDouble extends Number {
 	private static final VarHandle handle;
 
 	static {
-		try {
-			handle = platformImpl.lookup(AtomicDouble.class).findVarHandle(AtomicDouble.class, "value", double.class);
-		} catch (NoSuchFieldException | IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
+		handle = Reflects.findVarHandle(AtomicDouble.class, "value", double.class);
 	}
 
 	private volatile double value;

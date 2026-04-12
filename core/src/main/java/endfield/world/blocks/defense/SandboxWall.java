@@ -41,6 +41,8 @@ import mindustry.world.meta.BlockGroup;
 import mindustry.world.meta.Env;
 import mindustry.world.meta.Stat;
 
+import java.io.Serializable;
+
 import static mindustry.Vars.state;
 import static mindustry.Vars.tilesize;
 
@@ -243,7 +245,9 @@ public class SandboxWall extends Block {
 		}
 	}
 
-	public static class SandboxWallRetry {
+	public static class SandboxWallRetry implements Serializable {
+		private static final long serialVersionUID = 441259057087505199l;
+
 		public boolean lightning, deflecting, insulated, dpsTesting;
 
 		public float lightningChance, lightningDamage;

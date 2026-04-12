@@ -2,11 +2,10 @@ package endfield.util.concurrent;
 
 import endfield.func.CharCharf;
 import endfield.func.CharCharf2;
+import endfield.util.Reflects;
 
 import java.io.Serializable;
 import java.lang.invoke.VarHandle;
-
-import static endfield.Vars2.platformImpl;
 
 public class AtomicChar implements Serializable {
 	private static final long serialVersionUID = -1593944861369051563l;
@@ -15,11 +14,7 @@ public class AtomicChar implements Serializable {
 	private volatile char value;
 
 	static {
-		try {
-			handle = platformImpl.lookup(AtomicChar.class).findVarHandle(AtomicChar.class, "value", char.class);
-		} catch (NoSuchFieldException | IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
+		handle = Reflects.findVarHandle(AtomicChar.class, "value", char.class);
 	}
 
 	public AtomicChar() {}

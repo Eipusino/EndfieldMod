@@ -4,12 +4,12 @@ import arc.func.Prov;
 import endfield.util.CollectionObjectMap;
 import endfield.util.FunctionType;
 import endfield.util.MethodInvokeHelper;
-import endfield.util.Reflects;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import static endfield.Vars2.classHelper;
 import static endfield.desktop.DesktopClassHelper.ctypes;
@@ -41,7 +41,7 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 			Method method = classHelper.findMethod(curr, name, types.paramType());
 
 			if (method != null) {
-				res = lookup.unreflect(method);
+				res = asSpreader(method);
 				map.put(inst(res.type()), res);
 				return res;
 			}
@@ -57,7 +57,7 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 
 				FunctionType t;
 				if ((t = from(method)).match(types)) {
-					res = lookup.unreflect(method);
+					res = asSpreader(method);
 					map.put(t, res);
 					return res;
 				}
@@ -70,7 +70,7 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 		throw new RuntimeException("no such method " + name + " in class: " + clazz + " with assignable parameter: " + types);
 	}
 
-	protected MethodHandle getConstructor(Class<?> clazz, FunctionType types) throws IllegalAccessException, NoSuchMethodException {
+	protected MethodHandle getConstructor(Class<?> clazz, FunctionType types) throws IllegalAccessException {
 		CollectionObjectMap<FunctionType, MethodHandle> map = methodPool.get(clazz, prov1).get("<init>", prov2);
 
 		MethodHandle res = map.get(types);
@@ -82,7 +82,7 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 
 		Constructor<?> cons = classHelper.findConstructor(clazz, types.paramType());
 		if (cons != null) {
-			res = lookup.unreflectConstructor(cons);
+			res = asSpreader(cons);
 			map.put(from(cons), res);
 		}
 
@@ -91,7 +91,7 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 		for (Constructor<?> constructor : classHelper.getConstructors(clazz)) {
 			FunctionType functionType;
 			if ((functionType = from(constructor)).match(types)) {
-				res = lookup.unreflectConstructor(constructor);
+				res = asSpreader(constructor);
 				map.put(functionType, res);
 
 				break;
@@ -101,7 +101,34 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 
 		if (res != null) return res;
 
-		throw new NoSuchMethodException("no such constructor in class: " + clazz + " with assignable parameter: " + types);
+		throw new RuntimeException("no such constructor in class: " + clazz + " with assignable parameter: " + types);
+	}
+
+	protected final MethodHandle asSpreader(Method method) throws IllegalAccessException {
+		MethodHandle target = lookup.unreflect(method);
+
+		int paramCount = target.type().parameterCount();
+
+		if ((method.getModifiers() & Modifier.STATIC) != 0) {
+			return target.asSpreader(Object[].class, paramCount)
+					.asType(MethodType.methodType(Object.class, Object[].class));
+		} else {
+			if (paramCount < 1)
+				throw new IllegalArgumentException("Instance method must have e receiver");
+			MethodHandle spread = target.asSpreader(Object[].class, paramCount -1);
+			MethodType newType = spread.type()
+					.changeParameterType(0, Object.class)
+					.changeReturnType(Object.class);
+			return spread.asType(newType);
+		}
+	}
+
+	protected final MethodHandle asSpreader(Constructor<?> constructor) throws IllegalAccessException {
+		MethodHandle target = lookup.unreflectConstructor(constructor);
+
+		int paramCount = target.type().parameterCount();
+		MethodHandle spread = target.asSpreader(Object[].class, paramCount);
+		return spread.asType(MethodType.methodType(Object.class, Object[].class));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -109,7 +136,7 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 	public <T> T invoke(Object object, String name, Object... args) {
 		FunctionType type = FunctionType.inst(args);
 		try {
-			return (T) Reflects.invokeVirtual(object, getMethod(object.getClass(), name, type), args);
+			return (T) getMethod(object.getClass(), name, type).invokeExact(object, args);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -122,7 +149,7 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 	public <T> T invokeStatic(Class<?> clazz, String name, Object... args) {
 		FunctionType type = FunctionType.inst(args);
 		try {
-			return (T) Reflects.invokeStatic(getMethod(clazz, name, type), args);
+			return (T) getMethod(clazz, name, type).invokeExact(args);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -135,7 +162,7 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 	public <T> T newInstance(Class<T> clazz, Object... args) {
 		FunctionType type = FunctionType.inst(args);
 		try {
-			return (T) Reflects.invokeStatic(getConstructor(clazz, type), args);
+			return (T) getConstructor(clazz, type).invokeExact(args);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -155,7 +182,7 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 			if (entry.key.match(types)) return entry.value;
 		}
 
-		res = lookup.unreflect(method);
+		res = asSpreader(method);
 
 		map.put(inst(res.type()), res);
 
@@ -172,7 +199,7 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 			if (entry.key.match(types)) return entry.value;
 		}
 
-		res = lookup.unreflectConstructor(constructor);
+		res = asSpreader(constructor);
 
 		map.put(types, res);
 
@@ -184,7 +211,7 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 	public <T> T invoke(Method method, Object object, Object... args) {
 		FunctionType type = from(method);
 		try {
-			return (T) Reflects.invokeVirtual(object, getMethod(method, type), args);
+			return (T) getMethod(method, type).invokeExact(object, args);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -197,7 +224,7 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 	public <T> T invokeStatic(Method method, Object... args) {
 		FunctionType type = from(method);
 		try {
-			return (T) Reflects.invokeStatic(getMethod(method, type), args);
+			return (T) getMethod(method, type).invokeExact(args);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -210,7 +237,7 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 	public <T> T newInstance(Constructor<T> constructor, Object... args) {
 		FunctionType type = from(constructor);
 		try {
-			return (T) Reflects.invokeStatic(getConstructor(constructor, type), args);
+			return (T) getConstructor(constructor, type).invokeExact(args);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		} finally {

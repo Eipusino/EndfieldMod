@@ -79,8 +79,6 @@ public interface PlatformImpl {
 
 	/**
 	 * Sets all bytes in a given block of memory to a copy of another block.
-	 *
-	 * @see Memories
 	 */
 	void put(long srcAddress, long destAddress, long bytes);
 
@@ -88,7 +86,6 @@ public interface PlatformImpl {
 	 * Sets all bytes in a given block of memory to a copy of another block.
 	 *
 	 * @throws NullPointerException src or dst is null
-	 * @see Memories
 	 */
 	void put(Object src, int srcOffset, Object dst, int dstOffset, long bytes);
 

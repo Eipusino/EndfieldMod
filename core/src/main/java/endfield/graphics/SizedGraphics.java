@@ -9,8 +9,7 @@ import arc.graphics.GL30;
 import arc.graphics.Pixmap;
 import arc.graphics.gl.GLVersion;
 import endfield.util.MethodAccessor;
-
-import static endfield.Vars2.platformImpl;
+import endfield.util.Reflects;
 
 /**
  * A {@link Graphics} mock-module used to logically pretend that the window's screen resolution is something else. This
@@ -30,8 +29,8 @@ public class SizedGraphics extends Graphics {
 
 	public static void init() {
 		try {
-			setCursor = platformImpl.methodAccessor(Graphics.class.getDeclaredMethod("setCursor", Cursor.class));
-			setSystemCursor = platformImpl.methodAccessor(Graphics.class.getDeclaredMethod("setSystemCursor", SystemCursor.class));
+			setCursor = Reflects.newMethodAccessor(Graphics.class.getDeclaredMethod("setCursor", Cursor.class));
+			setSystemCursor = Reflects.newMethodAccessor(Graphics.class.getDeclaredMethod("setSystemCursor", SystemCursor.class));
 		} catch (NoSuchMethodException e) {
 			throw new RuntimeException(e);
 		}

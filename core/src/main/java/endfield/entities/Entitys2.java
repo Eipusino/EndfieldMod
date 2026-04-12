@@ -30,6 +30,7 @@ import endfield.math.Mathm;
 import endfield.util.CollectionList;
 import endfield.util.CollectionObjectMap;
 import endfield.util.Reflects;
+import endfield.util.handler.ClassHandler;
 import endfield.util.handler.FieldHandler;
 import mindustry.Vars;
 import mindustry.audio.SoundLoop;
@@ -61,7 +62,6 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.function.Function;
 
-import static endfield.Vars2.classHelper;
 import static endfield.entities.Damage2.tmpBuild;
 import static endfield.util.Arrays2.arrayOf;
 
@@ -95,8 +95,8 @@ public final class Entitys2 {
 	static final CollectionObjectMap<Class<? extends Building>, Field> soundFieldMap = new CollectionObjectMap<>(Class.class, Field.class);
 
 	static final Boolf<Field> boolf1 = f -> f.getType() == SoundLoop.class;
-	static final Function<Class<? extends Entityc>, Field> func1 = c -> classHelper.findField(c, "added");
-	static final Function<Class<? extends Building>, Field> func2 = c -> classHelper.findField(c, boolf1);
+	static final Function<Class<? extends Entityc>, Field> func1 = c -> ClassHandler.findField(c, "added");
+	static final Function<Class<? extends Building>, Field> func2 = c -> ClassHandler.findField(c, boolf1);
 
 	private Entitys2() {}
 

@@ -50,7 +50,7 @@ public final class Worlds {
 		SaveVersion.addCustomChunk(MOD_NAME + "-team-payload-data", teamPayloadData);
 	}
 
-	public static void loadAll() {
+	public static void loadFallback() {
 		// These properties should not be included in the code
 		Fi file = Files2.otherDir.child("fallback.properties");
 

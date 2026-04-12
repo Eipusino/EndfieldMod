@@ -1,8 +1,8 @@
 package endfield.util.concurrent;
 
-import java.lang.invoke.VarHandle;
+import endfield.util.Reflects;
 
-import static endfield.Vars2.platformImpl;
+import java.lang.invoke.VarHandle;
 
 public class AtomicShort extends Number {
 	private static final long serialVersionUID = 6169410170337329345l;
@@ -11,11 +11,7 @@ public class AtomicShort extends Number {
 	private volatile short value;
 
 	static {
-		try {
-			handle = platformImpl.lookup(AtomicShort.class).findVarHandle(AtomicShort.class, "value", short.class);
-		} catch (NoSuchFieldException | IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
+		handle = Reflects.findVarHandle(AtomicShort.class, "value", short.class);
 	}
 
 	public AtomicShort() {}

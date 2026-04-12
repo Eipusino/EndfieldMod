@@ -91,11 +91,11 @@ public final class EndFieldMod extends Mod {
 
 	static {
 		try {
-			Class<?> impl = OS.isAndroid ?
+			Class<?> impl = Class.forName(OS.isAndroid ?
 					Core.app != null && Core.app.getVersion() >= 33 ?
-							Class.forName("endfield.android.AndroidImpl2") :
-							Class.forName("endfield.android.AndroidImpl") :
-					Class.forName("endfield.desktop.DesktopImpl");
+							"endfield.android.AndroidImpl2" :
+							"endfield.android.AndroidImpl" :
+					"endfield.desktop.DesktopImpl");
 			platformImpl = (PlatformImpl) impl.getConstructor().newInstance();
 		} catch (Throwable e) {
 			Log.err(e);
@@ -169,6 +169,10 @@ public final class EndFieldMod extends Mod {
 			}
 		});
 
+		/*Events.on(mindustry.game.EventType.AtlasPackEvent.class, event -> {
+			MultiPacker packer = event.multiPacker;
+		});*/
+
 		// To prevent damage to other mod, it can only be enabled during testing
 		if (!OS.isIos) {
 			Core.app.post(Scripts2::init);
@@ -186,10 +190,10 @@ public final class EndFieldMod extends Mod {
 
 			Call2.init();
 
-			//Worlds.loadAll();
+			//Worlds.loadFallback();
 			Worlds.load();
 
-			UnitCommands2.loadAll();
+			UnitCommands2.load();
 
 			Team2.load();
 			Bullets2.load();

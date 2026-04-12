@@ -5,6 +5,8 @@ import arc.files.Fi;
 import arc.files.ZipFi;
 import arc.util.OS;
 
+import java.net.URL;
+
 /**
  * Use for jar internal navigation.
  *
@@ -22,7 +24,11 @@ public class InternalFileTree implements FileHandleResolver {
 	public InternalFileTree(Class<?> owner) {
 		anchorClass = owner;
 
-		String classPath = anchorClass.getResource("").getFile().replace("%20", " ");
+		URL res = anchorClass.getResource("");
+
+		if (res == null) throw new IllegalArgumentException("Unable to retrieve resource: " + owner.getName());
+
+		String classPath = res.getFile().replace("%20", " ");
 		classPath = classPath.substring(classPath.indexOf(":") + 2);
 		String jarPath = (OS.isLinux ? "/" : "") + classPath.substring(0, classPath.indexOf("!"));
 

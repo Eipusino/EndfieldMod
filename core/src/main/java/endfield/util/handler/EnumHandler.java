@@ -2,9 +2,7 @@ package endfield.util.handler;
 
 import endfield.util.CollectionList;
 import endfield.util.FieldAccessor;
-
-import static endfield.Vars2.classHelper;
-import static endfield.Vars2.platformImpl;
+import endfield.util.Reflects;
 
 /**
  * The enumeration processor provides some operation methods for enum, which can create enumeration
@@ -25,7 +23,7 @@ import static endfield.Vars2.platformImpl;
 public class EnumHandler<T extends Enum<T>> {
 	static final FieldAccessor ordinalAccessor, nameAccessor;
 
-	final FieldHandler<T> fieldHandler;
+	//final FieldHandler<T> fieldHandler;
 	final MethodHandler<T> methodHandler;
 
 	final FieldAccessor valuesAccessor;
@@ -33,8 +31,8 @@ public class EnumHandler<T extends Enum<T>> {
 	public final Class<T> clazz;
 
 	static {
-		ordinalAccessor = platformImpl.fieldAccessor(classHelper.getField(Enum.class, "ordinal"));
-		nameAccessor = platformImpl.fieldAccessor(classHelper.getField(Enum.class, "name"));
+		ordinalAccessor = Reflects.newFieldAccessor(ClassHandler.getField(Enum.class, "ordinal"));
+		nameAccessor = Reflects.newFieldAccessor(ClassHandler.getField(Enum.class, "name"));
 	}
 
 	/**
@@ -47,10 +45,10 @@ public class EnumHandler<T extends Enum<T>> {
 	 */
 	public EnumHandler(Class<T> c) {
 		clazz = c;
-		fieldHandler = new FieldHandler<>(c);
+		//fieldHandler = new FieldHandler<>(c);
 		methodHandler = new MethodHandler<>(c);
 
-		valuesAccessor = platformImpl.fieldAccessor(classHelper.getField(clazz, field -> field.getName().contains("$VALUES")));
+		valuesAccessor = Reflects.newFieldAccessor(ClassHandler.getField(clazz, field -> field.getName().contains("$VALUES")));
 	}
 
 	/**
