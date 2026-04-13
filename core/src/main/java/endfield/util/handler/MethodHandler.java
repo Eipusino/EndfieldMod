@@ -13,6 +13,7 @@ import static endfield.Vars2.methodInvokeHelper;
 public class MethodHandler<T> {
 	public final Class<T> clazz;
 
+	@Deprecated
 	public MethodHandler(Class<T> c) {
 		clazz = c;
 	}

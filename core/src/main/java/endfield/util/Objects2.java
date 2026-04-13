@@ -15,6 +15,7 @@ package endfield.util;
 
 import arc.func.Prov;
 import endfield.Vars2;
+import endfield.util.handler.ClassHandler;
 import endfield.util.handler.FieldHandler;
 
 import java.lang.reflect.Array;
@@ -109,7 +110,7 @@ public final class Objects2 {
 		buf.append(name).append('{');
 		int i = 0;
 		while (type != Object.class) {
-			for (Field field : Vars2.classHelper.getFields(type)) {
+			for (Field field : ClassHandler.getFields(type)) {
 				if ((field.getModifiers() & Modifier.STATIC) != 0) continue;
 
 				if (i++ > 0) buf.append(", ");

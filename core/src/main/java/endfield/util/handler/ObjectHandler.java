@@ -10,8 +10,6 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Set;
 
-import static endfield.Vars2.classHelper;
-
 /**
  * A set of practical tools for copying field properties of an object to another.
  *
@@ -75,7 +73,7 @@ public final class ObjectHandler {
 		CollectionList<Field> fields = new CollectionList<>(Field.class);
 
 		while (curr != Object.class) {
-			for (Field field : classHelper.getFields(curr)) {
+			for (Field field : ClassHandler.getFields(curr)) {
 				if ((field.getModifiers() & Modifier.STATIC) != 0 || filler != null && !filler.get(field)) continue;
 
 				fields.add(field);

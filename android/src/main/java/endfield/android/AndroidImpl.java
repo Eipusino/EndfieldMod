@@ -1,7 +1,6 @@
 package endfield.android;
 
 import arc.util.Log;
-import dalvik.system.VMStack;
 import endfield.util.CollectionObjectMap;
 import endfield.util.FieldAccessor;
 import endfield.util.PlatformImpl;
@@ -86,11 +85,6 @@ public class AndroidImpl implements PlatformImpl {
 	@Override
 	public FieldAccessor fieldAccessor(Field field) {
 		return UnsafeFieldAccessor.getUnsafeFieldAccessor(field);
-	}
-
-	@Override
-	public Class<?> getCallerClass() {
-		return VMStack.getStackClass2();
 	}
 
 	@Override

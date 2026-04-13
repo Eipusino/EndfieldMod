@@ -14,6 +14,7 @@ import static endfield.Vars2.fieldAccessHelper;
 public class FieldHandler<T> {
 	public final Class<T> clazz;
 
+	@Deprecated
 	public FieldHandler(Class<T> c) {
 		clazz = c;
 	}

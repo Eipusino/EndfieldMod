@@ -3,24 +3,27 @@ package endfield.desktop;
 import arc.func.Prov;
 import endfield.util.CollectionObjectMap;
 import endfield.util.FieldAccessHelper;
+import endfield.util.NoSuchVariableException;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.function.Function;
 
-import static endfield.Vars2.classHelper;
+import static endfield.desktop.DesktopClassHelper.function4;
 import static endfield.desktop.DesktopImpl.lookup;
 
 public class MethodHandleFieldAccessHelper implements FieldAccessHelper {
 	protected static final CollectionObjectMap<Class<?>, CollectionObjectMap<String, Field>> fieldMap = new CollectionObjectMap<>(Class.class, CollectionObjectMap.class);
+	protected static final CollectionObjectMap<Class<?>, Field[]> fieldsMap = new CollectionObjectMap<>(Class.class, Field[].class);
 
-	protected static final Prov<CollectionObjectMap<String, Field>> prov = () -> new CollectionObjectMap<>(String.class, Field.class);
+	protected static final Prov<CollectionObjectMap<String, Field>> prov5 = () -> new CollectionObjectMap<>(String.class, Field.class);
 
 	protected static final CollectionObjectMap<Field, MethodHandle> getters = new CollectionObjectMap<>(Field.class, MethodHandle.class);
 	protected static final CollectionObjectMap<Field, MethodHandle> setters = new CollectionObjectMap<>(Field.class, MethodHandle.class);
 
-	protected static final Function<Field, MethodHandle> function1 = field -> {
+	protected static final Function<Field, MethodHandle> function7 = field -> {
 		try {
 			String name = field.getName();
 			Class<?> dec = field.getDeclaringClass(), type = field.getType();
@@ -31,7 +34,7 @@ public class MethodHandleFieldAccessHelper implements FieldAccessHelper {
 		} catch (IllegalAccessException | NoSuchFieldException e) {
 			throw new RuntimeException(e);
 		}
-	}, function2 = field -> {
+	}, function8 = field -> {
 		try {
 			String name = field.getName();
 			Class<?> dec = field.getDeclaringClass(), type = field.getType();
@@ -45,12 +48,12 @@ public class MethodHandleFieldAccessHelper implements FieldAccessHelper {
 	};
 
 	public Field getField(Class<?> clazz, String name, boolean isStatic) {
-		CollectionObjectMap<String, Field> map = fieldMap.get(clazz, prov);
+		CollectionObjectMap<String, Field> map = fieldMap.get(clazz, prov5);
 		Field res = map.get(name);
 		if (res != null) return res;
 
 		if (isStatic) {
-			res = classHelper.findField(clazz, name);
+			res = findField(clazz, name);
 			if (res != null && (res.getModifiers() & Modifier.STATIC) != 0) {
 				map.put(name, res);
 				return res;
@@ -58,7 +61,7 @@ public class MethodHandleFieldAccessHelper implements FieldAccessHelper {
 		} else {
 			Class<?> curr = clazz;
 			while (curr != Object.class) {
-				res = classHelper.findField(curr, name);
+				res = findField(curr, name);
 				if (res != null && (res.getModifiers() & Modifier.STATIC) == 0) {
 					map.put(name, res);
 					return res;
@@ -68,15 +71,23 @@ public class MethodHandleFieldAccessHelper implements FieldAccessHelper {
 			}
 		}
 
-		throw new RuntimeException("field " + name + " was not found in class: " + clazz);
+		throw new NoSuchVariableException("field " + name + " was not found in class: " + clazz);
+	}
+
+	protected @Nullable Field findField(Class<?> clazz, String name) {
+		Field[] fields = fieldsMap.computeIfAbsent(clazz, function4);
+		for (Field field : fields) {
+			if (field.getName().equals(name)) return field;
+		}
+		return null;
 	}
 
 	protected MethodHandle getter(Field field) {
-		return getters.computeIfAbsent(field, function1);
+		return getters.computeIfAbsent(field, function7);
 	}
 
 	protected MethodHandle setter(Field field) {
-		return setters.computeIfAbsent(field, function2);
+		return setters.computeIfAbsent(field, function8);
 	}
 
 	@Override

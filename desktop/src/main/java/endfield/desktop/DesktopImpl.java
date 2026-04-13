@@ -4,6 +4,7 @@ import arc.util.Log;
 import endfield.core.EndFieldMod;
 import endfield.util.AccessibleHelper;
 import endfield.util.ClassHelper;
+import endfield.util.CollectionObjectMap;
 import endfield.util.ConstructorAccessor;
 import endfield.util.ReflectionFieldAccessHelper;
 import endfield.util.ReflectionMethodInvokeHelper;
@@ -14,8 +15,6 @@ import endfield.util.Reflects;
 import endfield.util.handler.ObjectHandler;
 import sun.reflect.ReflectionFactory;
 
-import java.lang.StackWalker.Option;
-import java.lang.StackWalker.StackFrame;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
@@ -23,6 +22,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Objects;
+import java.util.function.Function;
 
 import static endfield.Vars2.accessibleHelper;
 import static endfield.Vars2.classHelper;
@@ -34,7 +34,8 @@ import static endfield.desktop.Unsafer.unsafe;
 public class DesktopImpl implements PlatformImpl {
 	static Lookup lookup;
 
-	static final StackWalker classWalker;
+	static final CollectionObjectMap<Class<?>, Lookup> lookupMap;
+	static final Function<Class<?>, Lookup> lookupBuilder;
 
 	static {
 		try {
@@ -75,12 +76,13 @@ public class DesktopImpl implements PlatformImpl {
 			};
 		}
 
-		classWalker = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
+		lookupMap = new CollectionObjectMap<>(Class.class, Lookup.class);
+		lookupBuilder = clazz -> (Lookup) methodInvokeHelper.newInstance(clazz, clazz, null, 95);
 	}
 
 	@Override
 	public Lookup lookup(Class<?> clazz) {
-		return lookup;
+		return lookupMap.computeIfAbsent(clazz, lookupBuilder);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -122,11 +124,6 @@ public class DesktopImpl implements PlatformImpl {
 	@Override
 	public <T> ConstructorAccessor<T> constructorAccessor(Constructor<T> constructor) {
 		return new MethodHandleConstructorAccessor<>(constructor);
-	}
-
-	@Override
-	public Class<?> getCallerClass() {
-		return classWalker.walk(frames -> frames.skip(1).findFirst().map(StackFrame::getDeclaringClass)).orElse(null);
 	}
 
 	@Override

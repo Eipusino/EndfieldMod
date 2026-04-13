@@ -14,10 +14,10 @@ import endfield.func.DoubleDoublef;
 import endfield.func.Doublep;
 import endfield.func.LongLongf;
 import endfield.func.Longp;
-import endfield.util.concurrent.AtomicBoolean;
-import endfield.util.concurrent.AtomicChar;
-import endfield.util.concurrent.AtomicDouble;
-import endfield.util.concurrent.AtomicFloat;
+import endfield.util.atomic.AtomicBoolean;
+import endfield.util.atomic.AtomicChar;
+import endfield.util.atomic.AtomicDouble;
+import endfield.util.atomic.AtomicFloat;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;

@@ -5,7 +5,6 @@ import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.util.Log;
 import mindustry.Vars;
-import mindustry.core.ContentLoader;
 import mindustry.ctype.Content;
 import mindustry.ctype.ContentType;
 import mindustry.ctype.MappableContent;
@@ -17,17 +16,14 @@ import mindustry.ctype.UnlockableContent;
  * @since 1.0.9
  */
 public final class ContentHandler {
-	static final FieldHandler<ContentLoader> handle = new FieldHandler<>(ContentLoader.class);
-	static final FieldHandler<MappableContent> contHandler = new FieldHandler<>(MappableContent.class);
-
 	static Seq<Content>[] contentMap;
 	static ObjectMap<String, MappableContent>[] contentNameMap;
 
 	private ContentHandler() {}
 
 	static void updateContainer() {
-		contentMap = handle.getObject(Vars.content, "contentMap");
-		contentNameMap = handle.getObject(Vars.content, "contentNameMap");
+		contentMap = FieldHandler.getObjectDefault(Vars.content, "contentMap");
+		contentNameMap = FieldHandler.getObjectDefault(Vars.content, "contentNameMap");
 	}
 
 	public static void removeContent(Content content) {
@@ -64,7 +60,7 @@ public final class ContentHandler {
 		String oldName = oldContent.name;
 		String newName = newContent.name;
 
-		contHandler.set(newContent, "name", oldName);
+		FieldHandler.setDefault(newContent, "name", oldName);
 
 		if (oldContent.getContentType() != newContent.getContentType())
 			throw new IllegalArgumentException("The old content cannot override by new content, because the content type are different");

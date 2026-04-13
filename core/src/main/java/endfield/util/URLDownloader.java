@@ -10,7 +10,7 @@ import arc.graphics.Texture.TextureFilter;
 import arc.graphics.g2d.TextureRegion;
 import arc.util.Http;
 import arc.util.Log;
-import endfield.util.concurrent.AtomicFloat;
+import endfield.util.atomic.AtomicFloat;
 import endfield.util.holder.ObjectHolder;
 
 import java.io.InputStream;

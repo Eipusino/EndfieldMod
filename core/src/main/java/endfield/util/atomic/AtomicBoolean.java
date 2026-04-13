@@ -1,4 +1,4 @@
-package endfield.util.concurrent;
+package endfield.util.atomic;
 
 import endfield.util.Reflects;
 
@@ -29,7 +29,7 @@ public class AtomicBoolean implements Serializable {
 		return handle.compareAndSet(this, expectedValue, newValue);
 	}
 
-	public boolean weakCompareAndSetPlain(boolean expectedValue, boolean newValue) {
+	public final boolean weakCompareAndSetPlain(boolean expectedValue, boolean newValue) {
 		return handle.weakCompareAndSetPlain(this, expectedValue, newValue);
 	}
 

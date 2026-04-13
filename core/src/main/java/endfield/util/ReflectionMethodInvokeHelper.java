@@ -6,17 +6,24 @@ import endfield.util.holder.ObjectHolder;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.function.Function;
 
 public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 	protected static final CollectionObjectMap<Class<?>, CollectionObjectMap<String, CollectionObjectMap<FunctionType, Method>>> methodPool = new CollectionObjectMap<>(Class.class, CollectionObjectMap.class);
-	protected static final CollectionObjectMap<Class<?>, CollectionObjectMap<FunctionType, Constructor<?>>> constructorMap = new CollectionObjectMap<>(Class.class, CollectionObjectMap.class);
+	protected static final CollectionObjectMap<Class<?>, CollectionObjectMap<FunctionType, Constructor<?>>> constructorPool = new CollectionObjectMap<>(Class.class, CollectionObjectMap.class);
 
-	protected static final Prov<CollectionObjectMap<String, CollectionObjectMap<FunctionType, Method>>> prov1 = () -> new CollectionObjectMap<>(String.class, CollectionObjectMap.class);
-	protected static final Prov<CollectionObjectMap<FunctionType, Method>> prov2 = () -> new CollectionObjectMap<>(FunctionType.class, Method.class);
-	protected static final Prov<CollectionObjectMap<FunctionType, Constructor<?>>> prov3 = () -> new CollectionObjectMap<>(FunctionType.class, Constructor.class);
+	protected static final CollectionObjectMap<Class<?>, Method[]> methodsMap = new CollectionObjectMap<>(Class.class, Method[].class);
+	protected static final CollectionObjectMap<Class<?>, Constructor<?>[]> constructorsMap = new CollectionObjectMap<>(Class.class, Constructor[].class);
+
+	protected static final Prov<CollectionObjectMap<String, CollectionObjectMap<FunctionType, Method>>> prov2 = () -> new CollectionObjectMap<>(String.class, CollectionObjectMap.class);
+	protected static final Prov<CollectionObjectMap<FunctionType, Method>> prov3 = () -> new CollectionObjectMap<>(FunctionType.class, Method.class);
+	protected static final Prov<CollectionObjectMap<FunctionType, Constructor<?>>> prov4 = () -> new CollectionObjectMap<>(FunctionType.class, Constructor.class);
+
+	protected static final Function<Class<?>, Method[]> function2 = Class::getDeclaredMethods;
+	protected static final Function<Class<?>, Constructor<?>[]> function3 = Class::getDeclaredConstructors;
 
 	protected Method getMethod(Class<?> clazz, String name, FunctionType types) {
-		CollectionObjectMap<FunctionType, Method> map = methodPool.get(clazz, prov1).get(name, prov2);
+		CollectionObjectMap<FunctionType, Method> map = methodPool.get(clazz, prov2).get(name, prov3);
 
 		FunctionType type = FunctionType.inst(types);
 		Method res = map.get(type);
@@ -43,7 +50,7 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 		curr = clazz;
 
 		while (curr != null) {
-			for (Method method : curr.getDeclaredMethods()) {
+			for (Method method : methodsMap.computeIfAbsent(curr, function2)) {
 				if (!method.getName().equals(name)) continue;
 
 				FunctionType t;
@@ -59,12 +66,12 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 			curr = curr.getSuperclass();
 		}
 
-		throw new RuntimeException("no such method " + name + " in class: " + clazz + " with assignable parameter: " + types);
+		throw new NoSuchFunctionException("no such method " + name + " in class: " + clazz + " with assignable parameter: " + types);
 	}
 
 	@SuppressWarnings("unchecked")
 	protected <T> Constructor<T> getConstructor(Class<T> clazz, FunctionType types) {
-		CollectionObjectMap<FunctionType, Constructor<?>> map = constructorMap.get(clazz, prov3);
+		CollectionObjectMap<FunctionType, Constructor<?>> map = constructorPool.get(clazz, prov4);
 
 		Constructor<T> res = (Constructor<T>) map.get(types);
 		if (res != null) return res;
@@ -75,13 +82,15 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 
 		try {
 			res = clazz.getConstructor(types.paramType());
-			res.setAccessible(true);
-			map.put(FunctionType.from(res), res);
 		} catch (NoSuchMethodException ignored) {}
 
-		if (res != null) return res;
+		if (res != null) {
+			res.setAccessible(true);
+			map.put(FunctionType.from(res), res);
+			return res;
+		}
 
-		for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+		for (Constructor<?> constructor : constructorsMap.computeIfAbsent(clazz, function3)) {
 			FunctionType functionType;
 			if ((functionType = FunctionType.from(constructor)).match(types)) {
 				map.put(functionType, constructor);
@@ -95,7 +104,7 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 
 		if (res != null) return res;
 
-		throw new RuntimeException("no such constructor in class: " + clazz + " with assignable parameter: " + types);
+		throw new NoSuchFunctionException("no such constructor in class: " + clazz + " with assignable parameter: " + types);
 	}
 
 	@SuppressWarnings("unchecked")

@@ -1,4 +1,4 @@
-package endfield.util.concurrent;
+package endfield.util.atomic;
 
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;

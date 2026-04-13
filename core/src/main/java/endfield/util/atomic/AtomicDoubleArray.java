@@ -1,4 +1,4 @@
-package endfield.util.concurrent;
+package endfield.util.atomic;
 
 import endfield.func.DoubleDoublef;
 import endfield.func.DoubleDoublef2;

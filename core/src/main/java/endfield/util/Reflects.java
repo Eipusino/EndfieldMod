@@ -75,18 +75,44 @@ public final class Reflects {
 		};
 	}
 
+	/**
+	 * Wrap the field in the Accessor and handle all checked exceptions.
+	 * <p>Allow modification of {@code final} fields, provided there are no issues arising from special platforms.
+	 *
+	 * @param field Field to be packaged
+	 * @return New field accessor
+	 * @throws NullPointerException If the field is null
+	 */
 	public static FieldAccessor newFieldAccessor(Field field) {
 		return platformImpl.fieldAccessor(field);
 	}
 
+	/**
+	 * Wrap the method in the Accessor and handle all checked exceptions.
+	 *
+	 * @param method Method to be packaged
+	 * @return New method accessor
+	 * @throws NullPointerException If the method is null
+	 */
 	public static MethodAccessor newMethodAccessor(Method method) {
 		return platformImpl.methodAccessor(method);
 	}
 
+	/**
+	 * Wrap the constructor in the Accessor and handle all checked exceptions.
+	 *
+	 * @param constructor Constructor to be packaged
+	 * @return New constructor accessor
+	 * @throws NullPointerException If the constructor is null
+	 */
 	public static <T> ConstructorAccessor<T> newConstructorAccessor(Constructor<T> constructor) {
 		return platformImpl.constructorAccessor(constructor);
 	}
 
+	/**
+	 * @throws NoSuchFunctionException If no method can be found
+	 * @throws RuntimeException Any exception that occurs in reflection
+	 */
 	public static <T> Prov<T> supply(Class<T> type, String name, Class<?>[] parameterTypes, T object, Object... args) {
 		Method method = ClassHandler.getMethod(type, name, parameterTypes);
 		MethodAccessor accessor = newMethodAccessor(method);
@@ -100,7 +126,8 @@ public final class Reflects {
 	/**
 	 * Reflectively instantiates a type without throwing exceptions.
 	 *
-	 * @throws RuntimeException Any exception that occurs in reflection.
+	 * @throws NoSuchFunctionException If no constructor can be found
+	 * @throws RuntimeException Any exception that occurs in reflection
 	 */
 	public static <T> Prov<T> supply(Class<T> type, Class<?>[] parameterTypes, Object... args) {
 		Constructor<T> constructor = ClassHandler.getConstructor(type, parameterTypes);
@@ -112,12 +139,35 @@ public final class Reflects {
 		return () -> accessor.newInstance(args);
 	}
 
+	/**
+	 * @throws NoSuchVariableException If no field can be found
+	 */
 	public static VarHandle findVarHandle(Class<?> recv, String name, Class<?> type) {
 		try {
 			return platformImpl.lookup(recv).findVarHandle(recv, name, type);
 		} catch (NoSuchFieldException | IllegalAccessException e) {
-			throw new RuntimeException(e);
+			throw new NoSuchVariableException(e);
 		}
+	}
+
+	/**
+	 * @throws NullPointerException If name is null
+	 * @throws IllegalArgumentException If the primitive type cannot be specified by name
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> Class<T> getPrimitiveClass(String name) {
+		return (Class<T>) switch (name) {
+			case "boolean", "java.lang.Boolean", "Z" -> boolean.class;
+			case "int", "java.lang.Integer", "I" -> int.class;
+			case "float", "java.lang.Float", "F" -> float.class;
+			case "byte", "java.lang.Byte", "B" -> byte.class;
+			case "short", "java.lang.Short", "S" -> short.class;
+			case "long", "java.lang.Long", "J" -> long.class;
+			case "double", "java.lang.Double", "D" -> double.class;
+			case "char", "java.lang.Character", "C" -> char.class;
+			case "void", "java.lang.Void", "V" -> void.class;
+			default -> throw new IllegalArgumentException(name);
+		};
 	}
 
 	/**
@@ -133,6 +183,15 @@ public final class Reflects {
 		} catch (ClassNotFoundException e) {
 			return null;
 		}
+	}
+
+	/**
+	 * Reflect to call the clone method of Object.
+	 *
+	 * @throws NullPointerException If the object is null
+	 */
+	public static <T> T clone(T object) {
+		return platformImpl.clone(object);
 	}
 
 	public static String methodToString(Class<?> type, String name, Class<?>... argTypes) {
@@ -353,5 +412,20 @@ public final class Reflects {
 		}
 
 		return clazz;
+	}
+
+	/**
+	 * <pre>{@code
+	 * MethodHandle icons = platformImpl.lookup(Block.class).findVirtual(Block.class, "icons", MethodType.methodType(TextureRegion[].class));
+	 * }</pre>
+	 * <pre>{@code
+	 * Method method = Block.class.getDeclaredMethod("icons");
+	 * MethodHandle icons = platformImpl.lookup(method.getDeclaringClass()).unreflect(method);
+	 * }</pre>
+	 *
+	 * @return Retrieve a {@code lookup} that can access all members within a given {@code class}.
+	 */
+	public static Lookup lookup(Class<?> clazz) {
+		return platformImpl.lookup(clazz);
 	}
 }

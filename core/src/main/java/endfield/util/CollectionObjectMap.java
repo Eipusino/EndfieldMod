@@ -362,7 +362,7 @@ public class CollectionObjectMap<K, V> extends AbstractMap<K, V> implements Iter
 	 * Tries to get the value. If it does not exist, it creates a new instance using the supplier and places it,
 	 * returning the value.
 	 */
-	public V get(K key, Prov<V> supplier) {
+	public V get(K key, Prov<? extends V> supplier) {
 		V value = get(key);
 		if (value == null) {
 			put(key, value = supplier.get());

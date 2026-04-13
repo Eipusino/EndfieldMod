@@ -3,16 +3,19 @@ package endfield.desktop;
 import arc.func.Prov;
 import endfield.util.CollectionObjectMap;
 import endfield.util.FieldAccessHelper;
+import endfield.util.NoSuchVariableException;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import static endfield.Vars2.classHelper;
+import static endfield.desktop.DesktopClassHelper.function4;
 import static endfield.desktop.Unsafer.getGetMessage;
 import static endfield.desktop.Unsafer.getSetMessage;
 
 public class UnsafeFieldAccessHelper implements FieldAccessHelper {
 	protected static final CollectionObjectMap<Class<?>, CollectionObjectMap<String, Field>> fieldMap = new CollectionObjectMap<>(Class.class, CollectionObjectMap.class);
+	protected static final CollectionObjectMap<Class<?>, Field[]> fieldsMap = new CollectionObjectMap<>(Class.class, Field[].class);
 
 	protected static final Prov<CollectionObjectMap<String, Field>> prov = () -> new CollectionObjectMap<>(String.class, Field.class);
 
@@ -22,7 +25,7 @@ public class UnsafeFieldAccessHelper implements FieldAccessHelper {
 		if (res != null) return res;
 
 		if (isStatic) {
-			res = classHelper.findField(clazz, name);
+			res = findField(clazz, name);
 			if (res != null && (res.getModifiers() & Modifier.STATIC) != 0) {
 				map.put(name, res);
 				return res;
@@ -30,7 +33,7 @@ public class UnsafeFieldAccessHelper implements FieldAccessHelper {
 		} else {
 			Class<?> curr = clazz;
 			while (curr != Object.class) {
-				res = classHelper.findField(curr, name);
+				res = findField(curr, name);
 				if (res != null && (res.getModifiers() & Modifier.STATIC) == 0) {
 					map.put(name, res);
 					return res;
@@ -40,7 +43,15 @@ public class UnsafeFieldAccessHelper implements FieldAccessHelper {
 			}
 		}
 
-		throw new RuntimeException("field " + name + " was not found in class: " + clazz);
+		throw new NoSuchVariableException("field " + name + " was not found in class: " + clazz);
+	}
+
+	protected @Nullable Field findField(Class<?> clazz, String name) {
+		Field[] fields = fieldsMap.computeIfAbsent(clazz, function4);
+		for (Field field : fields) {
+			if (field.getName().equals(name)) return field;
+		}
+		return null;
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package endfield.util.concurrent;
+package endfield.util.atomic;
 
 import arc.func.FloatFloatf;
 import endfield.func.FloatFloatf2;

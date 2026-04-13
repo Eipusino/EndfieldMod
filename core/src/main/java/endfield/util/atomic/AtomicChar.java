@@ -1,4 +1,4 @@
-package endfield.util.concurrent;
+package endfield.util.atomic;
 
 import endfield.func.CharCharf;
 import endfield.func.CharCharf2;

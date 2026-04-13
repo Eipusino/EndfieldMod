@@ -12,7 +12,7 @@ public class Lazy<T> {
 		prov = initial;
 	}
 
-	public static <T> Lazy<T> of(Prov<T> prov) {
+	public static <T> Lazy<T> of(Prov<? extends T> prov) {
 		return new Lazy<>(prov);
 	}
 

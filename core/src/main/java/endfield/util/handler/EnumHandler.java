@@ -23,9 +23,6 @@ import endfield.util.Reflects;
 public class EnumHandler<T extends Enum<T>> {
 	static final FieldAccessor ordinalAccessor, nameAccessor;
 
-	//final FieldHandler<T> fieldHandler;
-	final MethodHandler<T> methodHandler;
-
 	final FieldAccessor valuesAccessor;
 
 	public final Class<T> clazz;
@@ -45,8 +42,6 @@ public class EnumHandler<T extends Enum<T>> {
 	 */
 	public EnumHandler(Class<T> c) {
 		clazz = c;
-		//fieldHandler = new FieldHandler<>(c);
-		methodHandler = new MethodHandler<>(c);
 
 		valuesAccessor = Reflects.newFieldAccessor(ClassHandler.getField(clazz, field -> field.getName().contains("$VALUES")));
 	}
@@ -70,7 +65,7 @@ public class EnumHandler<T extends Enum<T>> {
 
 		System.arraycopy(param, 0, params, 2, param.length);
 
-		return methodHandler.newInstance(params);
+		return MethodHandler.newInstanceDefault(clazz, params);
 	}
 
 	/**
