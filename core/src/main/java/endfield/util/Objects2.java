@@ -13,6 +13,7 @@
 */
 package endfield.util;
 
+import arc.func.Cons;
 import arc.func.Prov;
 import endfield.Vars2;
 import endfield.util.handler.ClassHandler;
@@ -31,6 +32,11 @@ import java.util.Objects;
  */
 public final class Objects2 {
 	private Objects2() {}
+
+	public static <T> T let(T obj, Cons<? super T> cons) {
+		cons.get(obj);
+		return obj;
+	}
 
 	/**
 	 * Returns the first argument if it is non-{@code null} and otherwise

@@ -123,24 +123,24 @@ public class ShapedWall extends ConnectedWall {
 		}
 
 		//todo healthChanged sometimes not trigger properly
-		public void damageShared(Building building, float damage) {
-			if (building.dead()) return;
+		public void damageShared(Building build, float damage) {
+			if (build.dead()) return;
 			float dm = Vars.state.rules.blockHealth(team);
 			if (Mathf.zero(dm)) {
-				damage = building.health + 1;
+				damage = build.health + 1;
 			} else {
 				damage /= dm;
 			}
 			if (!Vars.net.client()) {
-				building.health -= damage;
+				build.health -= damage;
 			}
 			if (damaged()) {
 				healthChanged();
 			}
-			if (building.health <= 0) {
-				Call.buildDestroyed(building);
+			if (build.health <= 0) {
+				Call.buildDestroyed(build);
 			}
-			Fx2.shareDamage.at(building.x, building.y, building.block.size * Vars.tilesize / 2f, team.color, Mathm.clamp(damage / (block.health * 0.1f)));
+			Fx2.shareDamage.at(build.x, build.y, build.block.size * Vars.tilesize / 2f, team.color, Mathm.clamp(damage / (block.health * 0.1f)));
 		}
 
 		@Override

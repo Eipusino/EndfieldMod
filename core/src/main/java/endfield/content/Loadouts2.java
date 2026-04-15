@@ -3,7 +3,6 @@ package endfield.content;
 import arc.struct.Seq;
 import arc.util.Log;
 import arc.util.serialization.Base64Coder;
-import endfield.Vars2;
 import mindustry.Vars;
 import mindustry.game.Schematic;
 import mindustry.game.Schematics;
@@ -17,7 +16,7 @@ public final class Loadouts2 {
 	private Loadouts2() {}
 
 	public static void load() {
-		if (Vars.headless || Vars2.isPlugin) return;
+		if (Vars.headless) return;
 
 		try {
 			basicCripple = readBase64("bXNjaAF4nC3MQQqAIBRF0ZdEg2oHTdqAq2jcCqKB2YcE+4paINHeC+pOLxwIiBIlq53QDi5QPwTjvSXU2nEiTqPyENeNZqWo35eMYwCVVQvZCDHNBbqN1Jml4fWIKWSpX0jqHwIKfD2LRx4M");

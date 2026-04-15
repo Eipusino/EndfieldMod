@@ -7,7 +7,6 @@ import arc.graphics.g2d.Lines;
 import arc.math.Mathf;
 import arc.util.Time;
 import arc.util.Tmp;
-import endfield.Vars2;
 import endfield.graphics.Pal2;
 import endfield.math.Mathm;
 import mindustry.content.Fx;
@@ -38,8 +37,6 @@ public final class StatusEffects2 {
 
 	/** Instantiates all contents. Called in the main thread in {@code EndFieldMod.loadContent()}. */
 	public static void load() {
-		if (Vars2.isPlugin) return;
-
 		overheat = new StatusEffect2("overheat") {{
 			color = new Color(0xffdcd8ff);
 			disarm = true;

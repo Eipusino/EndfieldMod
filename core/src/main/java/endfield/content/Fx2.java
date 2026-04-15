@@ -24,7 +24,7 @@ import arc.util.pooling.Pool.Poolable;
 import arc.util.pooling.Pools;
 import endfield.entities.UnitPointEntry;
 import endfield.entities.abilities.MirrorFieldAbility;
-import endfield.entities.bullet.HailStoneBulletType;
+import endfield.entities.bullet.FallingRockBulletType.RockData;
 import endfield.graphics.Drawm;
 import endfield.graphics.Drawn;
 import endfield.graphics.Draws;
@@ -42,6 +42,7 @@ import endfield.type.lightnings.generator.RandomGenerator;
 import endfield.util.Get;
 import endfield.util.IntMap2;
 import endfield.util.Vec2Seq;
+import endfield.world.blocks.environment.MultiPropGroup;
 import mindustry.Vars;
 import mindustry.content.Fx;
 import mindustry.entities.Effect;
@@ -54,6 +55,7 @@ import mindustry.graphics.Layer;
 import mindustry.graphics.Pal;
 import mindustry.type.UnitType;
 import mindustry.world.Block;
+import mindustry.world.Tile;
 import mindustry.world.blocks.payloads.Payload;
 
 import static endfield.Vars2.MOD_NAME;
@@ -1271,46 +1273,268 @@ public final class Fx2 {
 		Draw.color(e.color);
 		Fill.circle(e.x + x, e.y + y + elevation, 12f);
 	}));
-	public static final Effect fellStone = new Effect(120f, e -> {
-		if (e.data instanceof HailStoneBulletType.HailStoneData data) {
-			v7.trns(Mathf.randomSeed(e.id) * 360, data.fallTime / 2 + Mathf.randomSeed(e.id + 1) * data.fallTime);
-			float scl = Interp.bounceIn.apply(e.fout() - 0.3f);
-			float rot = v7.angle();
-			float x = e.x + (v7.x * e.finpow()), y = e.y + (v7.y * e.finpow());
+	public static final Effect breakShapedProp = new Effect(23, e -> {
+		if (!(e.data instanceof MultiPropGroup group)) return;
 
-			Draw.z(Layer.power + 0.1f);
-			Drawm.shadow(data.region, x, y, rot, Math.min(e.fout(), Pal.shadow.a));
+		float scl = Math.max(e.rotation, 1);
+		Draw.color(Tmp.c1.set(e.color).mul(1.1f));
 
-			Draw.z(Layer.power + 0.2f);
-			Draw.color(e.color);
-			Draw.alpha(e.fout());
-			Draw.rect(data.region, x, y + (scl * data.fallTime / 2), rot);
+		for (Tile tile : group.group) {
+			Angles.randLenVectors(e.id + tile.pos(), 2, 19f * e.finpow() * scl, (x, y) -> {
+				float wx = tile.worldx() + x;
+				float wy = tile.worldy() + y;
+				Fill.circle(wx, wy, e.fout() * 3.5f * scl + 0.3f);
+			});
+		}
+	}).layer(Layer.debris);
+	public static final Effect drillHammerHit = new Effect(80f, e -> {
+		Draw.color(e.color, Color.gray, e.fin());
+		Draw.alpha(0.6f);
+		Draw.z(Layer.block);
+
+		rand.setSeed(e.id);
+		for (int i = 0; i < 3; i++) {
+			float len = rand.random(6f), rot = rand.range(40f) + e.rotation;
+
+			e.scaled(e.lifetime * rand.random(0.3f, 1f), e2 -> {
+				v7.trns(rot, len * e2.finpow());
+
+				Fill.square(e2.x + v7.x, e2.y + v7.y, 1.5f * e2.fslope() + 0.2f, 45);
+			});
 		}
 	});
-	public static final Effect fellStoneAghanite = new Effect(120f, e -> {
-		if (e.data instanceof HailStoneBulletType.HailStoneData data) {
-			rand.setSeed(e.id);
-			v7.trns(e.rotation + rand.range(30f), data.fallTime / 2f + rand.random(data.fallTime));
+	public static final Effect dynamicHailWave = new Effect(22, e -> {
+		Tile tile = Vars.world.tileWorld(e.x, e.y);
+		Color color = e.color;
+		if (tile != null && tile.floor().isLiquid) {
+			color = tile.floor().mapColor;
+		}
+
+		Draw.color(color, 0.7f);
+		Lines.stroke(e.fout() * 2f);
+		Lines.circle(e.x, e.y, 4f + e.finpow() * e.rotation);
+	});
+	public static final Effect hailStoneSplashSmall = new Effect(50f, e -> {
+		Tile tile = Vars.world.tileWorld(e.x, e.y);
+		if (tile == null || !tile.floor().isLiquid) return;
+
+		boolean deep = !tile.floor().shallow;
+		Color fluidCol = tile.floor().mapColor;
+		Color sprayCol = Tmp.c1.set(fluidCol).mul(1.2f);
+
+		float intensity = deep ? 1f : 1.4f;
+
+		Draw.z(Layer.debris);
+
+		Draw.color(fluidCol);
+		Lines.stroke(e.fout() * 1.2f);
+		Lines.circle(e.x, e.y, (2f + e.finpow() * 12f) * intensity);
+
+		rand.setSeed(e.id);
+		int crownPoints = deep ? 4 : 7;
+		for (int i = 0; i < crownPoints; i++) {
+			float ang = rand.random(360f);
+			float len = rand.random(2f, 6f) * intensity;
+			Tmp.v1.trns(ang, (1f + e.finpow() * 3f) * intensity);
+			Drawf.tri(e.x + Tmp.v1.x, e.y + Tmp.v1.y, 2f * e.fout() * intensity, len * e.fout(), ang);
+		}
+
+		Draw.color(sprayCol);
+		int dropCount = deep ? 6 : 10;
+		for (int i = 0; i < dropCount; i++) {
+			rand.setSeed(e.id + i);
+			float angle = rand.random(360f);
+			float dist = rand.random(10f, 30f) * intensity;
+			float peakH = rand.random(8f, 16f) * (deep ? 1.2f : 0.7f);
+			float lifeScl = rand.random(0.6f, 1f);
+
+			float curFin = Math.min(e.fin() / lifeScl, 1f);
+			if (curFin >= 1f) continue;
+
+			float fout = 1f - curFin;
+			Tmp.v1.trns(angle, dist * curFin);
+			float z = Mathf.sin(curFin * Mathf.PI) * peakH;
+
+			Fill.circle(e.x + Tmp.v1.x, e.y + Tmp.v1.y + z, (fout + 0.1f) * intensity);
+		}
+	});
+	public static final Effect fellStone = new Effect(120f, e -> {
+		if (!(e.data instanceof RockData data)) return;
+
+		rand.setSeed(e.id);
+		v7.trns(rand.random(360f), data.bullet.lifetime / 2f + rand.random(data.bullet.lifetime));
+
+		Tile startTile = Vars.world.tileWorld(e.x, e.y);
+		boolean startLiquid = startTile != null && startTile.floor().isLiquid;
+		Tile endTile = Vars.world.tileWorld(e.x + v7.x, e.y + v7.y);
+		float hitFactor = 1f;
+
+		if (!startLiquid) {
+			for (int i = 1; i <= 10; i++) {
+				float f = i / 10f;
+				Tile t = Vars.world.tileWorld(e.x + v7.x * f, e.y + v7.y * f);
+				if (t != null && t.floor().isLiquid) {
+					hitFactor = f;
+					endTile = t;
+					break;
+				}
+			}
+		} else {
+			hitFactor = 0f;
+			endTile = startTile;
+		}
+
+		float curFin = e.finpow();
+		boolean sunken = endTile != null && curFin >= hitFactor;
+		float finalPos = Math.min(curFin, hitFactor);
+
+		float x = e.x + (v7.x * finalPos);
+		float y = e.y + (v7.y * finalPos);
+		float rot = v7.angle();
+
+		if (sunken) {
+			Draw.z(Layer.debris);
+			Draw.color(e.color);
+
+			float sinkTime = (hitFactor >= 0.999f) ? 0f : (curFin - hitFactor) / (1f - hitFactor);
+
+			boolean deep = !endTile.floor().shallow;
+
+			Draw.mixcol(endTile.floor().mapColor, 0.2f + 0.6f * sinkTime);
+			Draw.alpha(e.fout());
+
+			float sinkY = deep ? (-Interp.pow2In.apply(sinkTime) * 8f) : Math.max(-Interp.pow2In.apply(sinkTime) * 8f, -3f);
+
+			Draw.rect(data.region, x, y + sinkY, rot);
+			Draw.mixcol();
+		} else {
 			float scl = Interp.bounceIn.apply(e.fout() - 0.3f);
-			float rot = v7.angle();
-			float x = e.x + (v7.x * e.finpow()), y = e.y + (v7.y * e.finpow());
 
 			Draw.z(Layer.power + 0.1f);
-			Drawm.shadow(data.region, x, y, rot, Math.min(e.fout(), Pal.shadow.a));
+			Draw.mixcol(Pal.shadow, 1f);
+			Draw.alpha(Math.min(e.fout(), Pal.shadow.a));
+			Draw.rect(data.region, x, y, rot);
+			Draw.mixcol();
 
 			Draw.z(Layer.power + 0.2f);
 			Draw.color(e.color);
 			Draw.alpha(e.fout());
-			Draw.rect(data.region, x, y + (scl * data.fallTime / 2f), rot);
+			Draw.rect(data.region, x, y + (scl * data.bullet.lifetime / 2f), rot);
+		}
+	});
+	public static final Effect hailStoneImpact = new Effect(80f, e -> {
+		Tile tile = Vars.world.tileWorld(e.x, e.y);
+		boolean liquid = tile != null && tile.floor().isLiquid;
+
+		if (liquid) {
+			boolean deep = !tile.floor().shallow;
+			Color fluidCol = tile.floor().mapColor;
+			Color sprayCol = Tmp.c1.set(fluidCol).mul(1.2f);
+
+			float intensity = deep ? 1f : 1.7f;
+
+			Draw.z(Layer.debris);
+
+			Draw.color(fluidCol);
+			Lines.stroke(e.fout() * 1.5f);
+			Lines.circle(e.x, e.y, (4f + e.finpow() * 20f) * (deep ? 1f : 1.4f));
+
+			rand.setSeed(e.id);
+			int crownPoints = deep ? 6 : 11;
+			for (int i = 0; i < crownPoints; i++) {
+				float ang = rand.random(360f);
+				float len = rand.random(4f, 12f) * intensity;
+				Tmp.v1.trns(ang, (2f + e.finpow() * 6f) * intensity);
+				Drawf.tri(e.x + Tmp.v1.x, e.y + Tmp.v1.y, 3f * e.fout() * intensity, len * e.fout(), ang);
+			}
+
+			Draw.color(sprayCol);
+			int dropCount = deep ? 12 : 26;
+			for (int i = 0; i < dropCount; i++) {
+				rand.setSeed(e.id + i + 1);
+				float angle = rand.random(360f);
+				float dist = rand.random(20f, 60f) * intensity;
+				float peakH = rand.random(20f, 40f) * (deep ? 1.3f : 0.6f) * intensity;
+				float lifeScl = rand.random(0.6f, 1f);
+
+				float curFin = Math.min(e.fin() / lifeScl, 1f);
+				if (curFin >= 1f) continue;
+
+				float fout = 1f - curFin;
+				Tmp.v1.trns(angle, dist * curFin);
+				float z = Mathf.sin(curFin * Mathf.PI) * peakH;
+
+				Fill.circle(e.x + Tmp.v1.x, e.y + Tmp.v1.y + z, (1.2f * fout + 0.2f) * intensity);
+			}
+
+		} else {
+			Color waveColor = Color.lightGray;
+			Color smokeColor = Color.gray;
+
+			Draw.z(Layer.power);
+			Draw.color(waveColor);
+			Lines.stroke(e.fout() * 2.5f);
+			Lines.circle(e.x, e.y, e.finpow() * 24f);
+
+			Draw.z(Layer.effect);
+
+			Draw.color(Color.white, e.color, e.fin());
+			rand.setSeed(e.id);
+			for (int i = 0; i < 8; i++) {
+				float ang = rand.random(360f);
+				float len = rand.random(6f, 14f);
+				Tmp.v1.trns(ang, e.finpow() * 18f);
+				Drawf.tri(e.x + Tmp.v1.x, e.y + Tmp.v1.y, 4f * e.fout(), len * e.fout(), ang);
+			}
+
+			Draw.color(smokeColor);
+			Angles.randLenVectors(e.id, 7, 3f + 22f * e.finpow(), (x, y) -> {
+				Fill.circle(e.x + x, e.y + y, e.fout() * 3.5f + 0.5f);
+			});
+
+			Draw.color(e.color, smokeColor, e.fin());
+			Lines.stroke(2f * e.fout());
+			Angles.randLenVectors(e.id + 1, 10, 2f + 28f * e.finpow(), (x, y) -> {
+				Lines.lineAngle(e.x + x, e.y + y, Mathf.angle(x, y), 2f + e.fout() * 4f);
+			});
+
+			if (e.time <= 1f) Effect.shake(2f, 2f, e.x, e.y);
 		}
 	});
 	public static final Effect staticStone = new Effect(250f, e -> {
-		if (e.data instanceof HailStoneBulletType.HailStoneData data) {
-			Draw.z(Layer.power + 0.1f);
+		if (!(e.data instanceof RockData data)) return;
+
+		Tile tile = Vars.world.tileWorld(e.x, e.y);
+		boolean liquid = tile != null && tile.floor().isLiquid;
+		boolean deep = tile != null && !tile.floor().shallow;
+
+		if (liquid) {
+			Draw.z(Layer.debris);
 			Draw.color(e.color);
+			Draw.mixcol(tile.floor().mapColor, 0.2f + 0.6f * e.fin());
 			Draw.alpha(e.fout());
-			Draw.rect(data.region, e.x, e.y, Mathf.randomSeed(e.id) * 360);
+
+			float sinkTime = e.finpow();
+
+			if (deep) {
+				float sinkY = -12f * sinkTime;
+
+				float sway = Mathf.randomSeedRange(e.id, 5f) * sinkTime;
+				float rot = Mathf.randomSeed(e.id) * 360 + Mathf.randomSeedRange(e.id + 1, 20f) * sinkTime;
+
+				Draw.rect(data.region, e.x + sway, e.y + sinkY, rot);
+			} else {
+				Draw.rect(data.region, e.x, e.y + Math.max(-Interp.pow2In.apply(sinkTime) * 8f, -3f), Mathf.randomSeed(e.id) * 360);
+			}
+
+			Draw.mixcol();
+			return;
 		}
+
+		Draw.z(Layer.power + 0.1f);
+		Draw.color(e.color);
+		Draw.alpha(e.fout());
+		Draw.rect(data.region, e.x, e.y, Mathf.randomSeed(e.id) * 360);
 	});
 	public static final Effect windTail = new Effect(100f, e -> {
 		Draw.color(Color.white);
@@ -1343,6 +1567,31 @@ public final class Fx2 {
 			Lines.stroke(v1.z);
 			Lines.line(v1.x, v1.y, v2.x, v2.y);
 		}
+	});
+	public static final Effect pumpOut = new Effect(60f, e -> {
+		Draw.color(e.color);
+		Draw.alpha(e.fout() / 5);
+		v7.trns(e.rotation, 4f).add(e.x, e.y);
+		Angles.randLenVectors(e.id, 3, 16 * e.fin(), e.rotation, 10, (x, y) -> {
+			Fill.circle(v7.x + x, v7.y + y, 3 * e.fin());
+		});
+		Draw.alpha(e.fout() / 7);
+		v7.trns(e.rotation, 4f).add(e.x, e.y);
+		Angles.randLenVectors(e.id + 3, 3, 16 * e.fin(), e.rotation, 20, (x, y) -> {
+			Fill.rect(v7.x + x, v7.y + y, 5 * e.fin(), e.fin(), v7.angleTo(v7.x + x, v7.y + y));
+		});
+	});
+	public static final Effect pumpIn = new Effect(60f, e -> {
+		Draw.color(e.color);
+		Draw.alpha(e.fin() / 5);
+		v7.trns(e.rotation, 4f).add(e.x, e.y);
+		Angles.randLenVectors(e.id, 3, 16 * e.fout(), e.rotation, 10, (x, y) -> {
+			Fill.circle(v7.x + x, v7.y + y, 3 * e.fout());
+		});
+		Draw.alpha(e.fin() / 7);
+		Angles.randLenVectors(e.id + 3, 3, 16 * e.fout(), e.rotation, 20, (x, y) -> {
+			Fill.rect(v7.x + x, v7.y + y, 5 * e.fout(), e.fout(), v7.angleTo(v7.x + x, v7.y + y));
+		});
 	});
 	public static final Effect gasLeak = new Effect(90, e -> {
 		if (e.data instanceof Number num) {

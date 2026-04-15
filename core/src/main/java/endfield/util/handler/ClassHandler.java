@@ -25,6 +25,26 @@ public final class ClassHandler {
 	}
 
 	/**
+	 * Return to search for methods in the class based on name and parameter type, including private
+	 * ones. If not found, return {@code null}.
+	 *
+	 * @see Class#getDeclaredMethod(String, Class[])
+	 */
+	public static @Nullable Method findMethod(Class<?> type, String name, Class<?>... parameterTypes) {
+		return classHelper.findMethod(type, name, parameterTypes);
+	}
+
+	/**
+	 * Return the constructor function in the class based on the parameter type, including private ones. If
+	 * it cannot be found, it will return {@code null}.
+	 *
+	 * @see Class#getDeclaredConstructor(Class[])
+	 */
+	public static <T> @Nullable Constructor<T> findConstructor(Class<T> type, Class<?>... args) {
+		return classHelper.findConstructor(type, args);
+	}
+
+	/**
 	 * Search and return the field based on custom criteria, and return null if not found.
 	 */
 	public static @Nullable Field findField(Class<?> type, Boolf<Field> filler) {
@@ -43,26 +63,6 @@ public final class ClassHandler {
 	 */
 	public static <T> @Nullable Constructor<T> findConstructor(Class<T> clazz, Boolf<Constructor<T>> filler) {
 		return classHelper.findConstructor(clazz, filler);
-	}
-
-	/**
-	 * Return to search for methods in the class based on name and parameter type, including private
-	 * ones. If not found, return {@code null}.
-	 *
-	 * @see Class#getDeclaredMethod(String, Class[])
-	 */
-	public static @Nullable Method findMethod(Class<?> type, String name, Class<?>... parameterTypes) {
-		return classHelper.findMethod(type, name, parameterTypes);
-	}
-
-	/**
-	 * Return the constructor function in the class based on the parameter type, including private ones. If
-	 * it cannot be found, it will return {@code null}.
-	 *
-	 * @see Class#getDeclaredConstructor(Class[])
-	 */
-	public static <T> @Nullable Constructor<T> findConstructor(Class<T> type, Class<?>... args) {
-		return classHelper.findConstructor(type, args);
 	}
 
 	/**
@@ -102,6 +102,14 @@ public final class ClassHandler {
 		return classHelper.getField(type, filler);
 	}
 
+	public static Method getMethod(Class<?> type, Boolf<Method> filler) {
+		return classHelper.getMethod(type, filler);
+	}
+
+	public static <T> Constructor<T> getConstructor(Class<T> type, Boolf<Constructor<T>> filler) {
+		return classHelper.getConstructor(type, filler);
+	}
+
 	public static Field[] getFields(Class<?> type) {
 		return classHelper.getFields(type);
 	}
@@ -118,7 +126,8 @@ public final class ClassHandler {
 	 * Create an instance object of a class directly by bypassing the constructor, where all field values
 	 * within the object are in an uninitialized state. Cannot support primitive classes, abstract classes, and
 	 * interfaces.
-	 * <p><strong>If {@code null} is passed in, it will cause the JVM to crash.</strong>
+	 *
+	 * @throws NullPointerException If clazz is null
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T allocateInstance(Class<? extends T> clazz) {
@@ -134,8 +143,7 @@ public final class ClassHandler {
 			else if (clazz == short.class) result = (short) 0;
 			else if (clazz == double.class) result = 0d;
 			else if (clazz == char.class) result = '\u0000';
-			else if (clazz == void.class) result = null;
-			else throw new IllegalArgumentException("unknown primitive type: " + clazz.getName());
+			else throw new IllegalArgumentException("unsupported primitive types:" + clazz.getName());
 		} else if (clazz == String.class) result = "";
 		else result = classHelper.allocateInstance(clazz);
 

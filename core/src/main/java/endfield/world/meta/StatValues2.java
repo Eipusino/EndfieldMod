@@ -11,6 +11,7 @@ import arc.scene.ui.Label;
 import arc.scene.ui.TextButton;
 import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Collapser;
+import arc.scene.ui.layout.Stack;
 import arc.scene.ui.layout.Table;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
@@ -42,6 +43,8 @@ import mindustry.world.meta.StatValue;
 import mindustry.world.meta.StatValues;
 import org.jetbrains.annotations.ApiStatus.Obsolete;
 import org.jetbrains.annotations.Nullable;
+
+import static endfield.Vars2.MOD_PREFIX;
 
 public final class StatValues2 {
 	/** Don't let anyone instantiate this class. */
@@ -831,6 +834,46 @@ public final class StatValues2 {
 				t.add("[lightgray]" + content.localizedName).padLeft(6);
 				infoButton(t, content, 4 * 8).padLeft(6);
 			});
+		};
+	}
+
+	public static String formatValue(float value, int decimals, boolean addPlus) {
+		String format = Strings.autoFixed(Math.abs(value), decimals);
+		return (value < 0 ? "-" : (addPlus ? "+" : "")) + format;
+	}
+
+	public static StatValue fluid(@Nullable Liquid liquid, float amount, float time, boolean showContinuous) {
+		return table -> {
+			table.table(display -> {
+				display.add(new Stack() {{
+					add(new Image(liquid != null ? liquid.uiIcon : Core.atlas.find(MOD_PREFIX + "air")).setScaling(Scaling.fit));
+
+					if (amount * 60f / time != 0) {
+						Table t = new Table().left().bottom();
+						t.add(Strings.autoFixed(amount * 60f / time, 2)).style(Styles.outlineLabel);
+						add(t);
+					}
+				}}).size(Vars.iconMed).padRight(3 + (amount * 60f / time != 0 && Strings.autoFixed(amount * 60f / time, 2).length() > 2 ? 8 : 0));
+
+				if (showContinuous) {
+					display.add(StatUnit.perSecond.localized()).padLeft(2).padRight(5).color(Color.lightGray).style(Styles.outlineLabel);
+				}
+
+				display.add(liquid != null ? liquid.localizedName : "@air");
+			});
+		};
+	}
+
+	public static StatValue number(float value, StatUnit unit, boolean merge) {
+		return table -> {
+			String l1 = (unit.icon == null ? "" : unit.icon + " ") + formatValue(value, 2, false), l2 = (unit.space ? " " : "") + unit.localized();
+
+			if (merge) {
+				table.add(l1 + l2).left();
+			} else {
+				table.add(l1).left();
+				table.add(l2).left();
+			}
 		};
 	}
 

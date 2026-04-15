@@ -17,6 +17,7 @@ public final class Icon2 {
 	public static TextureRegionDrawable seiChan, seiChanHit, quadChan, quadChanHit, boulderChan, boulderChanHit;
 	//other
 	public static TextureRegionDrawable matrixArrow;
+	public static TextureRegionDrawable pressureIcon;
 
 	/** Don't let anyone instantiate this class. */
 	private Icon2() {}
@@ -76,6 +77,7 @@ public final class Icon2 {
 		boulderChanHit = texture("boulder-chan-hit");
 		//other
 		matrixArrow = texture("matrix-arrow");
+		pressureIcon = texture("pressure-icon");
 	}
 
 	public static TextureRegionDrawable texture(String name) {

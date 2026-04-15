@@ -1,7 +1,12 @@
 package endfield.async;
 
+import arc.Core;
 import arc.func.Prov;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
@@ -14,41 +19,50 @@ import java.util.concurrent.locks.ReadWriteLock;
 public final class Asyncs {
 	private Asyncs() {}
 
-	/*@JvmStatic
-	fun <T> get(future: Future<T>): T {
-		return future.get()
+	public static <T> T get(Future<T> future) {
+		try {
+			return future.get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
-	@JvmStatic
-	fun postWait(runSync: Runnable) {
-		val flag = Semaphore(0)
-		Core.app.post {
+	public static void postWait(Runnable runSync) {
+		Semaphore flag = new Semaphore(0);
+		Core.app.post(() -> {
 			try {
-				runSync.run()
+				runSync.run();
 			} finally {
-				flag.release()
+				flag.release();
 			}
-		}
+		});
 
-		flag.acquire()
+		try {
+			flag.acquire();
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
-	@JvmStatic
-	fun <T> postWait(runSync: Prov<T>): T {
-		val flag = Semaphore(0)
-		val out = AtomicReference<T>()
-		Core.app.post {
+	public static <T> T postWait(Prov<T> runSync) {
+		Semaphore flag = new Semaphore(0);
+		AtomicReference<T> out = new AtomicReference<>();
+		Core.app.post(() -> {
 			try {
-				out.set(runSync.get())
+				out.set(runSync.get());
 			} finally {
-				flag.release()
+				flag.release();
 			}
+		});
+
+		try {
+			flag.acquire();
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
 		}
 
-		flag.acquire()
-
-		return out.get()
-	}*/
+		return out.get();
+	}
 
 	public static <T> T lock(Lock lock, Prov<T> prov) {
 		lock.lock();

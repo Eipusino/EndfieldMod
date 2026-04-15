@@ -2,10 +2,10 @@ package endfield.desktop;
 
 import arc.util.Log;
 import endfield.core.EndFieldMod;
-import endfield.util.AccessibleHelper;
-import endfield.util.ClassHelper;
 import endfield.util.CollectionObjectMap;
 import endfield.util.ConstructorAccessor;
+import endfield.util.MockAccessibleHelper;
+import endfield.util.MockClassHelper;
 import endfield.util.ReflectionFieldAccessHelper;
 import endfield.util.ReflectionMethodInvokeHelper;
 import endfield.util.FieldAccessor;
@@ -55,20 +55,10 @@ public class DesktopImpl implements PlatformImpl {
 
 			lookup = Reflects.publicLookup;
 
-			classHelper = new ClassHelper() {
-				@Override
-				public <T> T allocateInstance(Class<? extends T> clazz) {
-					throw new UnsupportedOperationException();
-				}
-
-				@Override
-				public Class<?> defineClass(String name, byte[] bytes, ClassLoader loader) {
-					throw new UnsupportedOperationException();
-				}
-			};
+			classHelper = new MockClassHelper();
 			fieldAccessHelper = new ReflectionFieldAccessHelper();
 			methodInvokeHelper = new ReflectionMethodInvokeHelper();
-			accessibleHelper = new AccessibleHelper() {
+			accessibleHelper = new MockAccessibleHelper() {
 				@Override
 				public void makeAccessible(AccessibleObject object) {
 					object.trySetAccessible();
@@ -98,10 +88,10 @@ public class DesktopImpl implements PlatformImpl {
 
 			if (type == Class.class || type == Field.class || type == Method.class || type == Constructor.class) return null;
 
-			T out = (T) unsafe.allocateInstance(object.getClass());
+			T result = (T) unsafe.allocateInstance(object.getClass());
 			// The performance overhead may be high, but there is currently no other way.
-			ObjectHandler.copyField(object, out);
-			return out;
+			ObjectHandler.copyField(object, result);
+			return result;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}

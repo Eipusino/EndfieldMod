@@ -4,6 +4,9 @@ import arc.struct.Seq;
 import endfield.util.handler.FieldHandler;
 import mindustry.world.meta.Stat;
 import mindustry.world.meta.StatCat;
+import mindustry.world.meta.StatUnit;
+
+import static endfield.Vars2.MOD_PREFIX;
 
 public final class Stats2 {
 	public static final Stat minSpeed = new Stat("min-speed");
@@ -27,6 +30,27 @@ public final class Stats2 {
 	public static final Stat healPercent = new Stat("heal-percent", StatCat.general);
 	public static final Stat produceChance = new Stat("produce-chance", StatCat.crafting);
 	//public static final Stat maxStructureSize = new Stat("max-structure-size");
+
+	public static StatUnit blocksCubed = new StatUnit("blocks-cubed");
+	public static StatUnit densityUnit = new StatUnit("density-unit");
+	public static StatUnit viscosityUnit = new StatUnit("viscosity-unit");
+	public static StatUnit pressureUnit = new StatUnit("pressure-unit", MOD_PREFIX + "pressure-icon");
+
+	public static StatUnit percentPerSecond = new StatUnit("percent-per-second");
+
+	public static StatCat pressure = new StatCat("pressure");
+
+	public static Stat space = new Stat("space");
+
+	public static Stat debris = new Stat("debris");
+
+	public static Stat density = new Stat("density");
+
+	public static Stat minPressure = new Stat("min-pressure", pressure);
+	public static Stat maxPressure = new Stat("max-pressure", pressure);
+
+	public static Stat pumpStrength = new Stat("pump-strength");
+	public static Stat pressureGradient = new Stat("pressure-gradient");
 
 	/** Don't let anyone instantiate this class. */
 	private Stats2() {}

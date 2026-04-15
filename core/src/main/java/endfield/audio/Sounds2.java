@@ -35,7 +35,8 @@ public final class Sounds2 {
 	public static Sound hammer = new Sound();
 	public static Sound coolingFan = new Sound();
 	public static Sound hailRain = new Sound();
-	public static Sound bigHailstoneHit = new Sound(), giantHailstoneHit = new Sound();
+	public static Sound bigHailstoneHit = new Sound(), giantHailstoneFall = new Sound(), giantHailstoneHit = new Sound();
+	public static Sound sandstorm = new Sound();
 	public static Sound railGunBlast = new Sound(), railGunCharge = new Sound();
 	public static Sound shootAltHeavy = new Sound(), shootAltLight = new Sound();
 	public static Sound flowrateAbosrb = new Sound();
@@ -83,7 +84,9 @@ public final class Sounds2 {
 			coolingFan = load("coolingFan.ogg");
 			hailRain = load("hailRain.ogg");
 			bigHailstoneHit = load("bigHailstoneHit.ogg");
+			giantHailstoneFall = load("giantHailstoneFall.ogg");
 			giantHailstoneHit = load("giantHailstoneHit.ogg");
+			sandstorm = load("sandstorm.ogg");
 			railGunBlast = load("railGunBlast.ogg");
 			railGunCharge = load("railGunCharge.ogg");
 			shootAltHeavy = load("shootAltHeavy.ogg");

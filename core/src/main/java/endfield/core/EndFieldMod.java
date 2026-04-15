@@ -56,18 +56,22 @@ import endfield.net.Call2;
 import endfield.ui.Elements;
 import endfield.ui.Fonts2;
 import endfield.ui.Icon2;
+import endfield.ui.SplashDrawer;
 import endfield.ui.Styles2;
 import endfield.ui.Tex2;
+import endfield.util.MockPlatformImpl;
 import endfield.util.PlatformImpl;
 import endfield.util.Strings2;
 import endfield.util.script.Scripts2;
 import endfield.world.Worlds;
+import endfield.world.patterns.PatternManager;
 import mindustry.Vars;
 import mindustry.game.EventType.ClientLoadEvent;
 import mindustry.game.EventType.DisposeEvent;
 import mindustry.game.EventType.FileTreeInitEvent;
 import mindustry.game.EventType.MusicRegisterEvent;
 import mindustry.mod.Mod;
+import mindustry.mod.Mods.LoadedMod;
 import mindustry.ui.dialogs.BaseDialog;
 import mindustry.ui.dialogs.SettingsMenuDialog.SettingsTable;
 import mindustry.ui.dialogs.SettingsMenuDialog.SettingsTable.Setting;
@@ -85,7 +89,8 @@ import static endfield.Vars2.platformImpl;
  * @see Vars2
  */
 public final class EndFieldMod extends Mod {
-	public static Mod instance;
+	public static Mod mod;
+	public static LoadedMod loadedMod;
 
 	public static FloatingText floatingText;
 
@@ -98,16 +103,20 @@ public final class EndFieldMod extends Mod {
 					"endfield.desktop.DesktopImpl");
 			platformImpl = (PlatformImpl) impl.getConstructor().newInstance();
 		} catch (Throwable e) {
+			platformImpl = new MockPlatformImpl().setup();
+
 			Log.err(e);
 		}
 	}
 
 	public EndFieldMod() {
-		instance = this;
+		mod = this;
 
 		ClassMap2.load();
 
 		Events.on(ClientLoadEvent.class, event -> {
+			PatternManager.register();
+
 			if (Vars.headless || Vars2.isPlugin || Core.settings.getBool("closed-dialog")) return;
 
 			FLabel label = new FLabel(Core.bundle.get("text.author") + AUTHOR);
@@ -133,6 +142,18 @@ public final class EndFieldMod extends Mod {
 		});
 
 		Events.on(FileTreeInitEvent.class, event -> {
+			Core.app.post(() -> {
+				loadedMod = Vars.mods.getMod(EndFieldMod.class);
+
+				if (!Vars.headless && !Mods2.isEnabled("omaloon") && loadedMod != null && Core.settings.getBool("splash-drawer", false)) {
+					try {
+						SplashDrawer.add(loadedMod);
+					} catch (Exception e) {
+						Log.err(e);
+					}
+				}
+			});
+
 			if (!Vars.headless) {
 				Fonts2.load();
 				Sounds2.load();
@@ -168,10 +189,6 @@ public final class EndFieldMod extends Mod {
 				ScreenSampler.dispose();
 			}
 		});
-
-		/*Events.on(mindustry.game.EventType.AtlasPackEvent.class, event -> {
-			MultiPacker packer = event.multiPacker;
-		});*/
 
 		// To prevent damage to other mod, it can only be enabled during testing
 		if (!OS.isIos) {
@@ -242,6 +259,7 @@ public final class EndFieldMod extends Mod {
 				Vars.ui.settings.addCategory(Core.bundle.format("text.settings"), Icon2.reactionIcon, table -> {
 					table.checkPref("closed-dialog", false);
 					table.checkPref("floating-text", true);
+					table.checkPref("splash-drawer", false);
 					table.checkPref("animated-shields", true);
 					table.checkPref("tesla-range", true);
 					table.sliderPref("vaporize-batch", 300, 0, 1000, 1, s -> Strings.autoFixed(s, 2));

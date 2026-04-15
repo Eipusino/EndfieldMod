@@ -22,7 +22,6 @@ import arc.scene.ui.layout.Scl;
 import arc.scene.ui.layout.Table;
 import arc.util.Time;
 import arc.util.Tmp;
-import endfield.Vars2;
 import endfield.audio.Sounds2;
 import endfield.entities.bullet.ConeFlameBulletType;
 import endfield.entities.bullet.CritBulletType;
@@ -75,7 +74,6 @@ import endfield.world.blocks.distribution.TubeSorter;
 import endfield.world.blocks.environment.ConnectedFloor;
 import endfield.world.blocks.environment.ConnectedStaticWall;
 import endfield.world.blocks.environment.DepthCliff;
-import endfield.world.blocks.environment.DepthCliffHelper;
 import endfield.world.blocks.heat.ThermalHeater;
 import endfield.world.blocks.liquid.ConnectedPump;
 import endfield.world.blocks.liquid.LiquidDirectionalUnloader;
@@ -83,6 +81,8 @@ import endfield.world.blocks.liquid.LiquidExtractor;
 import endfield.world.blocks.liquid.LiquidMassDriver;
 import endfield.world.blocks.liquid.LiquidOverflowValve;
 import endfield.world.blocks.liquid.LiquidUnloader;
+import endfield.world.blocks.liquid.PressureLiquidBridge;
+import endfield.world.blocks.liquid.PressureLiquidJunction;
 import endfield.world.blocks.liquid.RailLiquidBridge;
 import endfield.world.blocks.liquid.SortLiquidRouter;
 import endfield.world.blocks.logic.CharacterDisplay;
@@ -287,7 +287,6 @@ import static endfield.Vars2.MOD_NAME;
 public final class Blocks2 {
 	//environment
 	public static DepthCliff cliff;
-	public static DepthCliffHelper cliffHelper;
 	public static Floor coreZoneCenter, coreZoneDot, darkPanel7, darkPanel8, darkPanel9, darkPanel10, darkPanel11, darkPanelDamaged;
 	public static ConnectedFloor metalTiles15, metalTiles16, metalTiles17, metalTiles18;
 	public static Floor asphalt;
@@ -400,6 +399,8 @@ public final class Blocks2 {
 	public static ArmoredConduit chromiumArmorConduit;
 	public static RailLiquidBridge chromiumLiquidBridge;
 	public static LiquidRouter chromiumArmorLiquidContainer, chromiumArmorLiquidTank;
+	public static PressureLiquidJunction pressureLiquidJunction;
+	public static PressureLiquidBridge pressureLiquidBridge;
 	//liquid-erekir
 	public static LiquidOverflowValve reinforcedLiquidOverflowValve, reinforcedLiquidUnderflowValve;
 	public static LiquidDirectionalUnloader reinforcedLiquidUnloader;
@@ -560,16 +561,10 @@ public final class Blocks2 {
 	public static LinkBlock[] linkBlock, linkBlockLiquid;
 	public static PlaceholderBlock[] placeholderBlock;
 
-	private static boolean loadedInternal;
-
 	/** Don't let anyone instantiate this class. */
 	private Blocks2() {}
 
 	public static void loadInternal() {
-		if (Vars2.isPlugin || loadedInternal) return;
-
-		loadedInternal = true;
-
 		linkBlock = new LinkBlock[maxsize];
 		linkBlockLiquid = new LinkBlock[maxsize];
 		placeholderBlock = new PlaceholderBlock[maxsize];
@@ -591,11 +586,8 @@ public final class Blocks2 {
 
 	/** Instantiates all contents. Called in the main thread in {@code EndFieldMod.loadContent()}. */
 	public static void load() {
-		if (Vars2.isPlugin) return;//Do not load content in plugin mode.
-
 		//environment
 		cliff = new DepthCliff("cliff");
-		cliffHelper = new DepthCliffHelper("cliff-helper");
 		coreZoneCenter = new Floor("core-zone-center", 0) {{
 			blendGroup = Blocks.coreZone;
 			allowCorePlacement = true;
@@ -2101,7 +2093,7 @@ public final class Blocks2 {
 				Draw.color(Pal2.uraniumAmmoBack);
 				Draw.alpha(0.8f);
 				for (int i = 0; i < 5; i++) {
-					Fx.rand.setSeed(b.id * 2 + i);
+					Fx.rand.setSeed(b.id * 2l + i);
 					float lenScl = Fx.rand.random(0.25f, 1f);
 					int j = i;
 					b.scaled(b.lifetime * lenScl, e -> Angles.randLenVectors(e.id + j - 1, e.fin(Interp.pow10Out), (int) (2.8f * intensity), 25f * intensity, (x, y, in, out) -> {

@@ -1,6 +1,5 @@
 package endfield.content;
 
-import endfield.Vars2;
 import mindustry.content.Planets;
 import mindustry.type.SectorPreset;
 
@@ -20,8 +19,6 @@ public final class SectorPresets2 {
 
 	/** Instantiates all contents. Called in the main thread in {@code EndFieldMod.loadContent()}. */
 	public static void load() {
-		if (Vars2.isPlugin) return;
-
 		//serpulo
 		volcanicArchipelago = new SectorPreset("volcanicArchipelago", Planets.serpulo, 14) {{
 			captureWave = 55;

@@ -1,7 +1,6 @@
 package endfield.content;
 
 import arc.struct.Seq;
-import endfield.Vars2;
 import endfield.util.Constant;
 import mindustry.content.Items;
 import mindustry.content.Liquids;
@@ -34,8 +33,6 @@ public final class TechTrees {
 
 	/** Instantiates all contents. Called in the main thread in {@code EndFieldMod.loadContent()}. */
 	public static void load() {
-		if (Vars2.isPlugin) return;
-
 		//items,liquids
 		vanillaNode(Liquids.water, () -> {
 			nodeProduce(Liquids2.brine);

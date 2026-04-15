@@ -2,7 +2,6 @@ package endfield.content;
 
 import arc.graphics.Color;
 import arc.struct.ObjectFloatMap;
-import endfield.Vars2;
 import endfield.graphics.Pal2;
 import endfield.world.meta.Attributes2;
 import mindustry.content.Blocks;
@@ -72,8 +71,6 @@ public final class Overrides {
 	 * <p>Remember not to execute it a second time, I did not take any precautionary measures.
 	 */
 	public static void load() {
-		if (Vars2.isPlugin) return;
-
 		//blocks-environment
 		Blocks.stone.itemDrop = Blocks.craters.itemDrop = Blocks.charr.itemDrop = Blocks.basalt.itemDrop = Blocks.dacite.itemDrop = Items2.stone;
 		Blocks.stone.playerUnmineable = Blocks.craters.playerUnmineable = Blocks.charr.playerUnmineable = Blocks.basalt.playerUnmineable = Blocks.dacite.playerUnmineable = true;

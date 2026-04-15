@@ -898,8 +898,8 @@ public final class Damage2 {
 					boolean hit = false;
 					if (unitCons != null && direct && ent instanceof Unit) {
 						hit = unitCons.get((Unit) ent);
-					} else if (buildingCons != null && ent instanceof Building) {
-						hit = buildingCons.get((Building) ent, direct);
+					} else if (buildingCons != null && ent instanceof Building build) {
+						hit = buildingCons.get(build, direct);
 					}
 
 					if (effectHandler != null && direct) effectHandler.get(ex, ey);

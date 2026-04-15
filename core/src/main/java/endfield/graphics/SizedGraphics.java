@@ -22,12 +22,12 @@ import endfield.util.Reflects;
  * @author GlFolker
  */
 public class SizedGraphics extends Graphics {
-	static MethodAccessor setCursor, setSystemCursor;
+	public static final MethodAccessor setCursor, setSystemCursor;
 
 	protected int overrideWidth, overrideHeight;
 	protected Graphics delegate;
 
-	public static void init() {
+	static {
 		try {
 			setCursor = Reflects.newMethodAccessor(Graphics.class.getDeclaredMethod("setCursor", Cursor.class));
 			setSystemCursor = Reflects.newMethodAccessor(Graphics.class.getDeclaredMethod("setSystemCursor", SystemCursor.class));
@@ -56,7 +56,7 @@ public class SizedGraphics extends Graphics {
 		overrideHeight = height;
 
 		Graphics prev = Core.graphics;
-		Graphics prevDelegate = delegate; // Safe-guard against nested `override()` calls.
+		Graphics prevDelegate = delegate; // Safeguard against nested `override()` calls.
 
 		Core.graphics = this;
 		delegate = prev;

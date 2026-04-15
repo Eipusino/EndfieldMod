@@ -1,7 +1,6 @@
 package endfield.content;
 
 import arc.graphics.Color;
-import endfield.Vars2;
 import endfield.graphics.Pal2;
 import mindustry.type.Item;
 
@@ -21,8 +20,6 @@ public final class Items2 {
 
 	/** Instantiates all contents. Called in the main thread in {@code EndFieldMod.loadContent()}. */
 	public static void load() {
-		if (Vars2.isPlugin) return;
-
 		stone = new Item("stone", new Color(0x8a8a8aff)) {{
 			hardness = 1;
 			cost = 0.4f;

@@ -13,7 +13,6 @@ import arc.math.geom.Rect;
 import arc.scene.ui.layout.Table;
 import arc.util.Time;
 import arc.util.Tmp;
-import endfield.Vars2;
 import endfield.ai.CopterAI;
 import endfield.ai.DefenderHealAI;
 import endfield.ai.MinerDepotAI;
@@ -161,8 +160,6 @@ public final class UnitTypes2 {
 
 	/** Instantiates all contents. Called in the main thread in {@code EndFieldMod.loadContent()}. */
 	public static void load() {
-		if (Vars2.isPlugin) return;
-
 		//vanilla-tank
 		vanguard = new UnitType2("vanguard") {{
 			requirements(Items.lead, 25, Items.titanium, 25, Items.silicon, 30);

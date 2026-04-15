@@ -37,7 +37,6 @@ public final class HiddenApi {
 	static Method method;
 
 	static Object[] oneArray;
-	static int[] intArray;
 
 	static long offset;
 
@@ -47,7 +46,7 @@ public final class HiddenApi {
 		if (AndroidProperties.setup()) return;
 
 		oneArray = (Object[]) runtime.newNonMovableArray(Object.class, 1);
-		intArray = (int[]) runtime.newNonMovableArray(int.class, 0);
+		int[] intArray = (int[]) runtime.newNonMovableArray(int.class, 0);
 		offset = runtime.addressOf(intArray) - vaddressOf(intArray);
 
 		// In higher versions, the setHiddenApiExertions method cannot be directly reflected to obtain it, so the artMethod needs to be modified

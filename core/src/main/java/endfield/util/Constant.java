@@ -36,6 +36,8 @@ public final class Constant {
 	public static final Boolc BOOLC_NOTHING = b -> {};
 	public static final Boolp BOOLP_TRUE = () -> true;
 	public static final Boolp BOOLP_FALSE = () -> false;
+	public static final Boolf<?> BOOLF_FALSE = o -> false;
+	public static final Boolf<?> BOOLF_TRUE = o -> true;
 	public static final Boolf<Building> BOOLF_BUILDING_TRUE = boolf(true);
 	public static final Boolf<Unit> BOOLF_UNIT_TRUE = boolf(true);
 	public static final Boolf<Healthc> BOOLF_HEALTHC_FALSE = boolf(false);
@@ -65,8 +67,9 @@ public final class Constant {
 		return (Cons<T>) CONS_NOTHING;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T> Boolf<T> boolf(boolean value) {
-		return t -> value;
+		return (Boolf<T>) (value ? BOOLF_TRUE : BOOLF_FALSE);
 	}
 
 	public static <P1, P2> Boolf2<P1, P2> boolf2(boolean value) {
