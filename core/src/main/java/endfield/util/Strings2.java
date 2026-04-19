@@ -21,7 +21,8 @@ public final class Strings2 {
 			'{', '|', '}', '~'
 	};
 
-	static Pattern numeric, numeric4;
+	public static final Pattern integerNumeric = Pattern.compile("^[+-]?\\d+$");
+	public static final Pattern floatNumeric = Pattern.compile("^[+-]?(\\d+\\.\\d*|\\.\\d+|\\d+)([eE][+-]?\\d+)?$");
 
 	private Strings2() {}
 
@@ -55,37 +56,44 @@ public final class Strings2 {
 		//return key.repeat(count);
 	}
 
-	/** Determine whether the string is composed entirely of numbers. */
-	public static boolean isNumeric4(String key) {
-		if (numeric4 == null) numeric4 = Pattern.compile("\\d+");
-
-		return key != null && numeric4.matcher(key).matches();
+	public static String trimEnd(String str, char ch) {
+		int index = str.length() - 1;
+		while (index >= 0 && str.charAt(index) == ch) {
+			index--;
+		}
+		return str.substring(0, index + 1);
 	}
 
-	/** Determine whether the string is composed of {@code Number} and {@code . }. */
+	public static String substringAfter(String str, String delimiter) {
+		int index = str.indexOf(delimiter);
+		return index == -1 ? str : str.substring(index + delimiter.length());
+	}
+
+	public static String substringAfterLast(String str, String delimiter) {
+		int index = str.lastIndexOf(delimiter);
+		return index == -1 ? str : str.substring(index + delimiter.length());
+	}
+
+	public static String substringBeforeLast(String str, String delimiter) {
+		int index = str.lastIndexOf(delimiter);
+		return index == -1 ? str : str.substring(0, index);
+	}
+
+	/** Determine whether the string is composed entirely of numbers. */
+	public static boolean isNumeric4(String key) {
+		return key != null && integerNumeric.matcher(key).matches();
+	}
+
 	public static boolean isNumeric(String key) {
-		if (key == null) return false;
-
-		if (numeric == null) numeric = Pattern.compile("[0-9]*");
-
-		int index = key.indexOf('.');
-		if (index > 0) {//Determine if there is a decimal point
-			if (index == key.lastIndexOf('.') && key.split("\\.").length == 2) { //Determine if there is only one decimal point
-				return numeric.matcher(key.replace(".", "")).matches();
-			} else {
-				return false;
-			}
-		} else {
-			return numeric.matcher(key).matches();
-		}
+		return key != null && floatNumeric.matcher(key).matches();
 	}
 
 	/** Randomly generate a string of length within the specified range. */
-	public static String generateRandomString(int min, int max) {
+	public static String randomString(int min, int max) {
 		if (min < 0 || max < min || max > 1000000) return Core.bundle.format("text.generate-random-string-2", min, max);
 
 		int length = min + Mathf.random(max - min + 1);
-		return generateRandomString(length);
+		return randomString(length);
 	}
 
 	/**
@@ -93,14 +101,25 @@ public final class Strings2 {
 	 *
 	 * @throws NegativeArraySizeException If the {@code length} is negative.
 	 */
-	public static String generateRandomString(int length) {
-		char[] chars = new char[length];
-		int range = printableChars.length - 1;
+	public static String randomString(int length) {
+		return randomString(printableChars, length);
+	}
+
+	public static String randomString(String keys, int length) {
+		return randomString(keys.toCharArray(), length);
+	}
+
+	/**
+	 * @param keys chars
+	 */
+	public static String randomString(char[] keys, int length) {
+		char[] result = new char[length];
+		int range = keys.length - 1;
 
 		for (int i = 0; i < length; i++) {
-			chars[i] = printableChars[Mathf.random(range)];
+			result[i] = keys[Mathf.random(range)];
 		}
-		return String.valueOf(chars);
+		return String.valueOf(result);
 	}
 
 	/**
@@ -203,5 +222,103 @@ public final class Strings2 {
 		}
 
 		return Strings.fixed(v, 2) + "[lightgray]" + byteUnit[n];
+	}
+
+	public static double parseDouble(String key, double defaultValue) {
+		if (key == null) return defaultValue;
+
+		key = key.trim();
+		if (key.isEmpty()) return defaultValue;
+
+		if (key.equals("NaN") || key.equals("Infinity") || key.equals("-Infinity")) return defaultValue;
+
+		int length = key.length();
+		int index = 0;
+		boolean negative = false;
+
+		char first = key.charAt(index);
+		if (first == '+') {
+			index++;
+		} else if (first == '-') {
+			negative = true;
+			index++;
+		}
+
+		double intPair = 0;
+		boolean hssInteger = false;
+		while (index < length) {
+			char c = key.charAt(index);
+			if (c >= '0' && c <= '9') {
+				intPair = intPair * 10 + (c - '0');
+				hssInteger = true;
+				index++;
+			} else {
+				break;
+			}
+		}
+
+		double fracPair = 0;
+		int fracDigits = 0;
+		boolean hasFraction = false;
+		if (index < length && key.charAt(index) == '.') {
+			index++;
+			double factor = 0.1;
+			while (index < length) {
+				char c = key.charAt(index);
+				if (c >= '0' && c <= '9') {
+					fracPair += (c - '0') * factor;
+					factor *= 0.1;
+					fracDigits++;
+					hasFraction = true;
+					index++;
+				} else {
+					break;
+				}
+			}
+		}
+
+		boolean hasExponent = false;
+		int exponent = 0;
+		boolean expNegative = false;
+		if (index < length && (key.charAt(index) == 'e' || key.charAt(index) == 'E')) {
+			index++;
+			hasExponent = true;
+
+			if (index < length && (key.charAt(index) == '+') || key.charAt(index) == '-') {
+				expNegative = (key.charAt(index) == '-');
+				index++;
+			}
+
+			int expValue = 0;
+			int digitCount = 0;
+			while (index < length) {
+				char c = key.charAt(index);
+				if (c >= '0' && c <= '9') {
+					if (expValue <= 1000) {
+						expValue = expValue * 10 + (c - '0');
+					}
+					digitCount++;
+					index++;
+				} else {
+					break;
+				}
+			}
+			if (digitCount == 0) return defaultValue;
+
+			exponent = expNegative ? -expValue : expValue;
+
+			if (Math.abs(exponent) > 1000) {
+				exponent = exponent > 0 ? 1000 : -1000;
+			}
+		}
+
+		if (!hssInteger && !hasFraction) return defaultValue;
+		if (index != length) return defaultValue;
+
+		double value = intPair + fracPair;
+		if (hasExponent) value *= Math.pow(10, exponent);
+		if (negative) value = -value;
+
+		return value;
 	}
 }

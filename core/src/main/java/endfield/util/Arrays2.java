@@ -28,11 +28,16 @@ import arc.util.Eachable;
 import endfield.func.BoolBoolf;
 import endfield.func.ByteBytef;
 import endfield.util.holder.ObjectHolder;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -374,6 +379,117 @@ public final class Arrays2 {
 		float[] out = array.clone();
 		for (int i = 0, len = out.length; i < len; i++) out[i] = copy.get(out[i]);
 		return out;
+	}
+
+	public static <T> boolean any(Iterable<T> iterable, Boolf<? super T> pred) {
+		for (T t : iterable) {
+			if (pred.get(t)) return true;
+		}
+
+		return false;
+	}
+
+	@SafeVarargs
+	public static <T> List<T> asList(T... array) {
+		ArrayList<T> result = new ArrayList<>(array.length);
+		Collections.addAll(result, array);
+		return result;
+	}
+
+	public static <T, R> @Nullable R firstNotNullOfOrNull(Iterable<T> iterable, Func<? super T, ? extends R> transform) {
+		for (T element : iterable) {
+			R result = transform.get(element);
+			if (result != null) {
+				return result;
+			}
+		}
+		return null;
+	}
+
+	public static <T> void forEachIndexed(Iterable<T> iterable, IndexerCons<? super T> action) {
+		int i = 0;
+		for (T t : iterable) {
+			action.get(i++, t);
+		}
+	}
+
+	public static <T, R> List<R> map(T[] array, Func<? super T, ? extends R> transform) {
+		ArrayList<R> result = new ArrayList<>();
+		for (T t : array) {
+			result.add(transform.get(t));
+		}
+		return result;
+	}
+
+	public static <T, R> List<R> map(Iterable<T> iterable, Func<? super T, ? extends R> transform) {
+		ArrayList<R> result = new ArrayList<>();
+		for (T t : iterable) {
+			result.add(transform.get(t));
+		}
+		return result;
+	}
+
+	public static <K, V, R> List<R> map(Map<K, V> map, Func<? super Entry<K, V>, ? extends R> transform) {
+		ArrayList<R> result = new ArrayList<>();
+		for (Entry<K, V> entry : map.entrySet()) {
+			result.add(transform.get(entry));
+		}
+		return result;
+	}
+
+	public static <T> List<T> filter(T[] array, Boolf<? super T> predicate) {
+		List<T> result = new ArrayList<>();
+		for (T t : array) {
+			if (predicate.get(t)) {
+				result.add(t);
+			}
+		}
+		return result;
+	}
+
+	public static <T> List<T> filter(Iterable<T> iterable, Boolf<? super T> predicate) {
+		List<T> result = new ArrayList<>();
+		for (T t : iterable) {
+			if (predicate.get(t)) {
+				result.add(t);
+			}
+		}
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> filterIsInstance(Object[] array, Class<T> type) {
+		ArrayList<T> result = new ArrayList<>();
+		for (Object o : array) {
+			if (type.isInstance(o)) result.add((T) o);
+		}
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> filterIsInstance(Iterable<?> iterable, Class<T> type) {
+		ArrayList<T> result = new ArrayList<>();
+		for (Object o : iterable) {
+			if (type.isInstance(o)) result.add((T) o);
+		}
+		return result;
+	}
+
+	public static <K, V> V getOrPut(Map<K, V> map, K key, Prov<? extends V> defaultValue) {
+		V value = map.get(key);
+		if (value == null) {
+			value = defaultValue.get();
+			map.put(key, value);
+		}
+		return value;
+	}
+
+	public static <T, K> Map<K, T> associateBy(Iterable<? extends T> iterable, Func<? super T, ? extends K> keySelector) {
+		Map<K, T> map = new HashMap<>();
+		for (T t : iterable) {
+			map.put(keySelector.get(t), t);
+		}
+		return map;
 	}
 
 	/**
@@ -1180,5 +1296,9 @@ public final class Arrays2 {
 
 	public interface ArrayCreator<T> {
 		T[] get(int size);
+	}
+
+	public interface IndexerCons<T> {
+		void get(int index, T t);
 	}
 }

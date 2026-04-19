@@ -28,7 +28,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -216,6 +218,19 @@ public final class Reflects {
 						Arrays.stream(argTypes)
 						.map(c -> c == null ? "null" : c.getName())
 						.collect(Collectors.joining(",", "(", ")")));*/
+	}
+
+	public static List<Class<?>> getDirectSuperclasses(Class<?> clazz) {
+		List<Class<?>> result = new ArrayList<>();
+		Class<?> superclass = clazz.getSuperclass();
+
+		if (superclass != null && superclass != Object.class) {
+			result.add(superclass);
+		}
+
+		Collections.addAll(result, clazz.getInterfaces());
+
+		return result;
 	}
 
 	public static boolean isInstanceButNotSubclass(Object obj, Class<?> type) {

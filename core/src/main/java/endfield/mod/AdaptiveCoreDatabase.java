@@ -6,7 +6,6 @@ import arc.util.Log;
 import arc.util.serialization.Json;
 import arc.util.serialization.Jval;
 import mindustry.Vars;
-import mindustry.content.Planets;
 import mindustry.mod.Mods.LoadedMod;
 import mindustry.type.Item;
 import mindustry.type.Liquid;
@@ -124,13 +123,13 @@ public final class AdaptiveCoreDatabase {
 		if (load) {
 			Log.info("last progress...");
 
-			Seq<Planet> expSun = Vars.content.planets().copy().removeAll(p -> p == Planets.sun);
+			Seq<Planet> expParent = Vars.content.planets().copy().removeAll(p -> p.parent == null);
 
 			Seq<Block> blocks = Vars.content.blocks();
 			for (int i = 0; i < blocks.size; i++) {
 				Block block = blocks.get(i);
 				if (block.requirements.length == 0) {
-					block.shownPlanets.addAll(expSun);
+					block.shownPlanets.addAll(expParent);
 				} else {
 					block.shownPlanets.clear();
 				}

@@ -11,6 +11,12 @@ public interface MethodInvokeHelper {
 
 	<T> T newInstance(Class<T> type, Object... args);
 
+	//<T> T invokeTyped(Object object, String name, TypePair<?>... args);
+
+	//<T> T invokeStaticTyped(Class<?> clazz, String name, TypePair<?>... args);
+
+	//<T> T newInstanceTyped(Class<T> type, TypePair<?>... args);
+
 	@SuppressWarnings("unchecked")
 	default <T> T invoke(Method method, Object object, Object... args) {
 		try {

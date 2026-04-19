@@ -133,8 +133,8 @@ public final class EndFieldMod extends Mod {
 					t.add(Core.bundle.get("text.version")).left().growX().wrap().pad(4f).labelAlign(Align.left).row();
 					t.add(label).left().row();
 					t.add(Core.bundle.get("text.type")).left().growX().wrap().pad(4f).labelAlign(Align.left).row();
-					t.add(Strings2.generateRandomString(10, 20)).left().growX().wrap().pad(4f).labelAlign(Align.left).row();
-					t.add(Strings2.generateRandomString(100, 200)).left().growX().wrap().width(550f).maxWidth(600f).pad(4f).labelAlign(Align.left).row();
+					t.add(Strings2.randomString(10, 20)).left().growX().wrap().pad(4f).labelAlign(Align.left).row();
+					t.add(Strings2.randomString(100, 200)).left().growX().wrap().width(550f).maxWidth(600f).pad(4f).labelAlign(Align.left).row();
 					t.add(Core.bundle.get("text.other-contributor")).left().growX().wrap().width(550f).maxWidth(600f).pad(4f).labelAlign(Align.left).row();
 				}).grow().center().maxWidth(600f);
 			}};

@@ -1,14 +1,18 @@
 package endfield.core;
 
 import arc.util.Log;
+import aspector.RuntimeAspector;
+import aspector.RuntimeAspector.AspectDelegate;
+import aspector.annotations.Stub;
+import aspector.classes.BytecodeClassLoader;
+import aspector.generate.AspectMaker;
 import endfield.util.CollectionObjectMap;
 import endfield.util.ExtraVariable;
 import org.jetbrains.annotations.TestOnly;
 
-import java.lang.invoke.MethodHandle;
 import java.util.Map;
 
-import static endfield.Vars2.platformImpl;
+import static endfield.Vars2.aspectHelper;
 
 /** Classes for testing purposes only, do not use. */
 @TestOnly
@@ -25,7 +29,22 @@ public class Test implements Cloneable, ExtraVariable {
 		id = count++;
 	}
 
-	public static void test() throws Throwable {}
+	public static void test() throws Throwable {
+		BytecodeClassLoader loader = new BytecodeClassLoader(RuntimeAspector.class.getClassLoader());
+
+		AspectDelegate d = RuntimeAspector.withMaker(AspectMaker::new, aspectHelper::packageAccessHandler);
+		d.use(loader);
+		Aspect instance = (Aspect) d.applyAspect(LoaderAspect.class, d.open(ClassLoader.class)).instance();
+		instance.definePackage(Object.class);
+	}
+
+	public static void call() {
+		try {
+			test();
+		} catch (Throwable e) {
+			Log.err(e);
+		}
+	}
 
 	public Test copy() {
 		try {
@@ -40,9 +59,22 @@ public class Test implements Cloneable, ExtraVariable {
 		return extraVar;
 	}
 
-	/*@SuppressWarnings("removal")
-	@Override
-	protected void finalize() throws Throwable {
-		Log.info(this + " destroyed");
-	}*/
+	public interface Aspect {
+		Package definePackage(Class<?> c);
+	}
+
+	public interface AccessStub {
+		default Package definePackage(Class<?> c) {
+			Log.infoTag(toString(), "TODO");
+			return null;
+		}
+	}
+
+	public static class LoaderAspect extends @Stub ClassLoader implements @Stub AccessStub, Aspect {
+		@Override
+		public Package definePackage(Class<?> c) {
+			Log.infoTag(toString(), "definePackage: " + c);
+			return AccessStub.super.definePackage(c);
+		}
+	}
 }
