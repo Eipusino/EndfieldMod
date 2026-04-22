@@ -61,7 +61,7 @@ public final class Scripts2 {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> Func<Object[], T> requireType(Function func, Context context, Scriptable scope, Class<T> returnType) {
+	public static <T> Func<Object[], T> requireType(Function func, Context context, Scriptable scope, Class<?> returnType) {
 		Class<?> type = Reflects.wrapper(returnType);
 		return args -> {
 			Object res = func.call(context, scope, scope, args);

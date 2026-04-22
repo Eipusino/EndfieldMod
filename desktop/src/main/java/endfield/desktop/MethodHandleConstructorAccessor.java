@@ -30,6 +30,8 @@ public final class MethodHandleConstructorAccessor<T> extends AbstractConstructo
 	public T newInstance(Object... args) {
 		try {
 			return (T) spreadHandle.invokeExact(args);
+		} catch (RuntimeException | Error e) {
+			throw e;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}

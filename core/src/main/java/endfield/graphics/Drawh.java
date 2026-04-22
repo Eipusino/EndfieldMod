@@ -8,14 +8,14 @@ import arc.graphics.g2d.Lines;
 import arc.graphics.g2d.TextureRegion;
 import arc.math.Mathf;
 import arc.math.geom.Vec2;
-import endfield.util.Pair;
+import endfield.util.Arrays2;
+import kotlin.Pair;
 
 import static endfield.graphics.Drawn.v1;
 import static endfield.graphics.Drawn.v2;
 import static endfield.graphics.Drawn.v3;
 import static endfield.graphics.Drawn.v4;
 import static endfield.graphics.Drawn.v5;
-import static endfield.util.Arrays2.arrayOf;
 
 public final class Drawh {
 	static float[] circleOffset24;
@@ -37,7 +37,7 @@ public final class Drawh {
 		circleVertices36 = prepareCircleVertices(36);
 		circleVertices60 = prepareCircleVertices(60);
 
-		verts = arrayOf(new Pair<>(circleOffset24, circleVertices24), new Pair<>(circleOffset36, circleVertices36), new Pair<>(circleOffset60, circleVertices60));
+		verts = Arrays2.arrayOf(new Pair<>(circleOffset24, circleVertices24), new Pair<>(circleOffset36, circleVertices36), new Pair<>(circleOffset60, circleVertices60));
 	}
 
 	private Drawh() {}

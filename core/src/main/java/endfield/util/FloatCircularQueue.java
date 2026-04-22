@@ -9,12 +9,12 @@ public class FloatCircularQueue {
 
 	public final int capacity;
 
-	public FloatCircularQueue(int cap) {
-		queue = new float[cap];
+	public FloatCircularQueue(int initialCapacity) {
+		queue = new float[initialCapacity];
 		head = -1;
 		tail = -1;
 		size = 0;
-		capacity = cap;
+		capacity = initialCapacity;
 	}
 
 	public int size() {

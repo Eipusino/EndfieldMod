@@ -48,6 +48,8 @@ public class DesktopClassHelper implements ClassHelper {
 		function4 = clazz -> {
 			try {
 				return (Field[]) getFields.invokeExact(clazz, false);
+			} catch (RuntimeException | Error e) {
+				throw e;
 			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
@@ -55,6 +57,8 @@ public class DesktopClassHelper implements ClassHelper {
 		function5 = clazz -> {
 			try {
 				return (Method[]) getMethods.invokeExact(clazz, false);
+			} catch (RuntimeException | Error e) {
+				throw e;
 			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
@@ -62,6 +66,8 @@ public class DesktopClassHelper implements ClassHelper {
 		function6 = clazz -> {
 			try {
 				return (Constructor<?>[]) getConstructors.invokeExact(clazz, false);
+			} catch (RuntimeException | Error e) {
+				throw e;
 			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}

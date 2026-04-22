@@ -27,6 +27,7 @@ import arc.util.pooling.Pools;
 import endfield.content.Fx2;
 import endfield.gen.Spawner;
 import endfield.math.Mathm;
+import endfield.util.Arrays2;
 import endfield.util.CollectionList;
 import endfield.util.CollectionObjectMap;
 import endfield.util.Reflects;
@@ -63,7 +64,6 @@ import java.util.Arrays;
 import java.util.function.Function;
 
 import static endfield.entities.Damage2.tmpBuild;
-import static endfield.util.Arrays2.arrayOf;
 
 public final class Entitys2 {
 	public static final Vec2 v1 = new Vec2(), v2 = new Vec2(), v3 = new Vec2(), v4 = new Vec2(), v11 = new Vec2(), v12 = new Vec2(), v13 = new Vec2();
@@ -89,7 +89,7 @@ public final class Entitys2 {
 	static Boolf<Tile> formatGround = t -> !t.floor().isDeep() && !t.cblock().solid && !t.floor().solid && !t.overlay().solid && !t.block().solidifes;
 
 	/** 0 for flying, 1 for navy, 2 for ground. */
-	static @Obsolete(since = "1.0.8") Boolf<Tile>[] formats = arrayOf(formatFlying, formatNavy, formatGround);
+	static @Obsolete(since = "1.0.8") Boolf<Tile>[] formats = Arrays2.arrayOf(formatFlying, formatNavy, formatGround);
 
 	static final CollectionObjectMap<Class<? extends Entityc>, Field> addedFieldMap = new CollectionObjectMap<>(Class.class, Field.class);
 	static final CollectionObjectMap<Class<? extends Building>, Field> soundFieldMap = new CollectionObjectMap<>(Class.class, Field.class);

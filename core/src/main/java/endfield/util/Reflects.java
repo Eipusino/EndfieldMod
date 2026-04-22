@@ -44,7 +44,7 @@ import static endfield.Vars2.platformImpl;
  * @since 1.0.6
  */
 public final class Reflects {
-	public static final Lookup publicLookup = MethodHandles.publicLookup();
+	public static final Lookup PUBLIC_LOOKUP = MethodHandles.publicLookup();
 
 	/** Don't let anyone instantiate this class. */
 	private Reflects() {}

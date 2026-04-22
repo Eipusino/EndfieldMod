@@ -42,7 +42,7 @@ public class Vec2Seq implements Iterable<Vec2>, Eachable<Vec2> {
 	}
 
 	public Vec2Seq(FloatSeq vec2s) {
-		coordinates = FloatSeq.with(vec2s.items.clone());
+		coordinates = new FloatSeq(vec2s.items);
 		if (coordinates.size % 2 == 1) coordinates.pop();
 	}
 

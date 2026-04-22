@@ -10,7 +10,7 @@ import static endfield.desktop.Unsafer.getGetMessage;
 import static endfield.desktop.Unsafer.getSetMessage;
 import static endfield.desktop.Unsafer.unsafe;
 
-public sealed abstract class UnsafeFieldAccessor extends AbstractFieldAccessor {
+public sealed class UnsafeFieldAccessor extends AbstractFieldAccessor {
 	protected final long offset;
 
 	protected UnsafeFieldAccessor(Field f) {

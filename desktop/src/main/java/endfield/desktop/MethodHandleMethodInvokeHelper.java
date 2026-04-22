@@ -159,6 +159,8 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 		FunctionType type = FunctionType.inst(args);
 		try {
 			return (T) getMethod(object.getClass(), name, type).invokeExact(object, args);
+		} catch (RuntimeException | Error e) {
+			throw e;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -172,6 +174,8 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 		FunctionType type = FunctionType.inst(args);
 		try {
 			return (T) getMethod(clazz, name, type).invokeExact(args);
+		} catch (RuntimeException | Error e) {
+			throw e;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -185,6 +189,53 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 		FunctionType type = FunctionType.inst(args);
 		try {
 			return (T) getConstructor(clazz, type).invokeExact(args);
+		} catch (RuntimeException | Error e) {
+			throw e;
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		} finally {
+			type.recycle();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T invokeTyped(Object object, String name, Class<?>[] parameterTypes, Object... args) {
+		FunctionType type = FunctionType.inst(parameterTypes);
+		try {
+			return (T) getMethod(object.getClass(), name, type).invokeExact(object, args);
+		} catch (RuntimeException | Error e) {
+			throw e;
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		} finally {
+			type.recycle();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T invokeStaticTyped(Class<?> clazz, String name, Class<?>[] parameterTypes, Object... args) {
+		FunctionType type = FunctionType.inst(parameterTypes);
+		try {
+			return (T) getMethod(clazz, name, type).invokeExact(args);
+		} catch (RuntimeException | Error e) {
+			throw e;
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		} finally {
+			type.recycle();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T newInstanceTyped(Class<T> clazz, Class<?>[] parameterTypes, Object... args) {
+		FunctionType type = FunctionType.inst(parameterTypes);
+		try {
+			return (T) getConstructor(clazz, type).invokeExact(args);
+		} catch (RuntimeException | Error e) {
+			throw e;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -234,6 +285,8 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 		FunctionType type = from(method);
 		try {
 			return (T) getMethod(method, type).invokeExact(object, args);
+		} catch (RuntimeException | Error e) {
+			throw e;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -247,6 +300,8 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 		FunctionType type = from(method);
 		try {
 			return (T) getMethod(method, type).invokeExact(args);
+		} catch (RuntimeException | Error e) {
+			throw e;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -260,6 +315,8 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 		FunctionType type = from(constructor);
 		try {
 			return (T) getConstructor(constructor, type).invokeExact(args);
+		} catch (RuntimeException | Error e) {
+			throw e;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		} finally {

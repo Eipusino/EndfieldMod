@@ -123,6 +123,8 @@ public class NativeMethodInvokeHelper extends ReflectionMethodInvokeHelper {
 		FunctionType type = FunctionType.inst(args);
 		try {
 			return NativeMethodAccessor.invoke(getMethod(object.getClass(), name, type), object, args);
+		} catch (RuntimeException | Error e) {
+			throw e;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -135,6 +137,8 @@ public class NativeMethodInvokeHelper extends ReflectionMethodInvokeHelper {
 		FunctionType type = FunctionType.inst(args);
 		try {
 			return NativeMethodAccessor.invoke(getMethod(clazz, name, type), null, args);
+		} catch (RuntimeException | Error e) {
+			throw e;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -143,10 +147,52 @@ public class NativeMethodInvokeHelper extends ReflectionMethodInvokeHelper {
 	}
 
 	@Override
-	public <T> T newInstance(Class<T> type, Object... args) {
+	public <T> T newInstance(Class<T> clazz, Object... args) {
 		FunctionType funcType = FunctionType.inst(args);
 		try {
-			return NativeConstructorAccessor.newInstance(getConstructor(type, funcType), args);
+			return NativeConstructorAccessor.newInstance(getConstructor(clazz, funcType), args);
+		} catch (RuntimeException | Error e) {
+			throw e;
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		} finally {
+			funcType.recycle();
+		}
+	}
+
+	@Override
+	public <T> T invokeTyped(Object object, String name, Class<?>[] parameterTypes, Object... args) {
+		FunctionType type = FunctionType.inst(parameterTypes);
+		try {
+			return NativeMethodAccessor.invoke(getMethod(object.getClass(), name, type), object, args);
+		} catch (RuntimeException | Error e) {
+			throw e;
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		} finally {
+			type.recycle();
+		}
+	}
+
+	@Override
+	public <T> T invokeStaticTyped(Class<?> clazz, String name, Class<?>[] parameterTypes, Object... args) {
+		FunctionType type = FunctionType.inst(parameterTypes);
+		try {
+			return NativeMethodAccessor.invoke(getMethod(clazz, name, type), null, args);
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		} finally {
+			type.recycle();
+		}
+	}
+
+	@Override
+	public <T> T newInstanceTyped(Class<T> clazz, Class<?>[] parameterTypes, Object... args) {
+		FunctionType funcType = FunctionType.inst(parameterTypes);
+		try {
+			return NativeConstructorAccessor.newInstance(getConstructor(clazz, funcType), args);
+		} catch (RuntimeException | Error e) {
+			throw e;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -158,6 +204,8 @@ public class NativeMethodInvokeHelper extends ReflectionMethodInvokeHelper {
 	public <T> T invoke(Method method, Object object, Object... args) {
 		try {
 			return NativeMethodAccessor.invoke(method, object, args);
+		} catch (RuntimeException | Error e) {
+			throw e;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
@@ -167,6 +215,8 @@ public class NativeMethodInvokeHelper extends ReflectionMethodInvokeHelper {
 	public <T> T invokeStatic(Method method, Object... args) {
 		try {
 			return NativeMethodAccessor.invoke(method, null, args);
+		} catch (RuntimeException | Error e) {
+			throw e;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
@@ -176,6 +226,8 @@ public class NativeMethodInvokeHelper extends ReflectionMethodInvokeHelper {
 	public <T> T newInstance(Constructor<T> constructor, Object... args) {
 		try {
 			return NativeConstructorAccessor.newInstance(constructor, args);
+		} catch (RuntimeException | Error e) {
+			throw e;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}

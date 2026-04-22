@@ -16,7 +16,7 @@ import mindustry.game.EventType.ResizeEvent;
 import java.util.Objects;
 
 public final class ScreenSampler {
-	private static final FieldAccessor currentBoundBuffer;
+	private static final FieldAccessor CURRENT_BOUND_BUFFER_ACCESSOR;
 
 	private static final FrameBuffer swapBuffer = new FrameBuffer();
 
@@ -24,7 +24,7 @@ public final class ScreenSampler {
 
 	static {
 		try {
-			currentBoundBuffer = Reflects.newFieldAccessor(GLFrameBuffer.class.getDeclaredField("currentBoundFramebuffer"));
+			CURRENT_BOUND_BUFFER_ACCESSOR = Reflects.newFieldAccessor(GLFrameBuffer.class.getDeclaredField("currentBoundFramebuffer"));
 		} catch (NoSuchFieldException e) {
 			throw new RuntimeException(e);
 		}
@@ -37,7 +37,7 @@ public final class ScreenSampler {
 	}
 
 	public static void toBuffer(FrameBuffer target) {
-		GLFrameBuffer<?> buffer = currentBoundBuffer.getObject(null);
+		GLFrameBuffer<?> buffer = CURRENT_BOUND_BUFFER_ACCESSOR.getObject(null);
 
 		if (buffer != null) {
 			if (buffer.getWidth() == target.getWidth() && buffer.getHeight() == target.getHeight()) {
@@ -84,7 +84,7 @@ public final class ScreenSampler {
 	}
 
 	public static void blitShader(Shader shader, int unit) {
-		GLFrameBuffer<?> buffer = currentBoundBuffer.getObject(null);
+		GLFrameBuffer<?> buffer = CURRENT_BOUND_BUFFER_ACCESSOR.getObject(null);
 
 		Objects.requireNonNullElse(buffer, swapBuffer).getTexture().bind(unit);
 		Draw.blit(shader);

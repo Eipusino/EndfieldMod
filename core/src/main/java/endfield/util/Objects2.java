@@ -15,7 +15,6 @@ package endfield.util;
 
 import arc.func.Cons;
 import arc.func.Prov;
-import endfield.Vars2;
 import endfield.util.handler.ClassHandler;
 import endfield.util.handler.FieldHandler;
 
@@ -147,7 +146,7 @@ public final class Objects2 {
 						} else if (value instanceof short[] shorts) {
 							Arrays2.shortToString(buf, shorts);
 						} else if (value instanceof Object[] objects) {
-							Arrays2.deepToString(objects, buf, Arrays2.arraySet);
+							Arrays2.deepToString(objects, buf, Arrays2.ARRAY_SET);
 						} else {
 							// It shouldn't have happened...
 							buf.append("???");

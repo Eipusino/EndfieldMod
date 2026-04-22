@@ -12,7 +12,7 @@ import static endfield.android.Unsafer.getSetMessage;
 import static endfield.android.Unsafer.unsafe;
 
 @SuppressWarnings("removal")
-public abstract class UnsafeFieldAccessor extends AbstractFieldAccessor {
+public class UnsafeFieldAccessor extends AbstractFieldAccessor {
 	protected final long offset;
 
 	protected UnsafeFieldAccessor(Field f) {

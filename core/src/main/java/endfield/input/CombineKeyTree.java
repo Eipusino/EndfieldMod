@@ -4,17 +4,14 @@ import arc.Input;
 import arc.func.Cons;
 import arc.func.Cons2;
 import arc.input.KeyCode;
-import endfield.util.Arrays2;
-import endfield.util.Pair;
+import kotlin.Pair;
+import kotlin.collections.MapsKt;
+import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-
-import static endfield.input.CombinedKeys.isAlt;
-import static endfield.input.CombinedKeys.isCtrl;
-import static endfield.input.CombinedKeys.isShift;
 
 public class CombineKeyTree<T> {
 	final Map<CombinedKeys, T> tempMap = new HashMap<>();
@@ -45,7 +42,7 @@ public class CombineKeyTree<T> {
 	@SuppressWarnings("unchecked")
 	public void putKeyBinds(Pair<CombinedKeys, T>... bindings) {
 		for (Pair<CombinedKeys, T> binding : bindings) {
-			putKeyBinding(binding.first, binding.second);
+			putKeyBinding(binding.getFirst(), binding.getSecond());
 		}
 	}
 
@@ -73,21 +70,23 @@ public class CombineKeyTree<T> {
 	public boolean containsKeyCode(KeyCode key) {
 		if (key == null) return false;
 
-		if (isCtrl(key))
+		if (CombinedKeys.isCtrl(key))
 			return !ctrlBindings.isEmpty() || !ctrlShiftBindings.isEmpty() || !altCtrlBindings.isEmpty() || !altCtrlShiftBindings.isEmpty();
-		if (isAlt(key))
+		if (CombinedKeys.isAlt(key))
 			return !altBindings.isEmpty() || !altShiftBindings.isEmpty() || !altCtrlBindings.isEmpty() || !altCtrlShiftBindings.isEmpty();
-		if (isShift(key))
+		if (CombinedKeys.isShift(key))
 			return !shiftBindings.isEmpty() || !ctrlShiftBindings.isEmpty() || !altShiftBindings.isEmpty() || !altCtrlShiftBindings.isEmpty();
 
-		return Arrays2.anyKey(normalBindings, k -> k.key == key)
-				|| Arrays2.anyKey(ctrlBindings, k -> k.key == key)
-				|| Arrays2.anyKey(altBindings, k -> k.key == key)
-				|| Arrays2.anyKey(shiftBindings, k -> k.key == key)
-				|| Arrays2.anyKey(altCtrlBindings, k -> k.key == key)
-				|| Arrays2.anyKey(ctrlShiftBindings, k -> k.key == key)
-				|| Arrays2.anyKey(altShiftBindings, k -> k.key == key)
-				|| Arrays2.anyKey(altCtrlShiftBindings, k -> k.key == key);
+		Function1<Map.Entry<? extends CombinedKeys, ? extends T>, Boolean> func = k -> k.getKey().key == key;
+
+		return MapsKt.any(normalBindings, func)
+				|| MapsKt.any(ctrlBindings, func)
+				|| MapsKt.any(altBindings, func)
+				|| MapsKt.any(shiftBindings, func)
+				|| MapsKt.any(altCtrlBindings, func)
+				|| MapsKt.any(ctrlShiftBindings, func)
+				|| MapsKt.any(altShiftBindings, func)
+				|| MapsKt.any(altCtrlShiftBindings, func);
 	}
 
 	public Map<CombinedKeys, T> getTargetBindings(Input input) {

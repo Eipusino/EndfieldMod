@@ -17,22 +17,8 @@ public final class HiddenApi {
 	 */
 	public static final long artMethodOffset = 24l;
 
-	static String[] values = {
-			"Ldalvik/system/",
-			"Ljava/lang/Class;",
-			"Ljava/lang/Enum;",
-			"Ljava/lang/Object;->internalClone()Ljava/lang/Object;",
-			"Ljava/lang/invoke/",
-			"Ljava/lang/reflect/",
-			"Ljava/nio/",
-			"Ljdk/internal/misc/Unsafe;",
-			"Llibcore/io/Memory;",
-			"Lsun/misc/Unsafe;",
-			"Lsun/nio/ch/DirectBuffer;"
-	};
+	static final String[] EXEMPTIONS = {"L"};
 	static final VMRuntime runtime = VMRuntime.getRuntime();
-	// Not using the 'L' wildcard is to ensure basic security and prevent strange issues caused by things we don't want to call in certain parts of the program.
-	//static final String[] values = {"L"};
 
 	static Method method;
 
@@ -54,7 +40,7 @@ public final class HiddenApi {
 		method = findMethod();
 
 		method.setAccessible(true);
-		method.invoke(runtime, (Object) values);
+		method.invoke(runtime, (Object) EXEMPTIONS);
 	}
 
 	private static Method findMethod() throws NoSuchMethodException {

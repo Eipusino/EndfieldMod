@@ -21,15 +21,16 @@ import endfield.util.Reflects;
  * @since 1.0.9
  */
 public class EnumHandler<T extends Enum<T>> {
-	static final FieldAccessor ordinalAccessor, nameAccessor;
+	public static final Class<?>[] ENUM_PARAMETER_TYPES = {String.class, int.class};
+	public static final FieldAccessor ORDINAL_ACCESSOR, NAME_ACCESSOR;
 
 	final FieldAccessor valuesAccessor;
 
 	public final Class<T> clazz;
 
 	static {
-		ordinalAccessor = Reflects.newFieldAccessor(ClassHandler.getField(Enum.class, "ordinal"));
-		nameAccessor = Reflects.newFieldAccessor(ClassHandler.getField(Enum.class, "name"));
+		ORDINAL_ACCESSOR = Reflects.newFieldAccessor(ClassHandler.getField(Enum.class, "ordinal"));
+		NAME_ACCESSOR = Reflects.newFieldAccessor(ClassHandler.getField(Enum.class, "name"));
 	}
 
 	/**
@@ -125,8 +126,8 @@ public class EnumHandler<T extends Enum<T>> {
 	public void swap(T from, T to) {
 		int fromOrdinal = from.ordinal(), toOrdinal = to.ordinal();
 
-		ordinalAccessor.setInt(from, toOrdinal);
-		ordinalAccessor.setInt(to, fromOrdinal);
+		ORDINAL_ACCESSOR.setInt(from, toOrdinal);
+		ORDINAL_ACCESSOR.setInt(to, fromOrdinal);
 
 		T[] values = valuesAccessor.getObject(null);
 
@@ -140,6 +141,6 @@ public class EnumHandler<T extends Enum<T>> {
 			if (t.name().equals(newName)) return;
 		}
 
-		nameAccessor.set(instance, newName);
+		NAME_ACCESSOR.set(instance, newName);
 	}
 }

@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Properties;
 
 public interface SharedObject {
+	//Properties PROPERTIES = new Properties();
+
 	String sharedID();
 
 	default List<Field> sharedReferenceFields() {

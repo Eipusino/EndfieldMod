@@ -38,6 +38,8 @@ public class NativeMethodAccessor extends AbstractMethodAccessor {
 	public <T> T invoke(Object object, Object... args) {
 		try {
 			return invoke(method, object, args);
+		} catch (RuntimeException | Error e) {
+			throw e;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}

@@ -1,11 +1,11 @@
 package endfield.core;
 
 import arc.util.Log;
-import aspector.RuntimeAspector;
-import aspector.RuntimeAspector.AspectDelegate;
-import aspector.annotations.Stub;
-import aspector.classes.BytecodeClassLoader;
-import aspector.generate.AspectMaker;
+import endfield.util.aspector.RuntimeAspector;
+import endfield.util.aspector.RuntimeAspector.AspectDelegate;
+import endfield.util.aspector.Aspector.Stub;
+import endfield.util.aspector.classes.BytecodeClassLoader;
+import endfield.util.aspector.generate.AspectMaker;
 import endfield.util.CollectionObjectMap;
 import endfield.util.ExtraVariable;
 import org.jetbrains.annotations.TestOnly;

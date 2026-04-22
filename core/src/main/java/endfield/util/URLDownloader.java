@@ -19,28 +19,28 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class URLDownloader {
-	static final CollectionOrderedMap<String, String> urlReplacers = new CollectionOrderedMap<>(String.class, String.class);
+	static final CollectionOrderedMap<String, String> URL_REPLACES = new CollectionOrderedMap<>(String.class, String.class);
 
 	/** Don't let anyone instantiate this class. */
 	private URLDownloader() {}
 
 	public static void setMirror(String source, String to) {
-		urlReplacers.put(source, to);
+		URL_REPLACES.put(source, to);
 	}
 
 	public static void removeMirror(String source) {
-		urlReplacers.remove(source);
+		URL_REPLACES.remove(source);
 	}
 
 	public static void clearMirrors() {
-		urlReplacers.clear();
+		URL_REPLACES.clear();
 	}
 
 	public static void retryDown(String url, ConsT<Http.HttpResponse, Exception> resultHandler, int maxRetry, Cons<Throwable> errHandler) {
 		AtomicInteger counter = new AtomicInteger();
 		AtomicReference<Runnable> get = new AtomicReference<>();
 
-		for (ObjectHolder<String, String> entry : urlReplacers) {
+		for (ObjectHolder<String, String> entry : URL_REPLACES) {
 			if (url.startsWith(entry.key)) {
 				url = url.replaceFirst(entry.key, entry.value);
 			}

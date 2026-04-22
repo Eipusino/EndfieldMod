@@ -207,7 +207,7 @@ public final class EndFieldMod extends Mod {
 
 			Call2.init();
 
-			//Worlds.loadFallback();
+			Worlds.loadFallback();
 			Worlds.load();
 
 			UnitCommands2.load();

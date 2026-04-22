@@ -9,13 +9,13 @@ public interface MethodInvokeHelper {
 
 	<T> T invokeStatic(Class<?> clazz, String name, Object... args);
 
-	<T> T newInstance(Class<T> type, Object... args);
+	<T> T newInstance(Class<T> clazz, Object... args);
 
-	//<T> T invokeTyped(Object object, String name, TypePair<?>... args);
+	<T> T invokeTyped(Object object, String name, Class<?>[] parameterTypes, Object... args);
 
-	//<T> T invokeStaticTyped(Class<?> clazz, String name, TypePair<?>... args);
+	<T> T invokeStaticTyped(Class<?> clazz, String name, Class<?>[] parameterTypes, Object... args);
 
-	//<T> T newInstanceTyped(Class<T> type, TypePair<?>... args);
+	<T> T newInstanceTyped(Class<T> clazz, Class<?>[] parameterTypes, Object... args);
 
 	@SuppressWarnings("unchecked")
 	default <T> T invoke(Method method, Object object, Object... args) {

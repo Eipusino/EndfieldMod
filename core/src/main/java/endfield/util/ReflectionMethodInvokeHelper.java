@@ -134,10 +134,48 @@ public class ReflectionMethodInvokeHelper implements MethodInvokeHelper {
 	}
 
 	@Override
-	public <T> T newInstance(Class<T> type, Object... args) {
+	public <T> T newInstance(Class<T> clazz, Object... args) {
 		FunctionType funcType = FunctionType.inst(args);
 		try {
-			return getConstructor(type, funcType).newInstance(args);
+			return getConstructor(clazz, funcType).newInstance(args);
+		} catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
+			throw new RuntimeException(e);
+		} finally {
+			funcType.recycle();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T invokeTyped(Object object, String name, Class<?>[] parameterTypes, Object... args) {
+		FunctionType type = FunctionType.inst(parameterTypes);
+		try {
+			return (T) getMethod(object.getClass(), name, type).invoke(object, args);
+		} catch (IllegalAccessException | InvocationTargetException e) {
+			throw new RuntimeException(e);
+		} finally {
+			type.recycle();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T invokeStaticTyped(Class<?> clazz, String name, Class<?>[] parameterTypes, Object... args) {
+		FunctionType type = FunctionType.inst(parameterTypes);
+		try {
+			return (T) getMethod(clazz, name, type).invoke(null, args);
+		} catch (IllegalAccessException | InvocationTargetException e) {
+			throw new RuntimeException(e);
+		} finally {
+			type.recycle();
+		}
+	}
+
+	@Override
+	public <T> T newInstanceTyped(Class<T> clazz, Class<?>[] parameterTypes, Object... args) {
+		FunctionType funcType = FunctionType.inst(parameterTypes);
+		try {
+			return getConstructor(clazz, funcType).newInstance(args);
 		} catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
 			throw new RuntimeException(e);
 		} finally {

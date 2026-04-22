@@ -48,7 +48,6 @@ import arc.scene.ui.layout.Table;
 import arc.struct.OrderedMap;
 import arc.struct.Seq;
 import arc.util.Align;
-import arc.util.Log;
 import arc.util.Scaling;
 import arc.util.Strings;
 import arc.util.Time;
@@ -77,8 +76,6 @@ import mindustry.world.meta.Stats;
 import mindustry.world.modules.ItemModule;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Field;
-
 public final class Elements {
 	public static final float LEN = 60f, OFFSET = 12f;
 
@@ -91,8 +88,6 @@ public final class Elements {
 
 	static long lastToast;
 	static Table pTable = new Table(), floatTable = new Table();
-
-	static Field clickListenerField;
 
 	/** Don't let anyone instantiate this class. */
 	private Elements() {}
@@ -715,16 +710,8 @@ public final class Elements {
 	public static void replaceClickListener(Button button, ClickListener newListener) {
 		button.removeListener(button.getClickListener());
 
-		try {
-			if (clickListenerField == null) {
-				clickListenerField = Button.class.getDeclaredField("clickListener");
-				clickListenerField.setAccessible(true);
-			}
-			FieldHandler.set(button, clickListenerField, newListener);
-			button.addListener(newListener);
-		} catch (NoSuchFieldException e) {
-			Log.err(e);
-		}
+		FieldHandler.setDefault(button, "clickListener", newListener);
+		button.addListener(newListener);
 	}
 
 	public static class BaseTooltip extends Tooltip {

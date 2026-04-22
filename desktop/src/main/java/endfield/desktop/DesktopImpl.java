@@ -1,7 +1,6 @@
 package endfield.desktop;
 
 import arc.util.Log;
-import aspector.desktop.DesktopAspectHelper;
 import endfield.core.EndFieldMod;
 import endfield.util.CollectionObjectMap;
 import endfield.util.ConstructorAccessor;
@@ -36,13 +35,15 @@ import static endfield.desktop.Unsafer.unsafe;
 public class DesktopImpl implements PlatformImpl {
 	static Lookup lookup;
 
+	static final Class<?>[] LOOKUP_PARAMETER_TYPES = {Class.class, Class.class, int.class};
+
 	static final CollectionObjectMap<Class<?>, Lookup> lookupMap;
 	static final Function<Class<?>, Lookup> lookupBuilder;
 
 	static {
 		try {
 			lookup = (Lookup) ReflectionFactory.getReflectionFactory()
-					.newConstructorForSerialization(Lookup.class, Lookup.class.getDeclaredConstructor(Class.class, Class.class, int.class))
+					.newConstructorForSerialization(Lookup.class, Lookup.class.getDeclaredConstructor(LOOKUP_PARAMETER_TYPES))
 					.newInstance(EndFieldMod.class, null, -1);
 
 			Demodulator.openModules();
@@ -57,7 +58,7 @@ public class DesktopImpl implements PlatformImpl {
 		} catch (Throwable e) {
 			Log.err("It seems you platform is special. (But don't worry)", e);
 
-			lookup = Reflects.publicLookup;
+			lookup = Reflects.PUBLIC_LOOKUP;
 
 			classHelper = new MockClassHelper();
 			fieldAccessHelper = new ReflectionFieldAccessHelper();
@@ -71,7 +72,7 @@ public class DesktopImpl implements PlatformImpl {
 		}
 
 		lookupMap = new CollectionObjectMap<>(Class.class, Lookup.class);
-		lookupBuilder = clazz -> (Lookup) methodInvokeHelper.newInstance(clazz, clazz, null, 95);
+		lookupBuilder = clazz -> (Lookup) methodInvokeHelper.newInstanceTyped(clazz, LOOKUP_PARAMETER_TYPES, clazz, null, 95);
 	}
 
 	@Override
@@ -103,9 +104,7 @@ public class DesktopImpl implements PlatformImpl {
 
 	@Override
 	public FieldAccessor fieldAccessor(Field field) {
-		return (field.getModifiers() & Modifier.FINAL) != 0 ?
-				MethodHandleFieldAccessor.getMethodHandleFieldAccessor(field) :
-				VarHandleFieldAccessor.getVarHandleFieldAccessor(field);
+		return UnsafeFieldAccessor.getUnsafeFieldAccessor(field);
 	}
 
 	@Override

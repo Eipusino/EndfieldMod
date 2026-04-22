@@ -59,6 +59,8 @@ public class NativeJavaMethodHandle extends BaseFunction {
 	public Object call(Context context, Scriptable scope, Scriptable scriptable, Object[] args) {
 		try {
 			return context.getWrapFactory().wrap(context, scope, spreadHandle.invokeExact(convertArgs(args, parameterArray)), returnType);
+		} catch (RuntimeException | Error e) {
+			throw e;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}

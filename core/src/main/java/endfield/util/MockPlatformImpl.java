@@ -31,7 +31,7 @@ public class MockPlatformImpl implements PlatformImpl {
 
 	@Override
 	public Lookup lookup(Class<?> clazz) {
-		return Reflects.publicLookup;
+		return Reflects.PUBLIC_LOOKUP;
 	}
 
 	@SuppressWarnings("unchecked")

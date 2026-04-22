@@ -1,4 +1,18 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+
+	dependencies {
+		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+	}
+}
+
 plugins {
+	id "org.jetbrains.kotlin.jvm" version "$kotlinVersion"
 	id "java"
 }
 
@@ -28,13 +42,27 @@ tasks.withType(JavaCompile).configureEach {
 	])
 }
 
+tasks.withType(KotlinCompile).configureEach {
+	compilerOptions.jvmTarget.set(JvmTarget.JVM_17)
+}
+
 dependencies {
 	compileOnly "Anuken:Mindustry:$mindustryVersion"
 
 	implementation "org.jetbrains:annotations:26.0.2"
+	implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+	implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+	implementation "org.jetbrains.kotlin:kotlin-metadata-jvm:$kotlinVersion"
+
 	implementation "org.ow2.asm:asm:$asmVersion"
 	implementation "org.ow2.asm:asm-tree:$asmVersion"
 	implementation "org.ow2.asm:asm-commons:$asmVersion"
+
+	implementation "org.commonmark:commonmark:$commonmarkVersion"
+	implementation "org.commonmark:commonmark-ext-gfm-tables:$commonmarkVersion"
+	implementation "org.commonmark:commonmark-ext-gfm-strikethrough:$commonmarkVersion"
+	implementation "org.commonmark:commonmark-ext-ins:$commonmarkVersion"
+	implementation "org.commonmark:commonmark-ext-image-attributes:$commonmarkVersion"
 }
 
 jar {

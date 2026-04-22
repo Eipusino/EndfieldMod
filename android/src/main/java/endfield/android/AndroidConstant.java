@@ -4,14 +4,14 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 
 public final class AndroidConstant {
-	static final Field override, accessFlags;
+	static final Field OVERRIDE, ACCESS_FLAGS;
 
 	static {
 		try {
-			override = AccessibleObject.class.getDeclaredField("override");
-			accessFlags = Class.class.getDeclaredField("accessFlags");
-			override.setAccessible(true);
-			accessFlags.setAccessible(true);
+			OVERRIDE = AccessibleObject.class.getDeclaredField("override");
+			ACCESS_FLAGS = Class.class.getDeclaredField("accessFlags");
+			OVERRIDE.setAccessible(true);
+			ACCESS_FLAGS.setAccessible(true);
 		} catch (NoSuchFieldException e) {
 			throw new RuntimeException(e);
 		}

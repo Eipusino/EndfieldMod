@@ -6,11 +6,11 @@ public class DisjointSetUnion {
 	public int[] father;
 	public int[] sizes;
 
-	public DisjointSetUnion(int sz) {
-		size = sz;
-		father = new int[sz];
-		sizes = new int[sz];
-		for (int i = 0; i < sz; ++i) {
+	public DisjointSetUnion(int initialSize) {
+		size = initialSize;
+		father = new int[initialSize];
+		sizes = new int[initialSize];
+		for (int i = 0; i < initialSize; ++i) {
 			father[i] = i;
 			sizes[i] = 1;
 		}

@@ -31,6 +31,8 @@ public final class MethodHandleStaticMethodAccessor extends AbstractMethodAccess
 	public <T> T invoke(Object obj, Object... args) {
 		try {
 			return (T) spreadHandle.invokeExact(args);
+		} catch (RuntimeException | Error e) {
+			throw e;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}

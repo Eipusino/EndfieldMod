@@ -3,8 +3,11 @@ package endfield.util;
 import arc.Core;
 import arc.math.Mathf;
 import arc.util.Strings;
+import kotlin.text.StringsKt;
 
 import java.util.Arrays;
+import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class Strings2 {
@@ -40,43 +43,35 @@ public final class Strings2 {
 		return String.valueOf(data);
 	}
 
-	/**
-	 * {@code String.repeat(int)}.
-	 *
-	 * @throws IllegalArgumentException if the {@code count} is negative.
-	 */
-	public static String repeat(String key, int count) {
-		if (key == null) return null;
-
-		StringBuilder builder = new StringBuilder(key.length() * count);
-		for (int i = 0; i < count; i++) {
-			builder.append(key);
-		}
-		return builder.toString();
-		//return key.repeat(count);
-	}
-
-	public static String trimEnd(String str, char ch) {
-		int index = str.length() - 1;
-		while (index >= 0 && str.charAt(index) == ch) {
-			index--;
-		}
-		return str.substring(0, index + 1);
-	}
-
+	@KotlinIn
 	public static String substringAfter(String str, String delimiter) {
-		int index = str.indexOf(delimiter);
-		return index == -1 ? str : str.substring(index + delimiter.length());
+		return StringsKt.substringAfter(str, delimiter, str);
 	}
 
+	@KotlinIn
 	public static String substringAfterLast(String str, String delimiter) {
-		int index = str.lastIndexOf(delimiter);
-		return index == -1 ? str : str.substring(index + delimiter.length());
+		return StringsKt.substringAfterLast(str, delimiter, str);
 	}
 
+	@KotlinIn
 	public static String substringBeforeLast(String str, String delimiter) {
-		int index = str.lastIndexOf(delimiter);
-		return index == -1 ? str : str.substring(0, index);
+		return StringsKt.substringBeforeLast(str, delimiter, str);
+	}
+
+	@KotlinIn
+	public static MatchResult matchAt(Pattern pattern, String input, int index) {
+		Matcher matcher = pattern.matcher(input);
+		matcher.region(index, input.length());
+		return matcher.lookingAt() ? matcher.toMatchResult() : null;
+	}
+
+	@KotlinIn
+	public static int sumOf(CharSequence cs, Selector selector) {
+		var sum = 0;
+		for (int i = 0; i < cs.length(); i++) {
+			sum += selector.get(cs.charAt(i));
+		}
+		return sum;
 	}
 
 	/** Determine whether the string is composed entirely of numbers. */
@@ -193,23 +188,6 @@ public final class Strings2 {
 			}
 		}
 		return builder.toString();
-
-		/*int index = 0;
-		double base = 1;
-		for (int i = 0; i < byteUnit.length; i++) {
-			if (base * 1024 > number) {
-				break;
-			}
-			base *= 1024;
-			index++;
-		}
-
-		String[] arr = Double.toString(number / base).split("\\.");
-		int realRetain = Math.min(retain, arr[1].length());
-
-		String end = repeat('0', Math.max(0, retain - realRetain));
-
-		return (isNegative ? "-" : "") + arr[0] + (retain == 0 ? "" : "." + arr[1].substring(0, realRetain) + end + byteUnit[index]);*/
 	}
 
 	public static String toStoreSize(float num) {
@@ -320,5 +298,9 @@ public final class Strings2 {
 		if (negative) value = -value;
 
 		return value;
+	}
+
+	public interface Selector {
+		int get(char c);
 	}
 }

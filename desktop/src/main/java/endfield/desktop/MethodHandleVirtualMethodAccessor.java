@@ -36,6 +36,8 @@ public final class MethodHandleVirtualMethodAccessor extends AbstractMethodAcces
 	public <T> T invoke(Object object, Object... args) {
 		try {
 			return (T) spreadHandle.invokeExact(object, args);
+		} catch (RuntimeException | Error e) {
+			throw e;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}

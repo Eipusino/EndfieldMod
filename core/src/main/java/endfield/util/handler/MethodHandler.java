@@ -46,6 +46,18 @@ public class MethodHandler<T> {
 		return methodInvokeHelper.newInstance(clazz, args);
 	}
 
+	public static <O, R> R invokeTypedDefault(O object, String name, Class<?>[] parameterTypes, Object... args) {
+		return methodInvokeHelper.invokeTyped(object, name, parameterTypes, args);
+	}
+
+	public static <U, R> R invokeTypedDefault(Class<U> clazz, String name, Class<?>[] parameterTypes, Object... args) {
+		return methodInvokeHelper.invokeStaticTyped(clazz, name, parameterTypes, args);
+	}
+
+	public static <U> U newInstanceTypedDefault(Class<U> clazz, Class<?>[] parameterTypes, Object... args) {
+		return methodInvokeHelper.newInstanceTyped(clazz, parameterTypes, args);
+	}
+
 	/**
 	 * Directly call the method without throwing an exception.
 	 */

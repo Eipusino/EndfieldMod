@@ -38,6 +38,8 @@ public class NativeConstructorAccessor<T> extends AbstractConstructorAccessor<T>
 	public T newInstance(Object... args) {
 		try {
 			return newInstance(constructor, args);
+		} catch (RuntimeException | Error e) {
+			throw e;
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
