@@ -4,6 +4,7 @@ import arc.util.OS;
 import endfield.util.CollectionList;
 import endfield.util.Collections2;
 import endfield.util.Constant;
+import endfield.util.aspector.Aspector;
 import endfield.util.aspector.Using;
 import endfield.util.aspector.classes.BytecodeLoader;
 import endfield.util.aspector.classes.ClassAccessor;
@@ -223,11 +224,7 @@ public final class AspectMaker extends ClassMaker {
 	public Class<?> loadClass(BytecodeLoader loader, ClassName className, byte[] bytecode) {
 		String name = className.name();
 
-		/*try (FileOutputStream stream = new FileOutputStream(className.simpleName() + ".class")) {
-			stream.write(bytecode);
-		} catch (IOException e) {
-			Log.err(e);
-		}*/
+		Aspector.PATH_BYTECODES.put(className.simpleName() + ".class", bytecode);
 
 		loader.declareClass(name, bytecode);
 		return loader.loadClass(name);

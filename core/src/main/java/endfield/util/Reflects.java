@@ -21,7 +21,6 @@ import org.jetbrains.annotations.UnknownNullability;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
-import java.lang.invoke.VarHandle;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -142,32 +141,21 @@ public final class Reflects {
 	}
 
 	/**
-	 * @throws NoSuchVariableException If no field can be found
-	 */
-	public static VarHandle findVarHandle(Class<?> recv, String name, Class<?> type) {
-		try {
-			return platformImpl.lookup(recv).findVarHandle(recv, name, type);
-		} catch (NoSuchFieldException | IllegalAccessException e) {
-			throw new NoSuchVariableException(e);
-		}
-	}
-
-	/**
 	 * @throws NullPointerException If name is null
 	 * @throws IllegalArgumentException If the primitive type cannot be specified by name
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Class<T> getPrimitiveClass(String name) {
 		return (Class<T>) switch (name) {
-			case "boolean", "java.lang.Boolean", "Z" -> boolean.class;
-			case "int", "java.lang.Integer", "I" -> int.class;
-			case "float", "java.lang.Float", "F" -> float.class;
-			case "byte", "java.lang.Byte", "B" -> byte.class;
-			case "short", "java.lang.Short", "S" -> short.class;
-			case "long", "java.lang.Long", "J" -> long.class;
-			case "double", "java.lang.Double", "D" -> double.class;
-			case "char", "java.lang.Character", "C" -> char.class;
-			case "void", "java.lang.Void", "V" -> void.class;
+			case "boolean", "java.lang.Boolean" -> boolean.class;
+			case "int", "java.lang.Integer" -> int.class;
+			case "float", "java.lang.Float" -> float.class;
+			case "byte", "java.lang.Byte" -> byte.class;
+			case "short", "java.lang.Short" -> short.class;
+			case "long", "java.lang.Long" -> long.class;
+			case "double", "java.lang.Double" -> double.class;
+			case "char", "java.lang.Character" -> char.class;
+			case "void", "java.lang.Void" -> void.class;
 			default -> throw new IllegalArgumentException(name);
 		};
 	}
@@ -196,26 +184,26 @@ public final class Reflects {
 		return platformImpl.clone(object);
 	}
 
-	public static String methodToString(Class<?> type, String name, Class<?>... argTypes) {
+	public static String methodToString(Class<?> type, String name, Class<?>... parameterTypes) {
 		StringBuilder buf = new StringBuilder();
 		buf.append(type.getName()).append('.').append(name);
 
-		if (argTypes == null || argTypes.length == 0) return buf.append("()").toString();
+		if (parameterTypes == null || parameterTypes.length == 0) return buf.append("()").toString();
 
-		int max = argTypes.length;
+		int max = parameterTypes.length;
 
 		buf.append('(');
 		int i = 0;
 		while (true) {
-			buf.append(argTypes[i++].getName());
+			buf.append(parameterTypes[i++].getName());
 			if (i == max) return buf.append(')').toString();
 			buf.append(',');
 		}
 		// The approach of Java. But I don't like using Stream here.
 		/*return type.getName() + '.' + name +
-				((argTypes == null || argTypes.length == 0) ?
+				((parameterTypes == null || parameterTypes.length == 0) ?
 						"()" :
-						Arrays.stream(argTypes)
+						Arrays.stream(parameterTypes)
 						.map(c -> c == null ? "null" : c.getName())
 						.collect(Collectors.joining(",", "(", ")")));*/
 	}
@@ -410,11 +398,7 @@ public final class Reflects {
 				return false;
 		}
 
-		try {
-			accessibleHelper.makeAccessible(object);
-		} catch (Exception e) {
-			return false;
-		}
+		accessibleHelper.makeAccessible(object);
 
 		return true;
 	}

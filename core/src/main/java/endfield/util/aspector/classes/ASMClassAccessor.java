@@ -3,6 +3,7 @@ package endfield.util.aspector.classes;
 import endfield.util.Arrays2;
 import endfield.util.Collections2;
 import endfield.util.Maps2;
+import endfield.util.aspector.Aspector;
 import endfield.util.aspector.classes.ClassDecl.ArrayClassDecl;
 import kotlin.Metadata;
 import kotlin.collections.CollectionsKt;
@@ -61,15 +62,15 @@ public class ASMClassAccessor implements ClassAccessor {
 	@Override
 	public <T> ClassDecl<T> getClassDecl(ClassName className) {
 		return (ClassDecl<T>) switch (className.descriptor) {
-			case "V" -> ClassAccessor.VOID;
-			case "B" -> ClassAccessor.BYTE;
-			case "S" -> ClassAccessor.SHORT;
-			case "I" -> ClassAccessor.INT;
-			case "J" -> ClassAccessor.LONG;
-			case "F" -> ClassAccessor.FLOAT;
-			case "D" -> ClassAccessor.DOUBLE;
-			case "C" -> ClassAccessor.CHAR;
-			case "Z" -> ClassAccessor.BOOLEAN;
+			case "V" -> VOID;
+			case "B" -> BYTE;
+			case "S" -> SHORT;
+			case "I" -> INT;
+			case "J" -> LONG;
+			case "F" -> FLOAT;
+			case "D" -> DOUBLE;
+			case "C" -> CHAR;
+			case "Z" -> BOOLEAN;
 			default -> MapsKt.getOrPut(loadedDeclMap, className, () -> {
 				if (className.isArray()) {
 					ClassDecl<Object> componentType = getClassDecl(className.componentName());
@@ -86,7 +87,7 @@ public class ASMClassAccessor implements ClassAccessor {
 	public byte[] getBytes(ClassName className) {
 		String path = className.internalName() + ".class";
 
-		return new byte[0];
+		return Aspector.PATH_BYTECODES.getThrow(path);
 	}
 
 	static class BytecodeClassDecl<T> extends ClassDecl<T> {
@@ -390,7 +391,6 @@ public class ASMClassAccessor implements ClassAccessor {
 			return new EAnnotation(annotationName, annoValues);
 		}
 
-		@SuppressWarnings("unchecked")
 		static AnnotationValue<?, ?> handleKmAnnoArg(KmAnnotationArgument argument) {
 			if (argument instanceof KmAnnotationArgument.LiteralValue<?> literalValue)
 				return new AnnotationValue.Value<>(literalValue.getValue());
@@ -419,7 +419,7 @@ public class ASMClassAccessor implements ClassAccessor {
 					return new AnnotationValue.Value<>(CollectionsKt.toBooleanArray(CollectionsKt.map(elements, it -> ((KmAnnotationArgument.BooleanValue) it).getValue())));
 				if (arrayArgument instanceof KmAnnotationArgument.CharValue)
 					return new AnnotationValue.Value<>(CollectionsKt.toCharArray(CollectionsKt.map(elements, it -> ((KmAnnotationArgument.CharValue) it).getValue())));
-				return new AnnotationValue.ArrayValue<>(CollectionsKt.map(elements, it -> (AnnotationValue<Object, ?>) handleKmAnnoArg(it)));
+				return new AnnotationValue.ArrayValue<>(CollectionsKt.map(elements, it -> (AnnotationValue<?, ?>) handleKmAnnoArg(it)));
 			}
 			if (argument instanceof KmAnnotationArgument.ArrayKClassValue arrayKClassValue) {
 				ClassName c = ClassName.byName(arrayKClassValue.getClassName());

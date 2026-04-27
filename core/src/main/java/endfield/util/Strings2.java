@@ -35,12 +35,21 @@ public final class Strings2 {
 	 * @throws IllegalArgumentException if the {@code count} is negative.
 	 */
 	public static String repeat(char key, int count) {
-		if (count < 0) throw new IllegalArgumentException("count is negative: " + count);
+		if (count < 0) throw new IllegalArgumentException("Count must be non-negative, but was " + count + ".");
 
 		char[] data = new char[count];
 		Arrays.fill(data, key);
 
 		return String.valueOf(data);
+	}
+
+	public static String repeat(String key, int count) {
+		if (count < 0) throw new IllegalArgumentException("Count must be non-negative, but was " + count + ".");
+
+		StringBuilder buf = new StringBuilder(key.length() * count);
+		for (int i = 0; i < count; i++) buf.append(key);
+
+		return buf.toString();
 	}
 
 	@KotlinIn
@@ -60,8 +69,7 @@ public final class Strings2 {
 
 	@KotlinIn
 	public static MatchResult matchAt(Pattern pattern, String input, int index) {
-		Matcher matcher = pattern.matcher(input);
-		matcher.region(index, input.length());
+		Matcher matcher = pattern.matcher(input).useAnchoringBounds(false).useTransparentBounds(true).region(index, input.length());
 		return matcher.lookingAt() ? matcher.toMatchResult() : null;
 	}
 
@@ -200,104 +208,6 @@ public final class Strings2 {
 		}
 
 		return Strings.fixed(v, 2) + "[lightgray]" + byteUnit[n];
-	}
-
-	public static double parseDouble(String key, double defaultValue) {
-		if (key == null) return defaultValue;
-
-		key = key.trim();
-		if (key.isEmpty()) return defaultValue;
-
-		if (key.equals("NaN") || key.equals("Infinity") || key.equals("-Infinity")) return defaultValue;
-
-		int length = key.length();
-		int index = 0;
-		boolean negative = false;
-
-		char first = key.charAt(index);
-		if (first == '+') {
-			index++;
-		} else if (first == '-') {
-			negative = true;
-			index++;
-		}
-
-		double intPair = 0;
-		boolean hssInteger = false;
-		while (index < length) {
-			char c = key.charAt(index);
-			if (c >= '0' && c <= '9') {
-				intPair = intPair * 10 + (c - '0');
-				hssInteger = true;
-				index++;
-			} else {
-				break;
-			}
-		}
-
-		double fracPair = 0;
-		int fracDigits = 0;
-		boolean hasFraction = false;
-		if (index < length && key.charAt(index) == '.') {
-			index++;
-			double factor = 0.1;
-			while (index < length) {
-				char c = key.charAt(index);
-				if (c >= '0' && c <= '9') {
-					fracPair += (c - '0') * factor;
-					factor *= 0.1;
-					fracDigits++;
-					hasFraction = true;
-					index++;
-				} else {
-					break;
-				}
-			}
-		}
-
-		boolean hasExponent = false;
-		int exponent = 0;
-		boolean expNegative = false;
-		if (index < length && (key.charAt(index) == 'e' || key.charAt(index) == 'E')) {
-			index++;
-			hasExponent = true;
-
-			if (index < length && (key.charAt(index) == '+') || key.charAt(index) == '-') {
-				expNegative = (key.charAt(index) == '-');
-				index++;
-			}
-
-			int expValue = 0;
-			int digitCount = 0;
-			while (index < length) {
-				char c = key.charAt(index);
-				if (c >= '0' && c <= '9') {
-					if (expValue <= 1000) {
-						expValue = expValue * 10 + (c - '0');
-					}
-					digitCount++;
-					index++;
-				} else {
-					break;
-				}
-			}
-			if (digitCount == 0) return defaultValue;
-
-			exponent = expNegative ? -expValue : expValue;
-
-			if (Math.abs(exponent) > 1000) {
-				exponent = exponent > 0 ? 1000 : -1000;
-			}
-		}
-
-		if (!hssInteger && !hasFraction) return defaultValue;
-		if (index != length) return defaultValue;
-
-		double value = intPair + fracPair;
-		if (hasExponent) value *= Math.pow(10, exponent);
-		if (negative) value = -value;
-
-		return value;
 	}
 
 	public interface Selector {

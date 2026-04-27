@@ -2,7 +2,7 @@ package endfield.util.atomic;
 
 import arc.func.FloatFloatf;
 import endfield.func.FloatFloatf2;
-import endfield.util.Reflects;
+import endfield.util.ReflectsKt;
 
 import java.lang.invoke.VarHandle;
 
@@ -17,7 +17,7 @@ public class AtomicFloat extends Number {
 	private static final VarHandle handle;
 
 	static {
-		handle = Reflects.findVarHandle(AtomicFloat.class, "value", float.class);
+		handle = ReflectsKt.findVarHandle(AtomicFloat.class, "value", float.class);
 	}
 
 	private volatile float value;

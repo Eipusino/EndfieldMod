@@ -1,5 +1,6 @@
 package endfield.util.aspector;
 
+import endfield.util.CollectionObjectMap;
 import endfield.util.aspector.classes.AnnotationValue.EnumValue;
 import endfield.util.aspector.classes.ClassDecl;
 import endfield.util.aspector.classes.ClassName;
@@ -25,6 +26,8 @@ import java.util.Set;
 public class Aspector {
 	public static final ClassName STUB = ClassName.byClass(Stub.class);
 	public static final ClassName ASPECT_ELEMENT = ClassName.byClass(AspectElement.class);
+
+	public static final CollectionObjectMap<String, byte[]> PATH_BYTECODES = new CollectionObjectMap<>(String.class, byte[].class);
 
 	final ClassMaker classMaker;
 

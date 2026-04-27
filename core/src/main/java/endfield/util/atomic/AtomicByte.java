@@ -1,6 +1,6 @@
 package endfield.util.atomic;
 
-import endfield.util.Reflects;
+import endfield.util.ReflectsKt;
 
 import java.lang.invoke.VarHandle;
 
@@ -11,7 +11,7 @@ public class AtomicByte extends Number {
 	private volatile byte value;
 
 	static {
-		handle = Reflects.findVarHandle(AtomicByte.class, "value", byte.class);
+		handle = ReflectsKt.findVarHandle(AtomicByte.class, "value", byte.class);
 	}
 
 	public AtomicByte() {}

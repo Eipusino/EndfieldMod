@@ -83,11 +83,6 @@ public final class Objects2 {
 		return obj;
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <T, E extends Throwable> T thrower(Throwable t) throws E {
-		throw (E) t;
-	}
-
 	public static String toString(Object object) {
 		return toString(object, true, true);
 	}

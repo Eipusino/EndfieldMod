@@ -27,7 +27,7 @@ import arc.struct.Seq;
 import arc.util.Eachable;
 import endfield.func.BoolBoolf;
 import endfield.func.ByteBytef;
-import endfield.util.Collections2.IterIndexed;
+import endfield.util.Collections2.IndexedConsume;
 import endfield.util.holder.ObjectHolder;
 
 import java.lang.reflect.Array;
@@ -136,7 +136,7 @@ public final class Arrays2 {
 	}
 
 	@KotlinIn
-	public static <T> void forEachIndexed(T[] array, IterIndexed<? super T> action) {
+	public static <T> void forEachIndexed(T[] array, IndexedConsume<? super T> action) {
 		int i = 0;
 		for (T t : array) {
 			action.get(i++, t);

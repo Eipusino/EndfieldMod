@@ -1,6 +1,6 @@
 package endfield.util.atomic;
 
-import endfield.util.Reflects;
+import endfield.util.ReflectsKt;
 
 import java.lang.invoke.VarHandle;
 
@@ -11,7 +11,7 @@ public class AtomicShort extends Number {
 	private volatile short value;
 
 	static {
-		handle = Reflects.findVarHandle(AtomicShort.class, "value", short.class);
+		handle = ReflectsKt.findVarHandle(AtomicShort.class, "value", short.class);
 	}
 
 	public AtomicShort() {}

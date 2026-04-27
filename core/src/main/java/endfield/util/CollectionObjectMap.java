@@ -351,6 +351,12 @@ public class CollectionObjectMap<K, V> extends AbstractMap<K, V> implements Iter
 		size++;
 	}
 
+	public V getThrow(K key) {
+		V value = get(key);
+		if (value == null) throw new NoSuchElementException(String.valueOf(key));
+		return value;
+	}
+
 	public V getThrow(K key, Prov<? extends RuntimeException> error) {
 		if (!containsKey(key)) {
 			throw error.get();

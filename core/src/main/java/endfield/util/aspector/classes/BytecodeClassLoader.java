@@ -1,6 +1,7 @@
 package endfield.util.aspector.classes;
 
 import arc.util.OS;
+import endfield.util.aspector.Aspector;
 import endfield.util.handler.ClassHandler;
 
 import java.io.ByteArrayInputStream;
@@ -31,6 +32,9 @@ public class BytecodeClassLoader extends ClassLoader implements BytecodeLoader {
 			throw new IllegalArgumentException("Class $name is already registered");
 
 		String path = name.replace(".", "/") + ".class";
+
+		Aspector.PATH_BYTECODES.put(path, bytecode);
+
 		bytecodesMap.put(name, bytecode);
 		bytecodesPaths.put(path, bytecode);
 	}

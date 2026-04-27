@@ -1,6 +1,6 @@
 package endfield.util.atomic;
 
-import endfield.util.Reflects;
+import endfield.util.ReflectsKt;
 
 import java.io.Serializable;
 import java.lang.invoke.VarHandle;
@@ -12,7 +12,7 @@ public class AtomicBoolean implements Serializable {
 	private volatile boolean value;
 
 	static {
-		handle = Reflects.findVarHandle(AtomicBoolean.class, "value", boolean.class);
+		handle = ReflectsKt.findVarHandle(AtomicBoolean.class, "value", boolean.class);
 	}
 
 	public AtomicBoolean(boolean initialValue) {

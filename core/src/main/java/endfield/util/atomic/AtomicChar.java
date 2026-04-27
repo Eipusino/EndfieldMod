@@ -2,7 +2,7 @@ package endfield.util.atomic;
 
 import endfield.func.CharCharf;
 import endfield.func.CharCharf2;
-import endfield.util.Reflects;
+import endfield.util.ReflectsKt;
 
 import java.io.Serializable;
 import java.lang.invoke.VarHandle;
@@ -14,7 +14,7 @@ public class AtomicChar implements Serializable {
 	private volatile char value;
 
 	static {
-		handle = Reflects.findVarHandle(AtomicChar.class, "value", char.class);
+		handle = ReflectsKt.findVarHandle(AtomicChar.class, "value", char.class);
 	}
 
 	public AtomicChar() {}

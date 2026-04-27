@@ -1,7 +1,6 @@
-package endfield.func;
+package endfield.func
 
 @FunctionalInterface
-public interface VariableFunc<P, R> {
-	@SuppressWarnings("unchecked")
-	R get(P... params);
+fun interface VariableFunc<P, R> {
+	fun get(vararg params: P): R
 }

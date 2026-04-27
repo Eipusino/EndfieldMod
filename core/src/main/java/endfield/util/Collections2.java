@@ -5,30 +5,11 @@ import arc.func.Prov;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public final class Collections2 {
 	private Collections2() {}
-
-	@KotlinIn
-	@SafeVarargs
-	public static <T> Set<T> asSet(T... array) {
-		HashSet<T> result = new HashSet<>(array.length);
-		Collections.addAll(result, array);
-		return result;
-	}
-
-	@KotlinIn
-	@SafeVarargs
-	public static <T> List<T> asList(T... array) {
-		ArrayList<T> result = new ArrayList<>(array.length);
-		Collections.addAll(result, array);
-		return result;
-	}
 
 	@KotlinIn
 	public static <T, R> @Nullable R firstNotNullOfOrNull(Iterable<T> iterable, Func<? super T, ? extends R> transform) {
@@ -42,7 +23,7 @@ public final class Collections2 {
 	}
 
 	@KotlinIn
-	public static <T> void forEachIndexed(Iterable<T> iterable, IterIndexed<? super T> action) {
+	public static <T> void forEachIndexed(Iterable<T> iterable, IndexedConsume<? super T> action) {
 		int i = 0;
 		for (T t : iterable) {
 			action.get(i++, t);
@@ -79,7 +60,8 @@ public final class Collections2 {
 		return value;
 	}
 
-	public interface IterIndexed<T> {
+	@FunctionalInterface
+	public interface IndexedConsume<T> {
 		void get(int index, T t);
 	}
 }

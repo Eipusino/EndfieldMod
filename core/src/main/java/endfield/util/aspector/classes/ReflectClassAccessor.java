@@ -4,6 +4,7 @@ import endfield.util.Arrays2;
 import endfield.util.Collections2;
 import endfield.util.Constant;
 import endfield.util.Reflects;
+import endfield.util.aspector.Aspector;
 import endfield.util.aspector.classes.AnnotationValue.ArrayValue;
 import endfield.util.aspector.classes.AnnotationValue.EnumValue;
 import endfield.util.aspector.classes.AnnotationValue.NestedAnnotationValue;
@@ -29,7 +30,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class ReflectClassAccessor implements ClassAccessor {
 	static final Function1<Annotation, EAnnotation> asEAnnotation = ReflectClassAccessor::asEAnnotation;
@@ -38,7 +38,7 @@ public class ReflectClassAccessor implements ClassAccessor {
 	final Map<ClassName, ClassDecl<?>> loadedDeclMap = new HashMap<>();
 
 	public ReflectClassAccessor(ClassLoader... loaders) {
-		attachedClassLoader = loaders.length == 0 ? Collections2.asList(Vars.mods.mainLoader()) : Collections2.asList(loaders);
+		attachedClassLoader = loaders.length == 0 ? Collections.singletonList(Vars.mods.mainLoader()) : CollectionsKt.listOf(loaders);
 	}
 
 	public void attachClassLoader(ClassLoader classLoader) {
@@ -108,7 +108,9 @@ public class ReflectClassAccessor implements ClassAccessor {
 					}
 				});
 
-				yield Objects.requireNonNull(result);
+				if (result == null) throw new RuntimeException(name);
+
+				yield result;
 			}
 		};
 	}
@@ -119,7 +121,7 @@ public class ReflectClassAccessor implements ClassAccessor {
 
 		String path = clazz.getName().replace('.', '/') + ".class";
 
-		return new byte[0];
+		return Aspector.PATH_BYTECODES.getThrow(path);
 	}
 
 	@SuppressWarnings("unchecked")

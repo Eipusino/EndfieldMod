@@ -2,6 +2,7 @@ package endfield;
 
 import arc.struct.Seq;
 import arc.util.Log;
+import endfield.util.ObjectsKt;
 import endfield.util.aspector.AspectHelper;
 import endfield.core.EndFieldListener;
 import endfield.core.EndFieldMod;

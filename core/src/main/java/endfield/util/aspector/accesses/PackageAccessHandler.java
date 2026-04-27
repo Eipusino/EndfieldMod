@@ -1,5 +1,6 @@
 package endfield.util.aspector.accesses;
 
+import endfield.util.aspector.Aspector;
 import endfield.util.aspector.classes.ClassAccessor;
 import endfield.util.aspector.classes.ClassDecl;
 import endfield.util.aspector.classes.ClassElement;
@@ -53,11 +54,7 @@ public abstract class PackageAccessHandler {
 
 			byte[] bytecode = genPackageAccessClass(builder);
 
-			/*try (FileOutputStream stream = new FileOutputStream(name.simpleName() + ".class")) {
-				stream.write(bytecode);
-			} catch (IOException ex) {
-				Log.err(ex);
-			}*/
+			Aspector.PATH_BYTECODES.put(name.simpleName() + ".class", bytecode);
 
 			return (Class<T>) loadClass(
 					name,

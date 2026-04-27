@@ -16,7 +16,7 @@ import mindustry.game.EventType.ResizeEvent;
 import java.util.Objects;
 
 public final class ScreenSampler {
-	private static final FieldAccessor CURRENT_BOUND_BUFFER_ACCESSOR;
+	private static final FieldAccessor currentBoundFramebuffer;
 
 	private static final FrameBuffer swapBuffer = new FrameBuffer();
 
@@ -24,7 +24,7 @@ public final class ScreenSampler {
 
 	static {
 		try {
-			CURRENT_BOUND_BUFFER_ACCESSOR = Reflects.newFieldAccessor(GLFrameBuffer.class.getDeclaredField("currentBoundFramebuffer"));
+			currentBoundFramebuffer = Reflects.newFieldAccessor(GLFrameBuffer.class.getDeclaredField("currentBoundFramebuffer"));
 		} catch (NoSuchFieldException e) {
 			throw new RuntimeException(e);
 		}
@@ -37,46 +37,19 @@ public final class ScreenSampler {
 	}
 
 	public static void toBuffer(FrameBuffer target) {
-		GLFrameBuffer<?> buffer = CURRENT_BOUND_BUFFER_ACCESSOR.getObject(null);
+		GLFrameBuffer<?> buffer = currentBoundFramebuffer.getObject(null);
 
 		if (buffer != null) {
-			if (buffer.getWidth() == target.getWidth() && buffer.getHeight() == target.getHeight()) {
-				buffer.begin();
-				target.getTexture().bind();
-				Gl.copyTexSubImage2D(
-						Gl.texture2d,
-						0,
-						0, 0,
-						0, 0,
-						target.getWidth(), target.getHeight());
-				Gl.bindTexture(Gl.texture2d, 0);
-				buffer.end();
-			} else {
-				blitBuffer(buffer, target);
-			}
+			blitBuffer(buffer, target);
 		} else {
 			if (swapBuffer.getWidth() == target.getWidth() && swapBuffer.getHeight() == target.getHeight()) {
 				Draw.flush();
-				target.getTexture().bind();
-				Gl.copyTexSubImage2D(
-						Gl.texture2d,
-						0,
-						0, 0,
-						0, 0,
-						target.getWidth(), target.getHeight()
-				);
-				Gl.bindTexture(Gl.texture2d, 0);
+
+				copyPixels(target);
 			} else {
 				Draw.flush();
-				swapBuffer.getTexture().bind();
-				Gl.copyTexSubImage2D(
-						Gl.texture2d,
-						0,
-						0, 0,
-						0, 0,
-						swapBuffer.getWidth(), swapBuffer.getHeight()
-				);
-				Gl.bindTexture(Gl.texture2d, 0);
+
+				copyPixels(swapBuffer);
 
 				blitBuffer(swapBuffer, target);
 			}
@@ -84,10 +57,34 @@ public final class ScreenSampler {
 	}
 
 	public static void blitShader(Shader shader, int unit) {
-		GLFrameBuffer<?> buffer = CURRENT_BOUND_BUFFER_ACCESSOR.getObject(null);
+		GLFrameBuffer<?> buffer = currentBoundFramebuffer.getObject(null);
 
 		Objects.requireNonNullElse(buffer, swapBuffer).getTexture().bind(unit);
 		Draw.blit(shader);
+	}
+
+	private static void copyPixels(GLFrameBuffer<?> target) {
+		if (Core.gl30 != null) {
+			Gl.bindFramebuffer(GL30.GL_READ_FRAMEBUFFER, 0);
+			Gl.bindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, target.getFramebufferHandle());
+			Core.gl30.glReadBuffer(Gl.back);
+			Core.gl30.glBlitFramebuffer(
+					0, 0, Core.graphics.getWidth(), Core.graphics.getHeight(),
+					0, 0, target.getWidth(), target.getHeight(),
+					Gl.colorBufferBit, Gl.nearest
+			);
+			Gl.bindFramebuffer(GL30.GL_READ_FRAMEBUFFER, 0);
+			Gl.bindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, 0);
+		} else {
+			target.getTexture().bind();
+			Gl.copyTexImage2D(
+					Gl.texture2d, 0,
+					Gl.rgba, 0, 0,
+					target.getTexture().width, target.getTexture().height,
+					0
+			);
+			Gl.bindTexture(Gl.texture2d, 0);
+		}
 	}
 
 	private static void blitBuffer(GLFrameBuffer<?> source, GLFrameBuffer<?> target) {

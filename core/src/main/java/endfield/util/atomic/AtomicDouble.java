@@ -2,7 +2,7 @@ package endfield.util.atomic;
 
 import endfield.func.DoubleDoublef;
 import endfield.func.DoubleDoublef2;
-import endfield.util.Reflects;
+import endfield.util.ReflectsKt;
 
 import java.lang.invoke.VarHandle;
 
@@ -17,7 +17,7 @@ public class AtomicDouble extends Number {
 	private static final VarHandle handle;
 
 	static {
-		handle = Reflects.findVarHandle(AtomicDouble.class, "value", double.class);
+		handle = ReflectsKt.findVarHandle(AtomicDouble.class, "value", double.class);
 	}
 
 	private volatile double value;
