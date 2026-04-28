@@ -51,9 +51,7 @@ public final class Fills {
 	 * @param angleOffset ellipse start offset
 	 */
 	public static void donutEllipse(float x, float y, float width, float height, float width2, float height2, float finion, float angleOffset, float rotation) {
-		donutEllipseDraw
-				.set(x, y, width, height, width2, height2, finion, angleOffset, rotation)
-				.donutEllipse();
+		donutEllipseDraw.set(x, y, width, height, width2, height2, finion, angleOffset, rotation).donutEllipse();
 	}
 
 	private static void flushPoly() {
@@ -79,15 +77,15 @@ public final class Fills {
 		final float max = sides;
 		float x, y, width, height, width2, height2, finion, angleOffset, rotation;
 
-		public DonutEllipseDraw set(float xv, float yv, float wid, float hei, float wid2, float hei2, float fin, float ang, float rot) {
-			x = xv;
-			y = yv;
-			width = wid;
-			height = hei;
+		public DonutEllipseDraw set(float x1, float y1, float wid1, float hei1, float wid2, float hei2, float fin, float angleOff, float rot) {
+			x = x1;
+			y = y1;
+			width = wid1;
+			height = hei1;
 			width2 = wid2;
 			height2 = hei2;
 			finion = fin;
-			angleOffset = ang;
+			angleOffset = angleOff;
 			rotation = rot;
 			return this;
 		}

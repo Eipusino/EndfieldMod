@@ -43,7 +43,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 	public final Class<?> componentType;
 	/**
 	 * Provides direct access to the underlying array. If the Array's generic type is not Object, this field may only be accessed
-	 * if the {@link CollectionList#CollectionList(boolean, int, Class)} constructor was used.
+	 * if the {@link #CollectionList(boolean, int, Class)} constructor was used.
 	 */
 	public E[] items;
 
@@ -1029,7 +1029,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 	 * @param kthLowest  rank of desired object according to comparison, n is based on ordinal numbers, not array indices. for min
 	 *                   value use 1, for max value use size of array, using 0 results in runtime exception.
 	 * @return the index of the Nth lowest ranked object.
-	 * @see CollectionList#selectRanked(java.util.Comparator, int)
+	 * @see #selectRanked(java.util.Comparator, int)
 	 */
 	public int selectRankedIndex(Comparator<? super E> comparator, int kthLowest) {
 		if (kthLowest < 1) {

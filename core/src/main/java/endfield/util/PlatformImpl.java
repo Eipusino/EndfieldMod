@@ -34,4 +34,14 @@ public interface PlatformImpl {
 	int arrayBaseOffset(Class<?> arrayClass);
 
 	int arrayIndexScale(Class<?> arrayClass);
+
+	default <T> Class<T> ensureInitialized(Class<T> targetClass) {
+		Lookup lookup = lookup(targetClass);
+		try {
+			lookup.ensureInitialized(targetClass);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+		return targetClass;
+	}
 }

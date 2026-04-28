@@ -1,237 +1,91 @@
 package endfield.graphics;
 
 import arc.Core;
+import arc.graphics.Blending;
 import arc.graphics.Color;
 import arc.graphics.Gl;
+import arc.graphics.Pixmap;
+import arc.graphics.g2d.Draw;
 import arc.graphics.gl.FrameBuffer;
-import arc.graphics.gl.Shader;
-import arc.util.Disposable;
 
-public class Blur implements Disposable {
-	public static final float[] default1 = {
-			0.0086973240159f, 0.0359949776755f, 0.1093610049784f,
-			0.2129658870149f, 0.2659615230194f, 0.2129658870149f,
-			0.1093610049784f, 0.0359949776755f, 0.0086973240159f,
-	};
-	public static final float[] default2 = {
-			0.0444086447005f, 0.0779944219933f, 0.1159966211046f,
-			0.1673080561213f, 0.1885769121606f, 0.1673080561213f,
-			0.1159966211046f, 0.0779944219933f, 0.0444086447005f,
-	};
-	public static final float[] default3 = {
-			0.0045418484119f, 0.0539998665132f, 0.2419867245191f,
-			0.3989431211116f,
-			0.2419867245191f, 0.0539998665132f, 0.0045418484119f,
-	};
-	public static final float[] default4 = {
-			0.0245418484119f, 0.0639998665132f, 0.2519867245191f,
-			0.3189431211116f,
-			0.2519867245191f, 0.0639998665132f, 0.0245418484119f,
-	};
-	public static final float[] default5 = {
-			0.019615710072f, 0.2054255182127f,
-			0.5599175434306f,
-			0.2054255182127f, 0.019615710072f,
-	};
-	public static final float[] default6 = {
-			0.0702702703f, 0.3162162162f,
-			0.2270270270f,
-			0.3162162162f, 0.0702702703f,
-	};
-	public static final float[] default7 = {
-			0.2079819330264f,
-			0.6840361339472f,
-			0.2079819330264f,
-	};
-	public static final float[] default8 = {
-			0.2561736558128f,
-			0.4876526883744f,
-			0.2561736558128f,
-	};
+import static endfield.graphics.Shaders2.base;
+import static endfield.graphics.Shaders2.blur;
 
-	public static final String vertTemplate =
-			"""
-			attribute vec4 a_position;
-			attribute vec2 a_texCoord0;
-			
-			uniform vec2 dir;
-			uniform vec2 size;
-			
-			varying vec2 v_texCoords;
-			
-			%varying%
-			
-			void main() {
-				vec2 len = dir / size;
-			
-				v_texCoords = a_texCoord0;
-				%assignVar%
-				gl_Position = a_position;
-			}
-			""";
+public class Blur {
+	final FrameBuffer stencil = new FrameBuffer(Pixmap.Format.rgba8888, 2, 2, false, false);
+	final FrameBuffer pingpong1 = new FrameBuffer(Pixmap.Format.rgba8888, 2, 2, false, true);
+	final FrameBuffer pingpong2 = new FrameBuffer(Pixmap.Format.rgba8888, 2, 2, false, true);
 
-	public static final String fragmentTemplate =
-			"""
-			uniform lowp sampler2D u_texture0;
-			uniform lowp sampler2D u_texture1;
-			
-			uniform lowp float def_alpha;
-			
-			varying vec2 v_texCoords;
-			
-			%varying%
-			
-			void main() {
-				vec4 blur = texture2D(u_texture0, v_texCoords);
-				vec3 color = texture2D(u_texture1, v_texCoords).rgb;
-			
-				if (blur.a > 0.0) {
-					vec3 blurColor =
-						%convolution%
-			
-					gl_FragColor.rgb = mix(color, blurColor, blur.a);
-					gl_FragColor.a = 1.0;
-				} else {
-					gl_FragColor.rgb = color;
-					gl_FragColor.a = def_alpha;
-				}
-			}
-			""";
+	public float blurSpace = 1.5f;
+	public int blurScl = 2;
+	public int blurLevel = 2;
 
-	protected Shader blur;
-	protected FrameBuffer buffer, pingpong;
+	public void drawBlur(Runnable block) {
+		stencil.resize(Core.graphics.getWidth() / blurScl, Core.graphics.getHeight() / blurScl);
+		pingpong1.resize(Core.graphics.getWidth() / blurScl, Core.graphics.getHeight() / blurScl);
+		pingpong2.resize(Core.graphics.getWidth() / blurScl, Core.graphics.getHeight() / blurScl);
 
-	protected boolean capturing, disposed;
+		stencil.begin(Color.clear);
+		block.run();
+		stencil.end();
 
-	public int blurScl = 4;
-	public float blurSpace = 2.16f;
+		Gl.enable(Gl.stencilTest);
+		Gl.stencilMask(0xff);
+		Gl.stencilFunc(Gl.always, 1, 0xff);
+		Gl.stencilOp(Gl.keep, Gl.keep, Gl.replace);
 
-	public Blur() {
-		this(default6);
-	}
+		pingpong1.begin();
+		Gl.clear(Gl.stencilBufferBit | Gl.colorBufferBit);
+		block.run();
+		pingpong1.end();
 
-	public Blur(float... convolutions) {
-		blur = genShader(convolutions);
+		pingpong2.begin();
+		Gl.clear(Gl.stencilBufferBit | Gl.colorBufferBit);
+		block.run();
+		pingpong2.end();
 
-		buffer = new FrameBuffer();
-		pingpong = new FrameBuffer();
+		Gl.disable(Gl.stencilTest);
 
-		blur.bind();
-		blur.setUniformi("u_texture0", 0);
-		blur.setUniformi("u_texture1", 1);
-	}
-
-	protected Shader genShader(float... convolutions) {
-		if (convolutions.length % 2 != 1)
-			throw new IllegalArgumentException("convolution numbers length must be odd number!");
-
-		int convLen = convolutions.length;
-
-		StringBuilder varyings = new StringBuilder();
-		StringBuilder assignVar = new StringBuilder();
-		StringBuilder convolution = new StringBuilder();
-
-		int c = 0;
-		int half = convLen / 2;
-		for (float v : convolutions) {
-			varyings.append("varying vec2 v_texCoords")
-					.append(c)
-					.append(";")
-					.append(System.lineSeparator());
-
-			assignVar.append("v_texCoords")
-					.append(c)
-					.append(" = ")
-					.append("a_texCoord0");
-			if (c - half != 0) {
-				assignVar.append(c - half > 0 ? " + " : " - ")
-						.append(Math.abs((float) c - half))
-						.append(" * len");
-			}
-			assignVar.append(";")
-					.append(System.lineSeparator()).append("  ");
-
-			if (c > 0) convolution.append("        + ");
-			convolution.append(v)
-					.append(" * texture2D(u_texture1, v_texCoords")
-					.append(c)
-					.append(")")
-					.append(".rgb")
-					.append(System.lineSeparator());
-
-			c++;
-		}
-		convolution.append(";");
-
-		String vertexShader = vertTemplate.replace("%varying%", varyings.toString()).replace("%assignVar%", assignVar);
-		String fragmentShader = fragmentTemplate.replace("%varying%", varyings.toString()).replace("%convolution%", convolution);
-
-		return new Shader(vertexShader, fragmentShader);
-	}
-
-	public void resize(int width, int height) {
-		width /= blurScl;
-		height /= blurScl;
-
-		buffer.resize(width, height);
-		pingpong.resize(width, height);
-
-		blur.bind();
-		blur.setUniformf("size", width, height);
-	}
-
-	public void capture() {
-		if (!capturing) {
-			buffer.begin(Color.clear);
-
-			capturing = true;
-		}
-	}
-
-	public void render() {
-		if (!capturing) return;
-		capturing = false;
-		buffer.end();
-
-		Gl.disable(Gl.blend);
-		Gl.disable(Gl.depthTest);
-		Gl.depthMask(false);
-
-		pingpong.begin();
-		blur.bind();
-		blur.setUniformf("dir", blurSpace, 0f);
-		blur.setUniformi("def_alpha", 1);
-		buffer.getTexture().bind(0);
-		ScreenSampler.blitShader(blur, 1);
-		pingpong.end();
-
-		blur.bind();
-		blur.setUniformf("dir", 0f, blurSpace);
-		blur.setUniformf("def_alpha", 0);
-		pingpong.getTexture().bind(1);
-
-		Gl.enable(Gl.blend);
-		Gl.blendFunc(Gl.srcAlpha, Gl.oneMinusSrcAlpha);
-		buffer.blit(blur);
-	}
-
-	public void directDraw(Runnable draw) {
-		resize(Core.graphics.getWidth(), Core.graphics.getHeight());
-		capture();
-		draw.run();
 		render();
 	}
 
-	@Override
-	public void dispose() {
-		buffer.dispose();
-		pingpong.dispose();
-		blur.dispose();
-		disposed = true;
-	}
+	void render() {
+		Blending.disabled.apply();
 
-	@Override
-	public boolean isDisposed() {
-		return disposed;
+		ScreenSampler.toBuffer(pingpong1);
+		ScreenSampler.toBuffer(pingpong2);
+
+		blur.bind();
+		blur.apply();
+		blur.setUniformi("u_stencil", 0);
+		blur.setUniformi("u_sample", 1);
+		blur.setUniformf("u_screenSize", Core.graphics.getWidth(), Core.graphics.getHeight());
+
+		Gl.enable(Gl.stencilTest);
+		Gl.stencilMask(0x00);
+		Gl.stencilFunc(Gl.equal, 1, 0xff);
+		Gl.stencilOp(Gl.keep, Gl.keep, Gl.keep);
+		for (int n = 0; n < blurLevel; n++) {
+			pingpong2.begin();
+			blur.bind();
+			blur.setUniformf("u_blurDirection", blurSpace, 0f);
+			stencil.getTexture().bind(0);
+			pingpong1.getTexture().bind(1);
+			Draw.blit(blur);
+			pingpong2.end();
+
+			pingpong1.begin();
+			blur.bind();
+			blur.setUniformf("u_blurDirection", 0f, blurSpace);
+			stencil.getTexture().bind(0);
+			pingpong2.getTexture().bind(1);
+			Draw.blit(blur);
+			pingpong1.end();
+		}
+		Gl.disable(Gl.stencilTest);
+
+		pingpong1.blit(base);
+
+		Blending.normal.apply();
 	}
 }

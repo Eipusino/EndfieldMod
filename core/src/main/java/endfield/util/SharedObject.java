@@ -19,13 +19,13 @@ public interface SharedObject {
 
 	default List<Field> sharedReferenceFields() {
 		Field[] fields = getClass().getDeclaredFields();
-		List<Field> list = new CollectionList<>(Field.class);
+		List<Field> result = new CollectionList<>(Field.class);
 
 		for (Field field : fields) {
-			if (field.getAnnotation(SharedField.class) != null) list.add(field);
+			if (field.getAnnotation(SharedField.class) != null) result.add(field);
 		}
 
-		return list;
+		return result;
 	}
 
 	default Properties sharedDataSwapProp() {
@@ -62,7 +62,7 @@ public interface SharedObject {
 		}
 
 		for (Field field : sharedReferenceFields()) {
-			var existing = fieldMap.get(field.getName());
+			Field existing = fieldMap.get(field.getName());
 			if (existing == null)
 				throw new IllegalArgumentException("Field " + field.getName() + " not found in existed shared object.");
 

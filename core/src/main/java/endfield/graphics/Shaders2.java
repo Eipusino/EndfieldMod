@@ -45,7 +45,7 @@ public final class Shaders2 {
 	public static TractorConeShader tractorCone;
 	public static DimShader dimShader;
 	public static SmallSpaceShader smallSpaceShader;
-	public static Shader simpleScreen, distBase, passThrough, distance;
+	public static Shader simpleScreen, base, passThrough, distance, blur;
 	public static AlphaAdjust linearAlpha, lerpAlpha;
 	public static TilerShader tiler;
 	public static PlanetTextureShader planetTexture;
@@ -95,9 +95,10 @@ public final class Shaders2 {
 		smallSpaceShader = new SmallSpaceShader();
 
 		simpleScreen = new Shader(shadersDir.child("general.vert"), shadersDir.child("simple.frag"));
-		distBase = new Shader(shadersDir.child("general.vert"), shadersDir.child("dist-base.frag"));
+		base = new Shader(shadersDir.child("general.vert"), shadersDir.child("dist-base.frag"));
 		passThrough = new Shader(shadersDir.child("general-highp.vert"), shadersDir.child("pass-through.frag"));
 		distance = new Shader(shadersDir.child("distance.vert"), shadersDir.child("distance.frag"));
+		blur = new Shader(shadersDir.child("general.vert"), shadersDir.child("gauss-blur.frag"));
 
 		linearAlpha = new AlphaAdjust(shadersDir.child("linear-alpha-adjust.frag"));
 		lerpAlpha = new AlphaAdjust(shadersDir.child("lerp-alpha-adjust.frag"));

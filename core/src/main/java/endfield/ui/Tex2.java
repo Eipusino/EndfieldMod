@@ -1,7 +1,6 @@
 package endfield.ui;
 
 import arc.Core;
-import arc.Events;
 import arc.graphics.Color;
 import arc.graphics.g2d.NinePatch;
 import arc.graphics.g2d.TextureAtlas.AtlasRegion;
@@ -9,14 +8,10 @@ import arc.scene.style.Drawable;
 import arc.scene.style.ScaledNinePatchDrawable;
 import arc.scene.style.TextureRegionDrawable;
 import arc.scene.ui.layout.Scl;
-import endfield.graphics.Blur;
 import endfield.graphics.EdgeLineStripDrawable;
 import endfield.graphics.FillStripDrawable;
-import endfield.graphics.Regions2;
 import endfield.graphics.StripDrawable;
-import mindustry.game.EventType.Trigger;
 import mindustry.graphics.Pal;
-import mindustry.ui.Styles;
 
 import static endfield.Vars2.MOD_PREFIX;
 
@@ -41,11 +36,6 @@ public final class Tex2 {
 	public static StripDrawable clearEdge;
 	public static StripDrawable accent;
 
-	public static Blur uiBlur;
-
-	static int drawingCounter = 0;
-	static int lastDialogs = 0;
-
 	private Tex2() {}
 
 	public static void load() {
@@ -66,46 +56,6 @@ public final class Tex2 {
 		whiteEdge = new EdgeLineStripDrawable(Scl.scl(3f), Color.white);
 		innerLight = new FillStripDrawable(Color.white.cpy().a(0f), Color.white);
 		outerLight = new FillStripDrawable(Color.white, Color.white.cpy().a(0f));
-
-		Events.run(Trigger.uiDrawBegin, () -> drawingCounter = 0);
-		Events.run(Trigger.uiDrawEnd, () -> lastDialogs = drawingCounter);
-
-		blurBack = new TextureRegionDrawable(Regions2.white) {
-			@Override
-			public void draw(float x, float y, float width, float height) {
-				drawingCounter++;
-				if (drawingCounter == lastDialogs) {
-					uiBlur.directDraw(() -> {
-						super.draw(x, y, width, height);
-					});
-				}
-
-				Styles.black5.draw(x, y, width, height);
-			}
-
-			@Override
-			public void draw(float x, float y, float originX, float originY, float width, float height, float scaleX, float scaleY, float rotation) {
-				drawingCounter++;
-				if (drawingCounter == lastDialogs) {
-					uiBlur.directDraw(() -> {
-						super.draw(x, y, originX, originY, width, height, scaleX, scaleY, rotation);
-					});
-				}
-
-				Styles.black5.draw(x, y, originX, originY, width, height, scaleX, scaleY, rotation);
-			}
-		};
-		blurStrip = new FillStripDrawable(Color.white) {
-			@Override
-			public void draw(float originX, float originY, float angle, float distance, float angleDelta, float stripWidth) {
-				drawingCounter++;
-				if (drawingCounter == lastDialogs) {
-					uiBlur.directDraw(() -> {
-						super.draw(originX, originY, angle, distance, angleDelta, stripWidth);
-					});
-				}
-			}
-		};
 
 		none = new FillStripDrawable(Color.clear);
 		black = new FillStripDrawable(Color.black);
@@ -128,9 +78,7 @@ public final class Tex2 {
 		accent = new FillStripDrawable(Pal.accent);
 	}
 
-	public static void init() {
-		uiBlur = new Blur(Blur.default2);
-	}
+	public static void init() {}
 
 	public static Drawable getDrawable(String name) {
 		return drawable(MOD_PREFIX + name);

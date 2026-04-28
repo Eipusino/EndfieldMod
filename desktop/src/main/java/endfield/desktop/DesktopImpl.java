@@ -141,4 +141,10 @@ public class DesktopImpl implements PlatformImpl {
 	public int arrayIndexScale(Class<?> arrayClass) {
 		return unsafe.arrayIndexScale(arrayClass);
 	}
+
+	@Override
+	public <T> Class<T> ensureInitialized(Class<T> targetClass) {
+		unsafe.ensureClassInitialized(targetClass);
+		return targetClass;
+	}
 }

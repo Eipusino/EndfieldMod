@@ -8,9 +8,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
 public @interface KotlinIn {
-	String declaring() default "";
+	/*String declaring() default "";
 
 	String target() default "";
 
-	boolean inline() default false;
+	boolean inline() default false;*/
 }

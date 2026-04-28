@@ -219,7 +219,7 @@ public class OreCollector extends MultiBlock {
 
 		int i = 0;
 		for (var entry : returnCount.entries()) {
-			Tmp.v1.setZero().add(collectOffset, 0).rotate(rotation * 90f).add(0f, (collectSize - size) / 2f).add(x, y);
+			Tmp.v1.set(collectOffset, 0).rotate(rotation * 90f).add(0f, (collectSize - size) / 2f).add(x, y);
 			if (rotation == 3) Tmp.v1.set(x, y);
 			drawPlaceText("[white]" + entry.key.emoji() + "[] " + entry.key.localizedName + " " +
 					Strings.autoFixed(entry.value / (mineTime / 60f), 2) + StatUnit.perSecond.localized(), (int) Tmp.v1.x, (int) (Tmp.v1.y) + i, valid);
@@ -347,10 +347,10 @@ public class OreCollector extends MultiBlock {
 			Rect rect = getRect(Tmp.r1, x, y, rotation);
 			Fill.rect(rect);
 
-			Tmp.v1.setZero().add(len2 - 1f, len1 - 1f).rotate(rotdeg()).add(x, y);
-			Tmp.v2.setZero().add(len2 - 1f, -len1 + 1f).rotate(rotdeg()).add(x, y);
-			Tmp.v3.setZero().add(len2 - len4, -len1 + len4).rotate(rotdeg()).add(x, y);
-			Tmp.v4.setZero().add(len2 - len4, len1 - len4).rotate(rotdeg()).add(x, y);
+			Tmp.v1.set(len2 - 1f, len1 - 1f).rotate(rotdeg()).add(x, y);
+			Tmp.v2.set(len2 - 1f, -len1 + 1f).rotate(rotdeg()).add(x, y);
+			Tmp.v3.set(len2 - len4, -len1 + len4).rotate(rotdeg()).add(x, y);
+			Tmp.v4.set(len2 - len4, len1 - len4).rotate(rotdeg()).add(x, y);
 
 			Lines.stroke(2f);
 
@@ -363,31 +363,31 @@ public class OreCollector extends MultiBlock {
 			Fill.circle(Tmp.v3.x, Tmp.v3.y, 1.25f);
 			Fill.circle(Tmp.v4.x, Tmp.v4.y, 1.25f);
 
-			Tmp.v1.setZero().add(len2 - 1.5f, len1 - 1.5f).rotate(rotdeg()).add(x, y);
-			Tmp.v2.setZero().add(len2 - 1.5f, -len1 + 1.5f).rotate(rotdeg()).add(x, y);
+			Tmp.v1.set(len2 - 1.5f, len1 - 1.5f).rotate(rotdeg()).add(x, y);
+			Tmp.v2.set(len2 - 1.5f, -len1 + 1.5f).rotate(rotdeg()).add(x, y);
 
 			Lines.line(Tmp.v2.x, Tmp.v2.y, Tmp.v3.x, Tmp.v3.y);
 			Lines.line(Tmp.v3.x, Tmp.v3.y, Tmp.v4.x, Tmp.v4.y);
 			Lines.line(Tmp.v1.x, Tmp.v1.y, Tmp.v4.x, Tmp.v4.y);
 
-			Tmp.v1.setZero().add(len2, len1 - 2f).rotate(rotdeg()).add(x, y);
-			Tmp.v2.setZero().add(len2, -len1 + 2f).rotate(rotdeg()).add(x, y);
+			Tmp.v1.set(len2, len1 - 2f).rotate(rotdeg()).add(x, y);
+			Tmp.v2.set(len2, -len1 + 2f).rotate(rotdeg()).add(x, y);
 
 			Lines.line(Tmp.v1.x, Tmp.v1.y, Tmp.v2.x, Tmp.v2.y);
 
-			Tmp.v1.setZero().add(len2, len1).rotate(rotdeg()).add(x, y);
-			Tmp.v2.setZero().add(len2, -len1).rotate(rotdeg()).add(x, y);
+			Tmp.v1.set(len2, len1).rotate(rotdeg()).add(x, y);
+			Tmp.v2.set(len2, -len1).rotate(rotdeg()).add(x, y);
 
 			Draw.alpha(innerAlpha);
 			Draw.z(Layer.blockOver);
 			Fill.quad(Tmp.v1.x, Tmp.v1.y, Tmp.v2.x, Tmp.v2.y, Tmp.v3.x, Tmp.v3.y, Tmp.v4.x, Tmp.v4.y);
 
-			Tmp.v1.setZero().add(len2, len1).rotate(rotdeg()).add(x, y);
-			Tmp.v2.setZero().add(len2 + len3, len1).rotate(rotdeg()).add(x, y);
-			Tmp.v3.setZero().add(len2 + len3 - shift1, len1 - shift1).rotate(rotdeg()).add(x, y);
-			Tmp.v4.setZero().add(len2, len1 - shift1).rotate(rotdeg()).add(x, y);
-			Tmp.v5.setZero().add(len2, len1 - shift2).rotate(rotdeg()).add(x, y);
-			Tmp.v6.setZero().add(len2 + len3 - shift2, len1 - shift2).rotate(rotdeg()).add(x, y);
+			Tmp.v1.set(len2, len1).rotate(rotdeg()).add(x, y);
+			Tmp.v2.set(len2 + len3, len1).rotate(rotdeg()).add(x, y);
+			Tmp.v3.set(len2 + len3 - shift1, len1 - shift1).rotate(rotdeg()).add(x, y);
+			Tmp.v4.set(len2, len1 - shift1).rotate(rotdeg()).add(x, y);
+			Tmp.v5.set(len2, len1 - shift2).rotate(rotdeg()).add(x, y);
+			Tmp.v6.set(len2 + len3 - shift2, len1 - shift2).rotate(rotdeg()).add(x, y);
 
 			Draw.alpha(outlineAlpha);
 			Draw.z(Layer.effect);
@@ -399,9 +399,9 @@ public class OreCollector extends MultiBlock {
 					Tmp.v5.x, Tmp.v5.y, 0f, Tmp.v6.x, Tmp.v6.y, 0f
 			);
 
-			Tmp.v1.setZero().add(len2 + len3, -len1).rotate(rotdeg()).add(x, y);
-			Tmp.v4.setZero().add(len2 + len3 - shift1, -len1 + shift1).rotate(rotdeg()).add(x, y);
-			Tmp.v5.setZero().add(len2 + len3 - shift2, -len1 + shift2).rotate(rotdeg()).add(x, y);
+			Tmp.v1.set(len2 + len3, -len1).rotate(rotdeg()).add(x, y);
+			Tmp.v4.set(len2 + len3 - shift1, -len1 + shift1).rotate(rotdeg()).add(x, y);
+			Tmp.v5.set(len2 + len3 - shift2, -len1 + shift2).rotate(rotdeg()).add(x, y);
 
 			Draw.alpha(outlineAlpha);
 			Draw.z(Layer.effect);
@@ -413,9 +413,9 @@ public class OreCollector extends MultiBlock {
 					Tmp.v5.x, Tmp.v5.y, 0f, Tmp.v6.x, Tmp.v6.y, 0f
 			);
 
-			Tmp.v2.setZero().add(len2, -len1).rotate(rotdeg()).add(x, y);
-			Tmp.v3.setZero().add(len2, -len1 + shift1).rotate(rotdeg()).add(x, y);
-			Tmp.v6.setZero().add(len2, -len1 + shift2).rotate(rotdeg()).add(x, y);
+			Tmp.v2.set(len2, -len1).rotate(rotdeg()).add(x, y);
+			Tmp.v3.set(len2, -len1 + shift1).rotate(rotdeg()).add(x, y);
+			Tmp.v6.set(len2, -len1 + shift2).rotate(rotdeg()).add(x, y);
 
 			Draw.alpha(outlineAlpha);
 			Draw.z(Layer.effect);

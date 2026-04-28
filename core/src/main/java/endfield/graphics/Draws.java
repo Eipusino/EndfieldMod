@@ -324,21 +324,6 @@ public final class Draws {
 		}, Distortion::render, draw);
 	}
 
-	/**
-	 * Publish a Gaussian fuzzy mask layer drawing task based on{@link Draws#drawTask(int, Object, DrawAcceptor, DrawAcceptor, DrawAcceptor)}implementation.
-	 *
-	 * @param taskId The identification ID of the task, used to distinguish the task cache.
-	 * @param target The data object passed to the drawing task.
-	 * @param blur   Blurring drawing objects.
-	 * @param draw   Draw task.
-	 */
-	public static <T> void drawBlur(int taskId, T target, Blur blur, DrawAcceptor<T> draw) {
-		drawTask(taskId, target, blur, e -> {
-			e.resize(Core.graphics.getWidth(), Core.graphics.getHeight());
-			e.capture();
-		}, Blur::render, draw);
-	}
-
 	public static <T> void drawMirrorField(int taskId, T target, DrawAcceptor<MirrorFieldShader> pre, DrawAcceptor<T> draw) {
 		drawTask(taskId, target, Shaders2.mirrorField, pre, draw);
 	}
@@ -916,7 +901,7 @@ public final class Draws {
 		DrawAcceptor<?>[] tasks = new DrawAcceptor<?>[16];
 		Object[] dataTarget = new Object[16];
 
-		DrawAcceptor<?> defaultFirstTask, defaultLastTask;
+		@Nullable DrawAcceptor<?> defaultFirstTask, defaultLastTask;
 		int taskCounter;
 		boolean init;
 

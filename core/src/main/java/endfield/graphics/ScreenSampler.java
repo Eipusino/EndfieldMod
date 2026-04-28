@@ -101,7 +101,7 @@ public final class ScreenSampler {
 		} else {
 			target.begin(Color.clear);
 			source.getTexture().bind(0);
-			Draw.blit(Shaders2.distBase);
+			Draw.blit(Shaders2.base);
 			Gl.bindTexture(Gl.texture2d, 0);
 			target.end();
 		}

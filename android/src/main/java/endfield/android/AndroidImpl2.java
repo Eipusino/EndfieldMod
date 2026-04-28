@@ -17,4 +17,10 @@ public class AndroidImpl2 extends AndroidImpl {
 	public void put(Object src, int srcOffset, Object dst, int dstOffset, long bytes) {
 		internalUnsafe.copyMemory(src, srcOffset, dst, dstOffset, bytes);
 	}
+
+	@Override
+	public <T> Class<T> ensureInitialized(Class<T> targetClass) {
+		internalUnsafe.ensureClassInitialized(targetClass);
+		return targetClass;
+	}
 }
