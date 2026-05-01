@@ -73,6 +73,7 @@ public class UnitIniter extends Block {
 
 	@Override
 	public void drawPlace(int x, int y, int rotation, boolean valid) {
+		super.drawPlace(x, y, rotation, valid);
 		if (!canBeBuilt()) drawPlaceText(Core.bundle.get("text.unit-initer"), x, y, valid);
 	}
 

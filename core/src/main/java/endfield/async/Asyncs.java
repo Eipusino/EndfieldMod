@@ -19,7 +19,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 public final class Asyncs {
 	private Asyncs() {}
 
-	public static <T> T get(Future<T> future) {
+	public static <T> T get(Future<? extends T> future) {
 		try {
 			return future.get();
 		} catch (InterruptedException | ExecutionException e) {
@@ -44,7 +44,7 @@ public final class Asyncs {
 		}
 	}
 
-	public static <T> T postWait(Prov<T> runSync) {
+	public static <T> T postWait(Prov<? extends T> runSync) {
 		Semaphore flag = new Semaphore(0);
 		AtomicReference<T> out = new AtomicReference<>();
 		Core.app.post(() -> {
@@ -64,7 +64,7 @@ public final class Asyncs {
 		return out.get();
 	}
 
-	public static <T> T lock(Lock lock, Prov<T> prov) {
+	public static <T> T lock(Lock lock, Prov<? extends T> prov) {
 		lock.lock();
 		T out = prov.get();
 
@@ -78,7 +78,7 @@ public final class Asyncs {
 		lock.unlock();
 	}
 
-	public static <T> T read(ReadWriteLock lock, Prov<T> prov) {
+	public static <T> T read(ReadWriteLock lock, Prov<? extends T> prov) {
 		return lock(lock.readLock(), prov);
 	}
 

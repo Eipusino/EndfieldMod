@@ -30,7 +30,7 @@ public class CenterBar extends Bar {
 		setColor(color);
 	}
 
-	public CenterBar(Prov<CharSequence> get, Prov<Color> color, Floatp frac) {
+	public CenterBar(Prov<? extends CharSequence> get, Prov<Color> color, Floatp frac) {
 		fraction = frac;
 		lastValue = value = Mathm.clamp(frac.get());
 		update(() -> {
@@ -43,8 +43,8 @@ public class CenterBar extends Bar {
 	public CenterBar() {}
 
 	@Override
-	public void reset(float v) {
-		value = lastValue = blink = v;
+	public void reset(float newValue) {
+		value = lastValue = blink = newValue;
 	}
 
 	@Override
@@ -90,11 +90,11 @@ public class CenterBar extends Bar {
 			lastValue = computed;
 		}
 
-		if (Float.isNaN(lastValue)) lastValue = 0;
+		if (Float.isNaN(lastValue)) lastValue = 0f;
 		if (Float.isInfinite(lastValue)) lastValue = 1f;
-		if (Float.isNaN(value)) value = 0;
+		if (Float.isNaN(value)) value = 0f;
 		if (Float.isInfinite(value)) value = 1f;
-		if (Float.isNaN(computed)) computed = 0;
+		if (Float.isNaN(computed)) computed = 0f;
 		if (Float.isInfinite(computed)) computed = 1f;
 
 		blink = Mathf.lerpDelta(blink, 0f, 0.2f);

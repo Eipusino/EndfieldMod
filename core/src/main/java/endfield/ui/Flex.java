@@ -191,14 +191,14 @@ public class Flex extends WidgetGroup {
 		return add(stack);
 	}
 
-	public FlexCell<Image> image(Prov<TextureRegion> reg) {
+	public FlexCell<Image> image(Prov<? extends TextureRegion> reg) {
 		return add(new Image(reg.get())).update(i -> {
 			((TextureRegionDrawable) i.getDrawable()).setRegion(reg.get());
 			i.layout();
 		});
 	}
 
-	public FlexCell<Image> imageDraw(Prov<Drawable> reg) {
+	public FlexCell<Image> imageDraw(Prov<? extends Drawable> reg) {
 		return add(new Image(reg.get())).update(i -> {
 			i.setDrawable(reg.get());
 			i.layout();

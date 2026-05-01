@@ -180,7 +180,7 @@ abstract class RendererContext protected constructor(
 	}
 
 	@Suppress("UNCHECKED_CAST")
-	fun <T> getVar(name: String, def: Prov<T>): T {
+	fun <T> getVar(name: String, def: Prov<out T>): T {
 		return attachedVars.getOrPut(name) { def.get() } as T
 	}
 

@@ -24,7 +24,7 @@ import org.commonmark.parser.Parser.ParserExtension
 open class Markdown : WidgetGroup {
 	var wrapContent: Boolean = true
 
-	private val markdownDraws = Seq<MarkdownDraw>()
+	private val markdownDraws = Seq<MarkdownDraw>(MarkdownDraw::class.java)
 	private var drawList = listOf<MarkdownDraw>()
 
 	private var node: Node
@@ -64,7 +64,8 @@ open class Markdown : WidgetGroup {
 		touchable = Touchable.childrenOnly
 	}
 
-	/**internal usage
+	/**
+	 * internal usage
 	 *
 	 * @hidden
 	 */

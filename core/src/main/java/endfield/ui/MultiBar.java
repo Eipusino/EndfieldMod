@@ -40,15 +40,11 @@ public class MultiBar extends Bar {
 		});
 	}
 
-	public static float normalize(float f) {
-		if (Float.isNaN(f)) {
-			return 0f;
-		}
+	public static float normalize(float value) {
+		if (Float.isNaN(value)) return 0f;
+		if (Float.isInfinite(value)) return 1f;
 
-		if (Float.isInfinite(f)) {
-			return 1f;
-		}
-		return f;
+		return value;
 	}
 
 	@Override
@@ -104,7 +100,7 @@ public class MultiBar extends Bar {
 
 	public static class BarPart implements Cloneable {
 		public float lastValue;
-		public float blink = 0;
+		public float blink;
 		public float value;
 		public Color color;
 		public Color blinkColor = new Color();

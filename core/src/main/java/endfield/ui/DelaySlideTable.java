@@ -39,7 +39,7 @@ public class DelaySlideTable extends Table {
 	public Color blinkColor = Color.white;
 	public Prov<Color> colorStable = () -> Color.lightGray;
 	public Prov<Color> colorReal = () -> Pal.accent;
-	public Prov<CharSequence> info = () -> "null";
+	public Prov<? extends CharSequence> info = () -> "null";
 	public Floatp valueGetter = Constant.FLOATP_ZERO_FLT;
 	public Floatp maxValue = Constant.FLOATP_ONE_FLT;
 	public Floatf<DelaySlideTable> fontScale = b -> 1;
@@ -56,7 +56,7 @@ public class DelaySlideTable extends Table {
 		color.set(1f, 1f, 1f, 1f);
 	}
 
-	public DelaySlideTable(Prov<Color> colorReal, Prov<CharSequence> info, Floatp valueGetter, Floatp maxValue) {
+	public DelaySlideTable(Prov<Color> colorReal, Prov<? extends CharSequence> info, Floatp valueGetter, Floatp maxValue) {
 		this();
 
 		this.info = info;
@@ -67,7 +67,7 @@ public class DelaySlideTable extends Table {
 		snap();
 	}
 
-	public DelaySlideTable(Prov<Color> colorReal, Prov<CharSequence> info, Floatp valueGetter) {
+	public DelaySlideTable(Prov<Color> colorReal, Prov<? extends CharSequence> info, Floatp valueGetter) {
 		this();
 
 		this.colorReal = colorReal;

@@ -19,7 +19,7 @@ public final class ThreadSafePools {
 	 * Returns a new or existing pool for the specified type, stored in a Class to {@link Pool} map. Note that the max size is ignored for some reason.
 	 * if this is not the first time this pool has been requested.
 	 */
-	public static <T> ThreadSafePool<T> get(Class<T> type, Prov<T> supplier, int max) {
+	public static <T> ThreadSafePool<T> get(Class<T> type, Prov<? extends T> supplier, int max) {
 		ThreadSafePool<T> pool = typePools.get(type);
 		if (pool == null) {
 			synchronized (poolCreateLock) {
@@ -39,7 +39,7 @@ public final class ThreadSafePools {
 	 * Returns a new or existing pool for the specified type, stored in a Class to {@link Pool} map. The max size of the pool used
 	 * is 5000.
 	 */
-	public static <T> ThreadSafePool<T> get(Class<T> type, Prov<T> supplier) {
+	public static <T> ThreadSafePool<T> get(Class<T> type, Prov<? extends T> supplier) {
 		return get(type, supplier, 5000);
 	}
 
@@ -55,7 +55,7 @@ public final class ThreadSafePools {
 	/**
 	 * Obtains an object from the {@link #get(Class, Prov) pool}.
 	 */
-	public static synchronized <T> T obtain(Class<T> type, Prov<T> supplier) {
+	public static synchronized <T> T obtain(Class<T> type, Prov<? extends T> supplier) {
 		return get(type, supplier).obtain();
 	}
 

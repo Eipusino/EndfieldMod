@@ -1,6 +1,7 @@
 package endfield.util;
 
 import arc.func.Cons;
+import arc.func.Prov;
 import arc.math.Mathf;
 import arc.struct.LongSeq;
 import arc.struct.Seq;
@@ -310,6 +311,15 @@ public class LongMap2<V> implements Iterable<LongHolder<V>>, Eachable<LongHolder
 		valueTable[index] = value;
 		stashSize++;
 		size++;
+	}
+
+	public V get(long key, Prov<? extends V> defaultValue) {
+		V out = get(key);
+		if (out == null) {
+			out = defaultValue.get();
+			put(key, out);
+		}
+		return out;
 	}
 
 	public V get(long key) {

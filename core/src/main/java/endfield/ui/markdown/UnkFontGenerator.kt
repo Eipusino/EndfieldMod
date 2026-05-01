@@ -710,7 +710,7 @@ open class UnkFontGenerator @JvmOverloads constructor(fontFile: Fi, faceIndex: I
 		autoMedium,
 
 		/** Strong hinting with crisp edges at the expense of shape fidelity. Uses the FreeType auto-hinter.  */
-		autoFull,
+		autoFull
 	}
 
 	/**
@@ -790,8 +790,8 @@ open class UnkFontGenerator @JvmOverloads constructor(fontFile: Fi, faceIndex: I
 		}
 
 		override fun dispose() {
-			if (stroker != null) stroker!!.dispose()
-			if (packer != null) packer!!.dispose()
+			stroker?.dispose()
+			packer?.dispose()
 		}
 
 		companion object {

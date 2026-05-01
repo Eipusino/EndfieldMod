@@ -46,11 +46,9 @@ public class ComboBox extends Table {
 			return false;
 		}, it -> isAscendantOf(it) || mySelectionTable.isAscendantOf(it)));
 
-		add(myField = new TextField() {
-			{
-				setDisabled(true);
-			}
-
+		add(myField = new TextField() {{
+			setDisabled(true);
+		}
 			@Override
 			public float getPrefWidth() {
 				return mySelectionTable.getPrefWidth();

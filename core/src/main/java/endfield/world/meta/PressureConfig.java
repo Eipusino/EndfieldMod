@@ -79,17 +79,14 @@ public class PressureConfig {
 					HasPressure pressure = (HasPressure) build;
 					return new Bar(() -> {
 						Liquid main = pressure.pressure().getMain();
-
 						return main == null ?
 								Core.bundle.format("bar.air-bar", StatValues2.formatValue(pressure.getFluid(null), 2, false)) :
 								Core.bundle.format("bar.fluid-bar", main.localizedName, StatValues2.formatValue(pressure.getFluid(main), 2, false), StatValues2.formatValue(pressure.getFluid(null), 2, false));
 					}, () -> {
 						Liquid main = pressure.pressure().getMain();
-
 						return main == null ? Color.white : main.color;
 					}, () -> {
 						Liquid main = pressure.pressure().getMain();
-
 						return main == null ? 0f : Mathf.clamp(pressure.getFluid(main));
 					});
 				});
@@ -102,25 +99,18 @@ public class PressureConfig {
 		if (!added) {
 			block.addBar("fluid-bar", build -> {
 				HasPressure pressure = (HasPressure) build;
-				return new Bar(
-						() -> {
-							Liquid main = pressure.pressure().getMain();
-
-							return main == null ?
-									Core.bundle.format("bar.air-bar", StatValues2.formatValue(pressure.getFluid(null), 2, false)) :
-									Core.bundle.format("bar.fluid-bar", main.localizedName, StatValues2.formatValue(pressure.getFluid(main), 2, false), StatValues2.formatValue(pressure.getFluid(null), 2, false));
-						},
-						() -> {
-							Liquid main = pressure.pressure().getMain();
-
-							return main == null ? Color.white : main.color;
-						},
-						() -> {
-							Liquid main = pressure.pressure().getMain();
-
-							return Mathf.clamp(main == null ? 0f : pressure.getFluid(main) / Math.max(1f, pressure.getFluid(main) + Math.abs(pressure.getFluid(null))));
-						}
-				);
+				return new Bar(() -> {
+					Liquid main = pressure.pressure().getMain();
+					return main == null ?
+							Core.bundle.format("bar.air-bar", StatValues2.formatValue(pressure.getFluid(null), 2, false)) :
+							Core.bundle.format("bar.fluid-bar", main.localizedName, StatValues2.formatValue(pressure.getFluid(main), 2, false), StatValues2.formatValue(pressure.getFluid(null), 2, false));
+				}, () -> {
+					Liquid main = pressure.pressure().getMain();
+					return main == null ? Color.white : main.color;
+				}, () -> {
+					Liquid main = pressure.pressure().getMain();
+					return Mathf.clamp(main == null ? 0f : pressure.getFluid(main) / Math.max(1f, pressure.getFluid(main) + Math.abs(pressure.getFluid(null))));
+				});
 			});
 		} else {
 			block.addBar("fluid-bar-air", build -> {

@@ -335,7 +335,7 @@ public class IntMap2<V> implements Iterable<IntHolder<V>>, Eachable<IntHolder<V>
 		size++;
 	}
 
-	public V get(int key, Prov<V> defaultValue) {
+	public V get(int key, Prov<? extends V> defaultValue) {
 		V out = get(key);
 		if (out == null) {
 			out = defaultValue.get();

@@ -335,7 +335,7 @@ public class CharMap<V> implements Iterable<CharHolder<V>>, Eachable<CharHolder<
 		size++;
 	}
 
-	public V get(char key, Prov<V> defaultValue) {
+	public V get(char key, Prov<? extends V> defaultValue) {
 		V out = get(key);
 		if (out == null) {
 			out = defaultValue.get();

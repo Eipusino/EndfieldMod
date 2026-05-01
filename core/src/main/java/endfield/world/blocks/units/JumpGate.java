@@ -185,7 +185,7 @@ public class JumpGate extends Block {
 		public Recipe recipe = Recipe.empty;
 	}
 
-	public Stack getReqStack(UnlockableContent content, Prov<CharSequence> display, Boolp valid) {
+	public Stack getReqStack(UnlockableContent content, Prov<? extends CharSequence> display, Boolp valid) {
 		return new Stack(
 				new Table(o -> o.left().add(new Image(content.fullIcon)).size(32f).scaling(Scaling.fit)),
 				new Table(t -> {

@@ -119,7 +119,7 @@ public final class EndFieldMod extends Mod {
 
 			if (Vars.headless || Vars2.isPlugin || Core.settings.getBool("closed-dialog")) return;
 
-			FLabel label = new FLabel(Core.bundle.get("text.author") + AUTHOR);
+			FLabel label = new FLabel(Core.bundle.format("text.author", AUTHOR));
 			BaseDialog dialog = new BaseDialog(Core.bundle.get("text.name")) {{
 				buttons.button(Core.bundle.get("close"), this::hide).size(210f, 64f);
 				buttons.button(Core.bundle.get("text.link-github"), () -> {

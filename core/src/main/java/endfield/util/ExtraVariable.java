@@ -72,7 +72,7 @@ public interface ExtraVariable {
 	 * @param initial Initial value function
 	 */
 	@SuppressWarnings("unchecked")
-	default <T> T getVar(String field, Prov<T> initial) {
+	default <T> T getVar(String field, Prov<? extends T> initial) {
 		Object o = extra().get(field);
 		if (o == null) {
 			T newValue;

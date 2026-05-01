@@ -13,19 +13,19 @@ import mindustry.ui.Styles;
 public final class Styles2 {
 	public static TextFieldStyle scriptArea;
 	public static ButtonStyle right;
-	public static TextButtonStyle round, toggleCentert;
+	public static TextButtonStyle round, toggleCenterText;
 
 	public static ImageButtonStyle modImageStyle;
 
 	public static ImageButtonStyle clearToggle;
 
 	public static ImageButtonStyle tuImageStyle;
-	public static ImageButtonStyle togglei;
-	public static ImageButtonStyle lefti, toggleLefti;
-	public static ImageButtonStyle righti, toggleRighti;
-	public static ImageButtonStyle centeri;
+	public static ImageButtonStyle toggleImageStyle;
+	public static ImageButtonStyle leftImageStyle, toggleLeftImageStyle;
+	public static ImageButtonStyle rightImageStyle, toggleRightImageStyle;
+	public static ImageButtonStyle centerImageStyle;
 
-	public static HoldImageButtonStyle defaultHoldi, modHoldImageStyle;
+	public static HoldImageButtonStyle defaultHoldImageStyle, modHoldImageStyle;
 
 	public static HoldImageButtonStyle tuHoldImageStyle;
 	public static HoldImageButtonStyle teamChanger;
@@ -41,8 +41,8 @@ public final class Styles2 {
 			imageDisabledColor = Color.gray;
 			imageUpColor = Color.white;
 		}};
-		defaultHoldi = new HoldImageButtonStyle(Styles.defaulti);
-		Core.scene.addStyle(HoldImageButtonStyle.class, defaultHoldi);
+		defaultHoldImageStyle = new HoldImageButtonStyle(Styles.defaulti);
+		Core.scene.addStyle(HoldImageButtonStyle.class, defaultHoldImageStyle);
 		modHoldImageStyle = new HoldImageButtonStyle(modImageStyle);
 		//style-2
 		clearToggle = new ImageButtonStyle() {{
@@ -66,7 +66,7 @@ public final class Styles2 {
 		round = new TextButtonStyle(Styles.defaultt) {{
 			checked = up;
 		}};
-		toggleCentert = new TextButtonStyle(Styles.defaultt) {{
+		toggleCenterText = new TextButtonStyle(Styles.defaultt) {{
 			up = Tex2.buttonCenter;
 			down = Tex2.buttonCenterDown;
 			over = Tex2.buttonCenterOver;
@@ -79,26 +79,26 @@ public final class Styles2 {
 			imageDisabledColor = Color.gray;
 			imageUpColor = Color.white;
 		}};
-		togglei = new ImageButtonStyle(Styles.defaulti) {{
+		toggleImageStyle = new ImageButtonStyle(Styles.defaulti) {{
 			checked = Tex.buttonOver;
 		}};
-		lefti = new ImageButtonStyle(Styles.defaulti) {{
+		leftImageStyle = new ImageButtonStyle(Styles.defaulti) {{
 			up = Tex2.buttonLeft;
 			down = Tex2.buttonLeftDown;
 			over = Tex2.buttonLeftOver;
 		}};
-		toggleLefti = new ImageButtonStyle(lefti) {{
+		toggleLeftImageStyle = new ImageButtonStyle(leftImageStyle) {{
 			checked = Tex2.buttonLeftOver;
 		}};
-		righti = new ImageButtonStyle(Styles.defaulti) {{
+		rightImageStyle = new ImageButtonStyle(Styles.defaulti) {{
 			up = Tex2.buttonRight;
 			down = Tex2.buttonRightDown;
 			over = Tex2.buttonRightOver;
 		}};
-		toggleRighti = new ImageButtonStyle(righti) {{
+		toggleRightImageStyle = new ImageButtonStyle(rightImageStyle) {{
 			checked = Tex2.buttonRightOver;
 		}};
-		centeri = new ImageButtonStyle(Styles.defaulti) {{
+		centerImageStyle = new ImageButtonStyle(Styles.defaulti) {{
 			up = Tex2.buttonCenter;
 			down = Tex2.buttonCenterDown;
 			over = Tex2.buttonCenterOver;

@@ -71,9 +71,9 @@ public final class Tex2 {
 		boundBlack6 = new EdgeLineStripDrawable(Scl.scl(3f), Pal.darkestGray, Color.black.cpy().a(0.5f));
 		boundBlack5 = new EdgeLineStripDrawable(Scl.scl(3f), Pal.darkestGray, Color.black.cpy().a(0.3f));
 		grayPanel = new FillStripDrawable(Pal.darkestGray);
-		flatOver = new FillStripDrawable(new Color(0x454545AA));
+		flatOver = new FillStripDrawable(new Color(0x454545aa));
 		flatDown = new EdgeLineStripDrawable(Scl.scl(3f), Pal.accent);
-		edgeFlatOver = new EdgeLineStripDrawable(Scl.scl(3f), Pal.darkestGray, new Color(0x454545FF));
+		edgeFlatOver = new EdgeLineStripDrawable(Scl.scl(3f), Pal.darkestGray, new Color(0x454545ff));
 		clearEdge = new EdgeLineStripDrawable(Scl.scl(3f), Pal.darkestGray);
 		accent = new FillStripDrawable(Pal.accent);
 	}

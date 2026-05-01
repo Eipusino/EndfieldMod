@@ -344,7 +344,7 @@ public final class Reflects {
 		return types;
 	}
 
-	public static int typeNameHash(Class<?>[] types) {
+	/*public static int typeNameHash(Class<?>[] types) {
 		int result = 1;
 
 		for (Class<?> type : types) {
@@ -353,7 +353,7 @@ public final class Reflects {
 
 		return result;
 		//return Arrays.hashCode(Arrays.stream(types).map(Class::getName).toArray());
-	}
+	}*/
 
 	public static boolean match(Class<?>[] sourceTypes, Object... args) {
 		return match(sourceTypes, unwrapped(toTypes(args)));
@@ -383,7 +383,7 @@ public final class Reflects {
 	}
 
 	/**
-	 * Set the {@code accessible} flag of the reflection object to {@code true}.
+	 * Set the accessible flag of the reflection object to {@code true}.
 	 *
 	 * @return Has it been successfully set as accessible
 	 * @since 1.0.9
