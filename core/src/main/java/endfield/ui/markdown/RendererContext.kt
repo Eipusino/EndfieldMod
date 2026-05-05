@@ -142,10 +142,7 @@ abstract class RendererContext protected constructor(
 	}
 
 	@Suppress("UNCHECKED_CAST")
-	fun <T : Any> resolveResource(
-		url: String,
-		resourceResolver: Func<UrlHandler.ResourceHandle, T>,
-	): T {
+	fun <T : Any> resolveResource(url: String, resourceResolver: Func<UrlHandler.ResourceHandle, T>, ): T {
 		return resourceCache.computeIfAbsent(url) {
 			val handle = getUrlResource(url)
 			resourceResolver.get(handle)

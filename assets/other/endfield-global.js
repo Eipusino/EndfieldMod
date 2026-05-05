@@ -85,22 +85,20 @@ function extend() {
 	let lastLoader = cx.getApplicationClassLoader();
 	cx.setApplicationClassLoader(Vars.mods.mainLoader());
 
-	try {
-		let base = arguments[0];
-		let def = arguments[arguments.length - 1];
-		let args = [base, def].concat(Array.from(arguments).splice(1, arguments.length - 2));
+	let base = arguments[0];
+    let def = arguments[arguments.length - 1];
+    let args = [base, def].concat(Array.from(arguments).splice(1, arguments.length - 2));
 
-		let result = JavaAdapter.apply(null, args);
-		for (var i in def) {
-			if (typeof(def[i]) != "function") {
-				result[i] = def[i];
-			}
-		}
+    let result = JavaAdapter.apply(null, args);
+    for (var i in def) {
+    	if (typeof(def[i]) != "function") {
+    		result[i] = def[i];
+    	}
+    }
 
-		return result;
-	} finally {
-		cx.setApplicationClassLoader(lastLoader);
-	}
+    cx.setApplicationClassLoader(lastLoader);
+
+    return result;
 }
 
 // __javaObject__

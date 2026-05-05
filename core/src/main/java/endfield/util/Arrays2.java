@@ -76,9 +76,12 @@ public final class Arrays2 {
 		return elements;
 	}
 
+	@SuppressWarnings("unchecked")
 	@SafeVarargs
-	public static <T> T[] copyOf(Class<? extends T[]> type, T... elements) {
-		return Arrays.copyOf(elements, elements.length, type);
+	public static <T> T[] copyOf(Class<? extends T> componentType, T... elements) {
+		T[] copy = (T[]) Array.newInstance(componentType, elements.length);
+		System.arraycopy(elements, 0, copy, 0, elements.length);
+		return copy;
 	}
 
 	@KotlinIn

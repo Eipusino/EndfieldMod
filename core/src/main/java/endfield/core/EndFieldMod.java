@@ -281,8 +281,7 @@ public final class EndFieldMod extends Mod {
 			}
 
 			if (!Vars.headless && !Mods2.isEnabled("extra-utilities") && !Mods2.isX() && Core.settings.getBool("floating-text")) {
-				String massage = Core.bundle.get("text.random-massage");
-				String[] massages = massage.split("@");
+				String[] massages = Core.bundle.get("text.random-massage").split("@");
 
 				floatingText = new FloatingText(massages[Mathf.random(massages.length - 1)]);
 				floatingText.build(Vars.ui.menuGroup);

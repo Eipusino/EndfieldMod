@@ -48,7 +48,7 @@ public class SplashDrawer implements IListener, Disposable {
 	 * @param mod The loaded mod instance, used for retrieving metadata like the version.
 	 */
 	public SplashDrawer(LoadedMod mod) {
-		this.version = mod.meta.version;
+		version = mod.meta.version;
 
 		byte[] iconBytes = Regions2.spritesDir.child("icons").child("splash-icon.png").readBytes();
 		Pixmap iconPixmap = new Pixmap(iconBytes);

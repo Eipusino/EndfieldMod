@@ -48,11 +48,11 @@ public class UnitIniter extends Block {
 		destroyEffect = Fx.none;
 		buildVisibility = BuildVisibility.sandboxOnly;
 
-		config(UnitType.class, (UnitIniterBuild build, UnitType unit) -> build.toSpawnType = unit);
-		config(UnitIniterData.class, (UnitIniterBuild build, UnitIniterData data) -> {
-			build.angle = data.angle;
-			build.delay = data.delay;
-			build.toSpawnType = Vars.content.getByName(ContentType.unit, data.name);
+		config(UnitType.class, (UnitIniterBuild tile, UnitType unit) -> tile.toSpawnType = unit);
+		config(UnitIniterData.class, (UnitIniterBuild tile, UnitIniterData data) -> {
+			tile.angle = data.angle;
+			tile.delay = data.delay;
+			tile.toSpawnType = Vars.content.getByName(ContentType.unit, data.name);
 		});
 		configClear((UnitIniterBuild tile) -> {
 			tile.toSpawnType = UnitTypes.alpha;

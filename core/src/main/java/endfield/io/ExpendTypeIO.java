@@ -56,9 +56,9 @@ public final class ExpendTypeIO {
 		return Vars.content.<UnlockableContent>getByID(ContentType.all[read.i()], read.s()).techNode;
 	}
 
-	public static <T extends Enum<T>> void writeEnums(Writes write, T[] array) {
+	public static void writeEnums(Writes write, Enum<?>[] array) {
 		write.i(array.length);
-		for (T t : array) write.b(t.ordinal());
+		for (Enum<?> t : array) write.b(t.ordinal());
 	}
 
 	@SuppressWarnings("unchecked")
