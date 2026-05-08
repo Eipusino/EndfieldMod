@@ -40,7 +40,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 	/** Debugging variable to count total number of iterators allocated. */
 	public static int iteratorsAllocated = 0;
 
-	public final Class<?> componentType;
+	public final Class<E> componentType;
 	/**
 	 * Provides direct access to the underlying array. If the Array's generic type is not Object, this field may only be accessed
 	 * if the {@link #CollectionList(boolean, int, Class)} constructor was used.
@@ -77,7 +77,7 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 	@SuppressWarnings("unchecked")
 	public CollectionList(boolean ordered, int capacity, Class<?> type) {
 		this.ordered = ordered;
-		componentType = type;
+		componentType = (Class<E>) type;
 		items = (E[]) Array.newInstance(type, capacity);
 	}
 
@@ -114,8 +114,9 @@ public class CollectionList<E> extends AbstractList<E> implements Eachable<E>, C
 		System.arraycopy(array, start, items, 0, size);
 	}
 
+	@SuppressWarnings("unchecked")
 	public CollectionList(boolean ordered, E[] array) {
-		componentType = array.getClass().getComponentType();
+		componentType = (Class<E>) array.getClass().getComponentType();
 		size = array.length;
 		items = array;
 

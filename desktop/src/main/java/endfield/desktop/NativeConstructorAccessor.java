@@ -44,9 +44,4 @@ public class NativeConstructorAccessor<T> extends AbstractConstructorAccessor<T>
 			throw new RuntimeException(e);
 		}
 	}
-
-	@Override
-	public boolean equals(Object obj) {
-		return obj == this || obj instanceof NativeConstructorAccessor<?> other && other.constructor.equals(constructor);
-	}
 }

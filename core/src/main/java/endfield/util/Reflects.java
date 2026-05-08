@@ -63,15 +63,15 @@ public final class Reflects {
 
 	public static Object def(String name) {
 		return switch (name) {
-			case "boolean", "java.lang.Boolean", "Z" -> false;
-			case "int", "java.lang.Integer", "I" -> 0;
-			case "float", "java.lang.Float", "F" -> 0f;
-			case "long", "java.lang.Long", "J" -> 0l;
-			case "byte", "java.lang.Byte", "B" -> (byte) 0;
-			case "short", "java.lang.Short", "S" -> (short) 0;
-			case "double", "java.lang.Double", "D" -> 0d;
-			case "char", "java.lang.Character", "C" -> '\u0000';
-			//case "void", "java.lang.Void", "V" -> null;
+			case "boolean", "java.lang.Boolean" -> false;
+			case "int", "java.lang.Integer" -> 0;
+			case "float", "java.lang.Float" -> 0f;
+			case "long", "java.lang.Long" -> 0l;
+			case "byte", "java.lang.Byte" -> (byte) 0;
+			case "short", "java.lang.Short" -> (short) 0;
+			case "double", "java.lang.Double" -> 0d;
+			case "char", "java.lang.Character" -> '\u0000';
+			//case "void", "java.lang.Void" -> null;
 			default -> null;
 		};
 	}

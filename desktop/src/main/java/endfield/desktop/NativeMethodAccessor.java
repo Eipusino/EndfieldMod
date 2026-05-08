@@ -44,9 +44,4 @@ public class NativeMethodAccessor extends AbstractMethodAccessor {
 			throw new RuntimeException(e);
 		}
 	}
-
-	@Override
-	public boolean equals(Object obj) {
-		return obj == this || obj instanceof NativeMethodAccessor other && other.method.equals(method);
-	}
 }

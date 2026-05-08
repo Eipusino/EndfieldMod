@@ -5,6 +5,8 @@ import java.lang.reflect.Field;
 public abstract class AbstractFieldAccessor implements FieldAccessor {
 	protected final Field field;
 
+	protected int hash;
+
 	protected AbstractFieldAccessor(Field f) {
 		field = f;
 	}
@@ -16,12 +18,16 @@ public abstract class AbstractFieldAccessor implements FieldAccessor {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj == this || obj instanceof AbstractFieldAccessor other && other.getField().equals(field);
+		return obj == this || obj.getClass() == getClass() && ((FieldAccessor) obj).getField().equals(field);
 	}
 
 	@Override
 	public int hashCode() {
-		return field.hashCode();
+		int hc = hash;
+
+		if (hc == 0) hc = hash = getClass().hashCode() ^ field.hashCode();
+
+		return hc;
 	}
 
 	@Override

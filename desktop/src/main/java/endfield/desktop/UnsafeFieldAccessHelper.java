@@ -32,7 +32,7 @@ public class UnsafeFieldAccessHelper implements FieldAccessHelper {
 			}
 		} else {
 			Class<?> curr = clazz;
-			while (curr != Object.class) {
+			while (curr != null) {
 				res = findField(curr, name);
 				if (res != null && (res.getModifiers() & Modifier.STATIC) == 0) {
 					map.put(name, res);

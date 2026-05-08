@@ -127,7 +127,7 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 	}
 
 	protected final MethodHandle asSpreader(Method method) throws IllegalAccessException {
-		MethodHandle target = lookup.unreflect(method);
+		MethodHandle target = lookup.unreflect(method).asFixedArity();
 
 		int paramCount = target.type().parameterCount();
 
@@ -146,7 +146,7 @@ public class MethodHandleMethodInvokeHelper implements MethodInvokeHelper {
 	}
 
 	protected final MethodHandle asSpreader(Constructor<?> constructor) throws IllegalAccessException {
-		MethodHandle target = lookup.unreflectConstructor(constructor);
+		MethodHandle target = lookup.unreflectConstructor(constructor).asFixedArity();
 
 		int paramCount = target.type().parameterCount();
 		MethodHandle spread = target.asSpreader(Object[].class, paramCount);

@@ -10,6 +10,7 @@ import java.util.AbstractQueue;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.function.Consumer;
 
 /**
  * A resizable, ordered array of objects with efficient add and remove at the beginning and end. Values in the backing array may
@@ -17,7 +18,7 @@ import java.util.NoSuchElementException;
  * adding). Deque functionality is provided via {@link #removeLast()} and {@link #addFirst(Object)}.
  */
 public class CollectionQueue<E> extends AbstractQueue<E> implements Eachable<E> {
-	public final Class<?> componentType;
+	public final Class<E> componentType;
 
 	/** Number of elements in the queue. */
 	public int size = 0;
@@ -44,7 +45,7 @@ public class CollectionQueue<E> extends AbstractQueue<E> implements Eachable<E> 
 	 */
 	@SuppressWarnings("unchecked")
 	public CollectionQueue(int initialSize, Class<?> type) {
-		componentType = type;
+		componentType = (Class<E>) type;
 
 		values = (E[]) Array.newInstance(type, initialSize);
 	}
@@ -479,9 +480,16 @@ public class CollectionQueue<E> extends AbstractQueue<E> implements Eachable<E> 
 	}
 
 	@Override
-	public void each(Cons<? super E> c) {
+	public void each(Cons<? super E> cons) {
 		for (int i = 0; i < size; i++) {
-			c.get(get(i));
+			cons.get(get(i));
+		}
+	}
+
+	@Override
+	public void forEach(Consumer<? super E> action) {
+		for (int i = 0; i < size; i++) {
+			action.accept(get(i));
 		}
 	}
 

@@ -8,15 +8,16 @@ import endfield.util.holder.ObjectHolder;
 import java.util.Iterator;
 
 public class ObjectTable<K, V> implements Iterable<ObjectHolder<K, V>>, Eachable<ObjectHolder<K, V>>, Cloneable {
-	public final Class<?> keyComponentType;
-	public final Class<?> valueComponentType;
+	public final Class<K> keyComponentType;
+	public final Class<V> valueComponentType;
 
 	protected CollectionObjectMap<K, V> map12;
 	protected CollectionObjectMap<V, K> map21;
 
+	@SuppressWarnings("unchecked")
 	public ObjectTable(Class<?> keyType, Class<?> valueType) {
-		keyComponentType = keyType;
-		valueComponentType = valueType;
+		keyComponentType = (Class<K>) keyType;
+		valueComponentType = (Class<V>) valueType;
 
 		map12 = new CollectionObjectMap<>(keyComponentType, valueComponentType);
 		map21 = new CollectionObjectMap<>(valueComponentType, keyComponentType);

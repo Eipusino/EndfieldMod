@@ -17,6 +17,8 @@ import mindustry.graphics.MultiPacker;
 import mindustry.world.Tile;
 import mindustry.world.blocks.environment.Prop;
 
+import static endfield.Vars2.MOD_PREFIX;
+
 /**
  * A breakable prop with a custom shape.
  * Has a tile defined as a center (it's a corner) that is the one further in the tile index.
@@ -130,7 +132,7 @@ public class CustomShapeProp extends Prop implements MultiPropI {
 		shapeRegions = new TextureRegion[variants];
 
 		for (int i = 0; i < variants; i++) {
-			shapeRegions[i] = Core.atlas.find(name + "-shape" + (i + 1), "omaloon-shape-err");
+			shapeRegions[i] = Core.atlas.find(name + "-shape" + (i + 1), MOD_PREFIX + "shape-err");
 			shapes.addUnique(createShape(shapeRegions[i]));
 		}
 	}

@@ -18,7 +18,7 @@ import static endfield.util.Constant.PRIME3;
 public class ObjectBoolMap<K> implements Iterable<ObjectBoolHolder<K>>, Eachable<ObjectBoolHolder<K>>, Cloneable {
 	public int size;
 
-	public final Class<?> keyComponentType;
+	public final Class<K> keyComponentType;
 
 	protected K[] keyTable;
 	protected boolean[] valueTable;
@@ -70,7 +70,7 @@ public class ObjectBoolMap<K> implements Iterable<ObjectBoolHolder<K>>, Eachable
 		stashCapacity = Math.max(3, (int) Math.ceil(Math.log(capacity)) * 2);
 		pushIterations = Mathm.clamp(capacity, 8, (int) Math.sqrt(capacity) / 8);
 
-		keyComponentType = keyType;
+		keyComponentType = (Class<K>) keyType;
 
 		keyTable = (K[]) Array.newInstance(keyType, capacity + stashCapacity);
 		valueTable = new boolean[keyTable.length];

@@ -30,7 +30,7 @@ import static endfield.util.Constant.PRIME3;
 public class CollectionObjectSet<E> extends AbstractSet<E> implements Eachable<E>, Cloneable {
 	public int size;
 
-	public final Class<?> componentType;
+	public final Class<E> componentType;
 
 	protected E[] keyTable;
 	protected int capacity, stashSize;
@@ -80,7 +80,7 @@ public class CollectionObjectSet<E> extends AbstractSet<E> implements Eachable<E
 		stashCapacity = Math.max(3, (int) Math.ceil(Math.log(capacity)) * 2);
 		pushIterations = Mathm.clamp(capacity, 8, (int) Math.sqrt(capacity) / 8);
 
-		componentType = type;
+		componentType = (Class<E>) type;
 		keyTable = (E[]) Array.newInstance(type, capacity + stashCapacity);
 	}
 

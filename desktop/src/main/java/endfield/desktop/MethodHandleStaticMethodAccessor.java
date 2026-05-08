@@ -15,7 +15,7 @@ public final class MethodHandleStaticMethodAccessor extends AbstractMethodAccess
 		super(met);
 
 		try {
-			MethodHandle target = lookup.unreflect(met);
+			MethodHandle target = lookup.unreflect(met).asFixedArity();
 
 			int paramCount = target.type().parameterCount();
 
@@ -28,7 +28,7 @@ public final class MethodHandleStaticMethodAccessor extends AbstractMethodAccess
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T invoke(Object obj, Object... args) {
+	public <T> T invoke(Object object, Object... args) {
 		try {
 			return (T) spreadHandle.invokeExact(args);
 		} catch (RuntimeException | Error e) {
@@ -36,10 +36,5 @@ public final class MethodHandleStaticMethodAccessor extends AbstractMethodAccess
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		return obj == this || obj instanceof MethodHandleStaticMethodAccessor other && other.method.equals(method);
 	}
 }

@@ -27,7 +27,6 @@ import arc.util.pooling.Pools;
 import endfield.content.Fx2;
 import endfield.gen.Spawner;
 import endfield.math.Mathm;
-import endfield.util.Arrays2;
 import endfield.util.CollectionList;
 import endfield.util.CollectionObjectMap;
 import endfield.util.Reflects;
@@ -84,12 +83,9 @@ public final class Entitys2 {
 	static final CollectionList<Unit> excludeSeq = new CollectionList<>(Unit.class), queueExcludeRemoval = new CollectionList<>(Unit.class), excludeReAdd = new CollectionList<>(Unit.class);
 	static final IntIntMap excludeTime = new IntIntMap();
 
-	static Boolf<Tile> formatFlying = t -> Vars.world.getQuadBounds(Tmp.r1).contains(t.getBounds(Tmp.r2));
-	static Boolf<Tile> formatNavy = t -> t.floor().isLiquid && !t.cblock().solid && !t.floor().solid && !t.overlay().solid && !t.block().solidifes;
-	static Boolf<Tile> formatGround = t -> !t.floor().isDeep() && !t.cblock().solid && !t.floor().solid && !t.overlay().solid && !t.block().solidifes;
-
-	/** 0 for flying, 1 for navy, 2 for ground. */
-	static @Obsolete(since = "1.0.8") Boolf<Tile>[] formats = Arrays2.arrayOf(formatFlying, formatNavy, formatGround);
+	static Boolf<Tile> flyingFormat = t -> Vars.world.getQuadBounds(Tmp.r1).contains(t.getBounds(Tmp.r2));
+	static Boolf<Tile> navyFormat = t -> t.floor().isLiquid && !t.cblock().solid && !t.floor().solid && !t.overlay().solid && !t.block().solidifes;
+	static Boolf<Tile> groundFormat = t -> !t.floor().isDeep() && !t.cblock().solid && !t.floor().solid && !t.overlay().solid && !t.block().solidifes;
 
 	static final CollectionObjectMap<Class<? extends Entityc>, Field> addedFieldMap = new CollectionObjectMap<>(Class.class, Field.class);
 	static final CollectionObjectMap<Class<? extends Building>, Field> soundFieldMap = new CollectionObjectMap<>(Class.class, Field.class);
@@ -443,11 +439,11 @@ public final class Entitys2 {
 
 	public static Boolf<Tile> ableToSpawn(UnitType type) {
 		if (type.flying) {
-			return formatFlying;
+			return flyingFormat;
 		} else if (WaterMovec.class.isAssignableFrom(type.constructor.get().getClass())) {
-			return formatNavy;
+			return navyFormat;
 		} else {
-			return formatGround;
+			return groundFormat;
 		}
 	}
 

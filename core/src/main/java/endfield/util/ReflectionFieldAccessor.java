@@ -190,9 +190,4 @@ public class ReflectionFieldAccessor extends AbstractFieldAccessor {
 			throw new RuntimeException(e);
 		}
 	}
-
-	@Override
-	public boolean equals(Object obj) {
-		return obj == this || obj instanceof ReflectionFieldAccessor other && other.getField().equals(field);
-	}
 }

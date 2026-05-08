@@ -21,7 +21,7 @@ import static endfield.util.Constant.PRIME2;
 import static endfield.util.Constant.PRIME3;
 
 public class ShortMap<V> implements Iterable<ShortHolder<V>>, Eachable<ShortHolder<V>>, Cloneable {
-	public final Class<?> valueComponentType;
+	public final Class<V> valueComponentType;
 
 	public int size;
 
@@ -107,7 +107,7 @@ public class ShortMap<V> implements Iterable<ShortHolder<V>>, Eachable<ShortHold
 		stashCapacity = Math.max(3, (int) Math.ceil(Math.log(capacity)) * 2);
 		pushIterations = Mathm.clamp(capacity, 8, (int) Math.sqrt(capacity) / 8);
 
-		valueComponentType = keyType;
+		valueComponentType = (Class<V>) keyType;
 
 		keyTable = new short[capacity + stashCapacity];
 		valueTable = (V[]) Array.newInstance(keyType, keyTable.length);

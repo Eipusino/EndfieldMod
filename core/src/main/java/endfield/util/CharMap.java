@@ -32,7 +32,7 @@ import static endfield.util.Constant.PRIME3;
 public class CharMap<V> implements Iterable<CharHolder<V>>, Eachable<CharHolder<V>>, Cloneable {
 	public int size;
 
-	public final Class<?> valueComponentType;
+	public final Class<V> valueComponentType;
 
 	protected char[] keyTable;
 	protected V[] valueTable;
@@ -99,7 +99,7 @@ public class CharMap<V> implements Iterable<CharHolder<V>>, Eachable<CharHolder<
 		stashCapacity = Math.max(3, (int) Math.ceil(Math.log(capacity)) * 2);
 		pushIterations = Mathm.clamp(capacity, 8, (int) Math.sqrt(capacity) / 8);
 
-		valueComponentType = valueType;
+		valueComponentType = (Class<V>) valueType;
 
 		keyTable = new char[capacity + stashCapacity];
 		valueTable = (V[]) Array.newInstance(valueComponentType, keyTable.length);

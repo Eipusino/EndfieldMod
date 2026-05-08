@@ -30,7 +30,7 @@ import static endfield.util.Constant.PRIME3;
 public class ObjectIntMap2<K> implements Iterable<ObjectIntHolder<K>>, Eachable<ObjectIntHolder<K>>, Cloneable {
 	public int size;
 
-	public final Class<?> keyComponentType;
+	public final Class<K> keyComponentType;
 
 	protected K[] keyTable;
 	protected int[] valueTable;
@@ -82,7 +82,7 @@ public class ObjectIntMap2<K> implements Iterable<ObjectIntHolder<K>>, Eachable<
 		stashCapacity = Math.max(3, (int) Math.ceil(Math.log(capacity)) * 2);
 		pushIterations = Mathm.clamp(capacity, 8, (int) Math.sqrt(capacity) / 8);
 
-		keyComponentType = keyType;
+		keyComponentType = (Class<K>) keyType;
 
 		keyTable = (K[]) Array.newInstance(keyType, capacity + stashCapacity);
 		valueTable = new int[keyTable.length];

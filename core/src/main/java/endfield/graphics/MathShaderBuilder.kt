@@ -7,14 +7,14 @@ abstract class MathShaderBuilder {
 
 	private val uniforms = mutableListOf<Uniform>()
 	private val namedFunctions = mutableListOf<NamedFunction>()
-	private lateinit var function: Expression
-	private lateinit var gradient: Expression
+	private lateinit var function: GLExpression
+	private lateinit var gradient: GLExpression
 
 	fun makeUniform(name: String): Uniform = Uniform(name).also { uniforms.add(it) }
 	fun addNamedFunc(function: NamedFunction) = also { namedFunctions.add(function) }
 
-	fun setFunction(function: Expression) = also { it.function = function }
-	fun setGradient(function: Expression) = also { it.gradient = function }
+	fun setFunction(function: GLExpression) = also { it.function = function }
+	fun setGradient(function: GLExpression) = also { it.gradient = function }
 
 	fun build(): Shader {
 		val varBuilder = StringBuilder()
@@ -58,16 +58,16 @@ varying vec4 v_texCoords;
 
 	open class NamedFunction(
 		name: String,
-		val expression: Expression,
+		val expression: GLExpression,
 		val type: String = predictType(expression),
-		vararg val args: Variable,
-	) : Variable(name) {
+		vararg val args: GLVariable,
+	) : GLVariable(name) {
 		companion object {
-			private fun predictType(expression: Expression): String = when (expression) {
-				is UnaryMinus -> predictType(expression.exp)
-				is Plus -> predictType(expression.expLeft)
-				is Minus -> predictType(expression.expLeft)
-				is Times -> {
+			private fun predictType(expression: GLExpression): String = when (expression) {
+				is GLUnaryMinus -> predictType(expression.exp)
+				is GLPlus -> predictType(expression.expLeft)
+				is GLMinus -> predictType(expression.expLeft)
+				is GLTimes -> {
 					val l = predictType(expression.expLeft)
 					val r = predictType(expression.expRight)
 
@@ -77,7 +77,7 @@ varying vec4 v_texCoords;
 					else throw IllegalArgumentException("Cannot determine type of expression: $expression")
 				}
 
-				is Division -> {
+				is GLDivision -> {
 					val l = predictType(expression.expLeft)
 					val r = predictType(expression.expRight)
 
@@ -86,9 +86,9 @@ varying vec4 v_texCoords;
 					else throw IllegalArgumentException("Cannot determine type of expression: $expression")
 				}
 
-				is Vec2 -> "vec2"
-				is Vec3 -> "vec3"
-				is Vec4 -> "vec4"
+				is GLVec2 -> "vec2"
+				is GLVec3 -> "vec3"
+				is GLVec4 -> "vec4"
 				else -> "float"
 			}
 		}
@@ -99,8 +99,8 @@ varying vec4 v_texCoords;
 			NamedFunction(name + "_diff_" + it.name, f, type, *args)
 		}
 
-		override fun diff(variable: Variable): Expression {
-			return if (args.any { it.name == variable.name }) Variable(name + "_diff_" + variable.name)
+		override fun diff(variable: GLVariable): GLExpression {
+			return if (args.any { it.name == variable.name }) GLVariable(name + "_diff_" + variable.name)
 			else constant(0.0)
 		}
 
@@ -109,7 +109,7 @@ varying vec4 v_texCoords;
 
 	class Uniform(
 		name: String,
-	) : Variable(name) {
+	) : GLVariable(name) {
 		lateinit var shader: Shader
 
 		fun set(int: Int) {

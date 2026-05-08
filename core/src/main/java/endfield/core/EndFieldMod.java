@@ -120,24 +120,23 @@ public final class EndFieldMod extends Mod {
 			if (Vars.headless || Vars2.isPlugin || Core.settings.getBool("closed-dialog")) return;
 
 			FLabel label = new FLabel(Core.bundle.format("text.author", AUTHOR));
-			BaseDialog dialog = new BaseDialog(Core.bundle.get("text.name")) {{
-				buttons.button(Core.bundle.get("close"), this::hide).size(210f, 64f);
-				buttons.button(Core.bundle.get("text.link-github"), () -> {
-					if (!Core.app.openURI(LINK_GIT_HUB)) {
-						Vars.ui.showErrorMessage("@linkfail");
-						Core.app.setClipboardText(LINK_GIT_HUB);
-					}
-				}).size(210f, 64f);
-				cont.pane(t -> {
-					t.image(Core.atlas.find(MOD_NAME + "-cover")).left().size(600f, 413f).pad(3f).row();
-					t.add(Core.bundle.get("text.version")).left().growX().wrap().pad(4f).labelAlign(Align.left).row();
-					t.add(label).left().row();
-					t.add(Core.bundle.get("text.type")).left().growX().wrap().pad(4f).labelAlign(Align.left).row();
-					t.add(Strings2.randomString(10, 20)).left().growX().wrap().pad(4f).labelAlign(Align.left).row();
-					t.add(Strings2.randomString(100, 200)).left().growX().wrap().width(550f).maxWidth(600f).pad(4f).labelAlign(Align.left).row();
-					t.add(Core.bundle.get("text.other-contributor")).left().growX().wrap().width(550f).maxWidth(600f).pad(4f).labelAlign(Align.left).row();
-				}).grow().center().maxWidth(600f);
-			}};
+			BaseDialog dialog = new BaseDialog(Core.bundle.get("text.name"));
+			dialog.buttons.button(Core.bundle.get("close"), dialog::hide).size(210f, 64f);
+			dialog.buttons.button(Core.bundle.get("text.link-github"), () -> {
+				if (!Core.app.openURI(LINK_GIT_HUB)) {
+					Vars.ui.showErrorMessage("@linkfail");
+					Core.app.setClipboardText(LINK_GIT_HUB);
+				}
+			}).size(210f, 64f);
+			dialog.cont.pane(t -> {
+				t.image(Core.atlas.find(MOD_NAME + "-cover")).left().size(600f, 413f).pad(3f).row();
+				t.add(Core.bundle.get("text.version")).left().growX().wrap().pad(4f).labelAlign(Align.left).row();
+				t.add(label).left().row();
+				t.add(Core.bundle.get("text.type")).left().growX().wrap().pad(4f).labelAlign(Align.left).row();
+				t.add(Strings2.randomString(10, 20)).left().growX().wrap().pad(4f).labelAlign(Align.left).row();
+				t.add(Strings2.randomString(100, 200)).left().growX().wrap().width(550f).maxWidth(600f).pad(4f).labelAlign(Align.left).row();
+				t.add(Core.bundle.get("text.other-contributor")).left().growX().wrap().width(550f).maxWidth(600f).pad(4f).labelAlign(Align.left).row();
+			}).grow().center().maxWidth(600f);
 			dialog.show();
 		});
 

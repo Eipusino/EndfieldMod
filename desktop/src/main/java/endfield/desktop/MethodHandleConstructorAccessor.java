@@ -15,7 +15,7 @@ public final class MethodHandleConstructorAccessor<T> extends AbstractConstructo
 		super(cons);
 
 		try {
-			MethodHandle target = lookup.unreflectConstructor(cons);
+			MethodHandle target = lookup.unreflectConstructor(cons).asFixedArity();
 
 			int paramCount = target.type().parameterCount();
 			MethodHandle spread = target.asSpreader(Object[].class, paramCount);
@@ -35,10 +35,5 @@ public final class MethodHandleConstructorAccessor<T> extends AbstractConstructo
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		return obj == this || obj instanceof MethodHandleConstructorAccessor<?> other && other.constructor.equals(constructor);
 	}
 }

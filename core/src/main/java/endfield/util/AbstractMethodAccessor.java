@@ -19,7 +19,7 @@ public abstract class AbstractMethodAccessor implements MethodAccessor {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj == this || obj instanceof AbstractMethodAccessor other && other.method.equals(method);
+		return obj == this || obj.getClass() == getClass() && ((MethodAccessor) obj).getMethod().equals(method);
 	}
 
 	@Override
@@ -27,7 +27,8 @@ public abstract class AbstractMethodAccessor implements MethodAccessor {
 		int hc = hash;
 
 		if (hc == 0) {
-			hc = hash = method.getDeclaringClass().getName().hashCode() ^
+			hc = hash = getClass().getName().hashCode() ^
+					method.getDeclaringClass().getName().hashCode() ^
 					method.getName().hashCode() ^
 					Arrays.hashCode(method.getParameterTypes());
 		}

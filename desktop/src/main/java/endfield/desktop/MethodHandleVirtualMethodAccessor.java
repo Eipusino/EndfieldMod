@@ -15,7 +15,7 @@ public final class MethodHandleVirtualMethodAccessor extends AbstractMethodAcces
 		super(met);
 
 		try {
-			MethodHandle target = lookup.unreflect(met);
+			MethodHandle target = lookup.unreflect(met).asFixedArity();
 
 			int paramCount = target.type().parameterCount();
 
@@ -41,10 +41,5 @@ public final class MethodHandleVirtualMethodAccessor extends AbstractMethodAcces
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		return obj == this || obj instanceof MethodHandleVirtualMethodAccessor other && other.method.equals(method);
 	}
 }

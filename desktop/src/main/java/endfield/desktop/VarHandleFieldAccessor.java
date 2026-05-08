@@ -134,11 +134,6 @@ public sealed class VarHandleFieldAccessor extends AbstractFieldAccessor {
 	public void setDouble(Object object, double value) {
 		handle.set(object, value);
 	}
-
-	@Override
-	public boolean equals(Object obj) {
-		return obj == this || obj instanceof VarHandleFieldAccessor other && other.getField().equals(field);
-	}
 }
 
 final class VarHandleQualifiedFieldAccessor extends VarHandleFieldAccessor {

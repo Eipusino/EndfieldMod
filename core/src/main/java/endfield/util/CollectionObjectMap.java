@@ -32,8 +32,8 @@ import static endfield.util.Constant.PRIME3;
 public class CollectionObjectMap<K, V> extends AbstractMap<K, V> implements Iterable<ObjectHolder<K, V>>, Eachable<ObjectHolder<K, V>>, Cloneable {
 	public int size;
 
-	public final Class<?> keyComponentType;
-	public final Class<?> valueComponentType;
+	public final Class<K> keyComponentType;
+	public final Class<V> valueComponentType;
 
 	protected K[] keyTable;
 	protected V[] valueTable;
@@ -97,8 +97,8 @@ public class CollectionObjectMap<K, V> extends AbstractMap<K, V> implements Iter
 		stashCapacity = Math.max(3, (int) Math.ceil(Math.log(capacity)) * 2);
 		pushIterations = Mathm.clamp(capacity, 8, (int) Math.sqrt(capacity) / 8);
 
-		keyComponentType = keyType;
-		valueComponentType = valueType;
+		keyComponentType = (Class<K>) keyType;
+		valueComponentType = (Class<V>) valueType;
 
 		keyTable = (K[]) Array.newInstance(keyType, capacity + stashCapacity);
 		valueTable = (V[]) Array.newInstance(valueType, keyTable.length);

@@ -26,8 +26,8 @@ import java.util.Set;
  * @author Eipusino
  */
 public class CollectionArrayMap<K, V> extends AbstractMap<K, V> implements Iterable<ObjectHolder<K, V>>, Eachable<ObjectHolder<K, V>>, Cloneable {
-	public final Class<?> keyComponentType;
-	public final Class<?> valueComponentType;
+	public final Class<K> keyComponentType;
+	public final Class<V> valueComponentType;
 
 	public K[] keys;
 	public V[] values;
@@ -59,8 +59,8 @@ public class CollectionArrayMap<K, V> extends AbstractMap<K, V> implements Itera
 	public CollectionArrayMap(boolean ordered, int capacity, Class<?> keyType, Class<?> valueType) {
 		this.ordered = ordered;
 
-		keyComponentType = keyType;
-		valueComponentType = valueType;
+		keyComponentType = (Class<K>) keyType;
+		valueComponentType = (Class<V>) valueType;
 
 		keys = (K[]) Array.newInstance(keyType, capacity);
 		values = (V[]) Array.newInstance(valueType, capacity);

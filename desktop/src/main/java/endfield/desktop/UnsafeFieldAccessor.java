@@ -191,11 +191,6 @@ public sealed class UnsafeFieldAccessor extends AbstractFieldAccessor {
 	public void setDouble(Object object, double value) {
 		throw new IllegalArgumentException(getSetMessage(field, "double", String.valueOf(value)));
 	}
-
-	@Override
-	public boolean equals(Object obj) {
-		return obj == this || obj instanceof UnsafeFieldAccessor other && other.getField().equals(field);
-	}
 }
 
 sealed class UnsafeObjectFieldAccessor extends UnsafeFieldAccessor {

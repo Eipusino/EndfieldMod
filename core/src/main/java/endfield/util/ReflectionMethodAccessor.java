@@ -19,9 +19,4 @@ public class ReflectionMethodAccessor extends AbstractMethodAccessor {
 			throw new RuntimeException(e);
 		}
 	}
-
-	@Override
-	public boolean equals(Object obj) {
-		return obj == this || obj instanceof ReflectionMethodAccessor other && other.method.equals(method);
-	}
 }

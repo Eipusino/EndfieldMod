@@ -26,7 +26,7 @@ public class ReflectionFieldAccessHelper implements FieldAccessHelper {
 			}
 		} else {
 			Class<?> curr = clazz;
-			while (curr != Object.class) {
+			while (curr != null) {
 				field = findField(curr, name);
 				if (field != null) {
 					map.put(name, field);

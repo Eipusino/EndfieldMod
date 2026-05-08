@@ -19,7 +19,7 @@ public abstract class AbstractConstructorAccessor<T> implements ConstructorAcces
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj == this || obj instanceof AbstractConstructorAccessor<?> other && other.constructor.equals(constructor);
+		return obj == this || obj.getClass() == getClass() && ((ConstructorAccessor<?>) obj).getConstructor().equals(constructor);
 	}
 
 	@Override
@@ -27,7 +27,8 @@ public abstract class AbstractConstructorAccessor<T> implements ConstructorAcces
 		int hc = hash;
 
 		if (hc == 0) {
-			hc = hash = constructor.getDeclaringClass().getName().hashCode() ^
+			hc = hash = getClass().getName().hashCode() ^
+					constructor.getDeclaringClass().getName().hashCode() ^
 					Arrays.hashCode(constructor.getParameterTypes());
 		}
 

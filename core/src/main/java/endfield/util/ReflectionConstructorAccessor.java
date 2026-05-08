@@ -18,9 +18,4 @@ public class ReflectionConstructorAccessor<T> extends AbstractConstructorAccesso
 			throw new RuntimeException(e);
 		}
 	}
-
-	@Override
-	public boolean equals(Object obj) {
-		return obj == this || obj instanceof ReflectionConstructorAccessor<?> other && other.constructor.equals(constructor);
-	}
 }

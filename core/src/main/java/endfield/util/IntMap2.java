@@ -30,7 +30,7 @@ import static endfield.util.Constant.PRIME3;
  * @author Nathan Sweet
  */
 public class IntMap2<V> implements Iterable<IntHolder<V>>, Eachable<IntHolder<V>>, Cloneable {
-	public final Class<?> valueComponentType;
+	public final Class<V> valueComponentType;
 
 	public int size;
 
@@ -116,7 +116,7 @@ public class IntMap2<V> implements Iterable<IntHolder<V>>, Eachable<IntHolder<V>
 		stashCapacity = Math.max(3, (int) Math.ceil(Math.log(capacity)) * 2);
 		pushIterations = Mathm.clamp(capacity, 8, (int) Math.sqrt(capacity) / 8);
 
-		valueComponentType = keyType;
+		valueComponentType = (Class<V>) keyType;
 
 		keyTable = new int[capacity + stashCapacity];
 		valueTable = (V[]) Array.newInstance(keyType, keyTable.length);
